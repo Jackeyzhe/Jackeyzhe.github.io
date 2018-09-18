@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="瞎扯," />
+  <meta name="keywords" content="Redis," />
 
 
 
@@ -79,22 +79,20 @@
 
 
 
-<meta name="description" content="1998年的9月4日，拉里·佩奇和谢尔盖·布林将Google带到这个世界。就在前几天，Google刚刚过了20岁生日。经过20年的发展，Google早已不是当初的小作坊了，而是发展成为被大家公认的全球最大的搜索引擎公司。20年间，Google不仅在搜索技术上表现颇为出色，在大数据、云计算、AI等各个方面都有着巨大的贡献。">
-<meta name="keywords" content="瞎扯">
+<meta name="description" content="Redis是一款完全免费的，高性能的key-value数据库，目前被大多数公司用来做缓存。Redis作为一个内存数据库，它的读写速度非常快：读速度可以达到110000次/s，写的速度是81000次/s 。相比于其他key-value数据库，Redis的另一大特性就是支持多种数据类型。今天我们来一起聊一聊Redis的5种基础数据类型。">
+<meta name="keywords" content="Redis">
 <meta property="og:type" content="article">
-<meta property="og:title" content="实用的工具，有趣的人">
-<meta property="og:url" content="https://jackeyzhe.github.io/2018/09/07/实用的工具，有趣的人/index.html">
+<meta property="og:title" content="Redis基础数据结构">
+<meta property="og:url" content="https://jackeyzhe.github.io/2018/09/17/Redis基础数据结构/index.html">
 <meta property="og:site_name" content="Jackeyzhe">
-<meta property="og:description" content="1998年的9月4日，拉里·佩奇和谢尔盖·布林将Google带到这个世界。就在前几天，Google刚刚过了20岁生日。经过20年的发展，Google早已不是当初的小作坊了，而是发展成为被大家公认的全球最大的搜索引擎公司。20年间，Google不仅在搜索技术上表现颇为出色，在大数据、云计算、AI等各个方面都有着巨大的贡献。">
+<meta property="og:description" content="Redis是一款完全免费的，高性能的key-value数据库，目前被大多数公司用来做缓存。Redis作为一个内存数据库，它的读写速度非常快：读速度可以达到110000次/s，写的速度是81000次/s 。相比于其他key-value数据库，Redis的另一大特性就是支持多种数据类型。今天我们来一起聊一聊Redis的5种基础数据类型。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1536333511/Blog/datasetSearch/dataset.png">
-<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1536333521/Blog/datasetSearch/linus.png">
-<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1536333529/Blog/datasetSearch/rants.png">
-<meta property="og:updated_time" content="2018-09-07T16:12:36.184Z">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1537284281/Blog/Redis/Redis_windows_path.png">
+<meta property="og:updated_time" content="2018-09-18T16:29:21.981Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="实用的工具，有趣的人">
-<meta name="twitter:description" content="1998年的9月4日，拉里·佩奇和谢尔盖·布林将Google带到这个世界。就在前几天，Google刚刚过了20岁生日。经过20年的发展，Google早已不是当初的小作坊了，而是发展成为被大家公认的全球最大的搜索引擎公司。20年间，Google不仅在搜索技术上表现颇为出色，在大数据、云计算、AI等各个方面都有着巨大的贡献。">
-<meta name="twitter:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1536333511/Blog/datasetSearch/dataset.png">
+<meta name="twitter:title" content="Redis基础数据结构">
+<meta name="twitter:description" content="Redis是一款完全免费的，高性能的key-value数据库，目前被大多数公司用来做缓存。Redis作为一个内存数据库，它的读写速度非常快：读速度可以达到110000次/s，写的速度是81000次/s 。相比于其他key-value数据库，Redis的另一大特性就是支持多种数据类型。今天我们来一起聊一聊Redis的5种基础数据类型。">
+<meta name="twitter:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1537284281/Blog/Redis/Redis_windows_path.png">
 
 
 
@@ -124,13 +122,13 @@
 
 
 
-  <link rel="canonical" href="https://jackeyzhe.github.io/2018/09/07/实用的工具，有趣的人/"/>
+  <link rel="canonical" href="https://jackeyzhe.github.io/2018/09/17/Redis基础数据结构/"/>
 
 
 
 
 
-  <title>实用的工具，有趣的人 | Jackeyzhe</title>
+  <title>Redis基础数据结构 | Jackeyzhe</title>
   
 
 
@@ -292,7 +290,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2018/09/07/实用的工具，有趣的人/">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2018/09/17/Redis基础数据结构/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Jackey Wang">
@@ -309,7 +307,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">实用的工具，有趣的人</h1>
+          <h1 class="post-title" itemprop="name headline">Redis基础数据结构</h1>
         
 
         <div class="post-meta">
@@ -321,8 +319,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-07T23:08:38+08:00">
-                2018-09-07
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-17T23:04:19+08:00">
+                2018-09-17
               </time>
             
 
@@ -364,23 +362,31 @@
       
 
       
-        <p>1998年的9月4日，拉里·佩奇和谢尔盖·布林将Google带到这个世界。就在前几天，Google刚刚过了20岁生日。经过20年的发展，Google早已不是当初的小作坊了，而是发展成为被大家公认的全球最大的搜索引擎公司。20年间，Google不仅在搜索技术上表现颇为出色，在大数据、云计算、AI等各个方面都有着巨大的贡献。<a id="more"></a></p>
-<p>我们都知道，如今世界已经从互联网时代走向大数据时代。数据几乎已经成为各个互联网公司的命脉，数据分析师这一职位也应运而生（虽然我本人不是数据分析师），但是我对数据分析很感兴趣。刚刚过完20岁生日的Google这次可以算是给数据分析师和数据分析爱好者们送上了一份大礼（果然是大公司，自己过生日还给我们送礼）——一款叫做Google Dataset Search的搜索引擎。它是一款专门用来搜索数据集的搜索引擎，搜索结果中包括了数据集的创建者，发布时间，数据集的收集方式，数据集的使用条款以及对数据集的描述。</p>
-<p>还记得我当初自学大数据知识的时候，每每到了想要亲自动手试一试的时候，总是为找不到合适的数据集而苦恼。最后，我决定自学Python爬虫，想要什么数据都自己动手爬。然而，这种工作还是挺繁琐的，也许对我这种自学的爱好者无所谓，反而还多掌握一门技术。但对于专门从事数据科学工作的人来说可能会觉得很痛苦。</p>
-<p>随着Google Dataset Search的诞生，这种“巧妇难为无米之炊”的尴尬终于一去不复返了。现在你想要什么数据集都可以直接搜索，简直不要太方便。</p>
-<p>这个网站的地址是：</p>
-<p><a href="https://toolbox.google.com/datasetsearch" target="_blank" rel="noopener">https://toolbox.google.com/datasetsearch</a></p>
-<p>可以访问的同学可以上去体验一下，目前还是Beta版，没办法访问的同学，看看这个界面先过过瘾吧。</p>
-<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1536333511/Blog/datasetSearch/dataset.png" alt="datasetSearch"></p>
-<p>以上就是今天要介绍的实用的工具。下面再来介绍一个有趣的人，同样是和DataSet Search有关。</p>
-<p>要介绍的这个人呢，作为程序员一定很熟悉，就是Linux之父Linus Torvalds。怀着对大神的崇敬之情，我今天用Dataset Search搜索了一下Linus。结果果然没有令我失望，先来展示一下搜素结果。</p>
-<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1536333521/Blog/datasetSearch/linus.png" alt="linus"></p>
-<p>第一条是Linus Torvalds Rants，可以理解为Linus的粗话（这是什么鬼？黑人问号脸）。</p>
-<p>我们注意到数据集的描述为Linus2012年到2015年邮件的粗话合集。到这里有些怀疑这个数据集的真实性，不过对大神崇敬之情驱动着我点了进去，看看大神是怎么骂人的，</p>
-<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1536333529/Blog/datasetSearch/rants.png" alt="rants"></p>
-<p>这是数据集的部分截图，链接也都是可以直接访问的。</p>
-<p>总之，Linus大神说话还是挺文明的，这种做法也非常有Linus的风格。（这里顺便提一下，Linus曾经在Linux内核代码中记录了女儿的生日）怎么样，是不是今天才发现原来Linus是如此有趣的人？</p>
-<p>最后，国内某公司CEO说要“再”次击败Google，我觉得他们首先还是要多做些像这样有意义的事吧。</p>
+        <p>Redis是一款完全免费的，高性能的key-value数据库，目前被大多数公司用来做缓存。Redis作为一个内存数据库，它的读写速度非常快：读速度可以达到110000次/s，写的速度是81000次/s 。相比于其他key-value数据库，Redis的另一大特性就是支持多种数据类型。今天我们来一起聊一聊Redis的5种基础数据类型。<a id="more"></a></p>
+<h4 id="安装Redis"><a href="#安装Redis" class="headerlink" title="安装Redis"></a>安装Redis</h4><p>在学习之前，我们要先自己安装一个Redis环境用来自己动手操作，感受一下。</p>
+<h5 id="Windows"><a href="#Windows" class="headerlink" title="Windows"></a>Windows</h5><p><strong>下载地址：</strong><a href="https://github.com/MSOpenTech/redis/releases" target="_blank" rel="noopener">https://github.com/MSOpenTech/redis/releases</a></p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1537284281/Blog/Redis/Redis_windows_path.png" alt="Redis_window_pack"></p>
+<p>Windows用户可以在这个地址下载相应版本的压缩包，在C盘进行解压，解压后，将目录重命名为redis。在cmd中进入该目录，然后运行redis-server.exe redis.windows.conf。另外，也可以把目录加到环境变量中，这样就不需要再cd进入这个目录了。</p>
+<p>Redis的server安装好后，再打开一个新的cmd， 运行redis-cli.exe -h 127.0.0.1 -p 6379，就可以开始进行操作了。其中-h参数表示host，-p参数表示port，可以省略，默认是6379。</p>
+<h5 id="Linux"><a href="#Linux" class="headerlink" title="Linux"></a>Linux</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ wget http://download.redis.io/releases/redis-4.0.11.tar.gz</span><br><span class="line">$ tar xzf redis-4.0.11.tar.gz</span><br><span class="line">$ <span class="built_in">cd</span> redis-4.0.11</span><br><span class="line">$ make</span><br></pre></td></tr></table></figure>
+<p>执行以上命令下载并安装Redis，接着进入src目录，运行redis-server。再执行 <figure class="highlight plain"><figcaption><span>./redis-cli ```命令，就可以开始操作了。</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">##### Ubuntu</span><br><span class="line"></span><br><span class="line">Ubuntu可以直接使用apt-get安装</span><br><span class="line"></span><br><span class="line">``` bash</span><br><span class="line">$sudo apt-get update</span><br><span class="line">$sudo apt-get install redis-server</span><br></pre></td></tr></table></figure></p>
+<p>启动方法这里不再赘述。</p>
+<h5 id="Mac"><a href="#Mac" class="headerlink" title="Mac"></a>Mac</h5><p>Mac用户可以使用homebrew安装Redis</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew install redis</span><br></pre></td></tr></table></figure>
+<h5 id="其他方法"><a href="#其他方法" class="headerlink" title="其他方法"></a>其他方法</h5><p>除了上述方法以外，我们还可以从GitHub下载源码，对源码进行编译。URL是<a href="mailto:git@github.com" target="_blank" rel="noopener">git@github.com</a>:antirez/redis.git。也可以从<a href="https://redis.io/download" target="_blank" rel="noopener">官网</a>下载Docker，通过运行Docker来操作。</p>
+<h4 id="基础数据类型"><a href="#基础数据类型" class="headerlink" title="基础数据类型"></a>基础数据类型</h4><p>Redis支持5种基础数据类型，下面我们来一一介绍，由于我本身是Java程序员，因此会将这些数据类型与Java中的数据类型进行类比。当然，你也可以拿自己熟悉的语言来理解。</p>
+<h5 id="String"><a href="#String" class="headerlink" title="String"></a>String</h5><p>String是最基本的，也是最常用的类型。它是二进制安全的，也就是说，我们可以将对象序列化成json字符串作为value值存入Redis。在分配内存时，Redis会为一个字符串分配一些冗余的空间，以避免因字符串的值改变而出现频繁的内存分配操作。当字符串长度小于1M时，每次扩容都会加倍现有空间，当长度大于1M时，每次扩容，增加1M，Redis字符串的最大长度是512M。</p>
+<h5 id="Hash"><a href="#Hash" class="headerlink" title="Hash"></a>Hash</h5><p>Hash是键值对集合，相当于Java中的HashMap，实际结构也和HashMap一样，是数组+链表的结构。所不同的是扩容的方式不同，HashMap是进行一次rehash，而Redis为了不阻塞服务，会创建一个新的数组，在查询时会同时查询两个Hash，然后在逐渐将旧的Hash内容转移到新的中去。一个Hash最大可以存储2<sup>32</sup>-1个键值对。</p>
+<h5 id="List"><a href="#List" class="headerlink" title="List"></a>List</h5><p>List相当于Java中的LinkedList，它的插入和删除操作的时间复杂度为O(1)，而查询操作的时间复杂度为O(n)。我们可以利用List的rpush、rpop、lpush和lpop命令来构建队列或者栈。列表最多可以存储2<sup>32</sup>-1个元素。</p>
+<h5 id="Set"><a href="#Set" class="headerlink" title="Set"></a>Set</h5><p>Set是String类型的无序集合，并且元素唯一，相当于Java中的HashSet，它的插入、删除、查询操作的时间复杂度都是O(1)。其最大元素数也是2<sup>32</sup>-1个。</p>
+<h5 id="zset"><a href="#zset" class="headerlink" title="zset"></a>zset</h5><p>zset可以看做是Java中SortedSet和HashMap的结合，一方面它不允许元素重复，另一方面，它通过score为每个元素进行排序。</p>
+<h4 id="两个规则"><a href="#两个规则" class="headerlink" title="两个规则"></a>两个规则</h4><p>对于以上5种数据结构，有两个通用的规则：</p>
+<ol>
+<li>如果不存在，就先创建，再进行操作</li>
+<li>如果元素为空，就会释放内存</li>
+</ol>
+<h4 id="过期时间"><a href="#过期时间" class="headerlink" title="过期时间"></a>过期时间</h4><p>我们可以对上面所有的类型设置过期时间，如果时间到了，Redis 会自动删除相应的对象。</p>
+<h4 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h4><p>本文简单介绍了Redis的安装方法和Redis的5中基本数据结构。主要目的是帮助没有基础的同学快速入门，对于已经了解Redis的同学也是知识的巩固，想要了解更多关于Redis的知识，可以持续关注我，后面还有更精彩的内容分享给大家。</p>
 
       
     </div>
@@ -450,7 +456,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/瞎扯/" rel="tag"><i class="fa fa-tag"></i> 瞎扯</a>
+            <a href="/tags/Redis/" rel="tag"><i class="fa fa-tag"></i> Redis</a>
           
         </div>
       
@@ -463,8 +469,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/09/04/代码洁癖系列（七）：单元测试的地位/" rel="next" title="代码洁癖系列（七）：单元测试的地位">
-                <i class="fa fa-chevron-left"></i> 代码洁癖系列（七）：单元测试的地位
+              <a href="/2018/09/12/送给你的算法敲门砖/" rel="next" title="送给你的算法敲门砖">
+                <i class="fa fa-chevron-left"></i> 送给你的算法敲门砖
               </a>
             
           </div>
@@ -472,10 +478,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/09/08/代码洁癖系列（八）：迭代的原则/" rel="prev" title="代码洁癖系列（八）：迭代的原则">
-                代码洁癖系列（八）：迭代的原则 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -533,8 +535,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -613,6 +624,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#安装Redis"><span class="nav-number">1.</span> <span class="nav-text">安装Redis</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Windows"><span class="nav-number">1.1.</span> <span class="nav-text">Windows</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Linux"><span class="nav-number">1.2.</span> <span class="nav-text">Linux</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Mac"><span class="nav-number">1.3.</span> <span class="nav-text">Mac</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#其他方法"><span class="nav-number">1.4.</span> <span class="nav-text">其他方法</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#基础数据类型"><span class="nav-number">2.</span> <span class="nav-text">基础数据类型</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#String"><span class="nav-number">2.1.</span> <span class="nav-text">String</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Hash"><span class="nav-number">2.2.</span> <span class="nav-text">Hash</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#List"><span class="nav-number">2.3.</span> <span class="nav-text">List</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Set"><span class="nav-number">2.4.</span> <span class="nav-text">Set</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#zset"><span class="nav-number">2.5.</span> <span class="nav-text">zset</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#两个规则"><span class="nav-number">3.</span> <span class="nav-text">两个规则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#过期时间"><span class="nav-number">4.</span> <span class="nav-text">过期时间</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#小结"><span class="nav-number">5.</span> <span class="nav-text">小结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
