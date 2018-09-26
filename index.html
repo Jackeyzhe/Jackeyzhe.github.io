@@ -355,114 +355,14 @@
 
       
         
-          
-            <p>介绍完Redis连接相关命令后，再来介绍一下与Key相关的命令，Redis作为一个key-value数据库，对Key进行操作是无法避免的。</p>
-<h4 id="DEL"><a href="#DEL" class="headerlink" title="DEL"></a>DEL</h4><p>最早可用版本1.0.0</p>
-<p>删除指定的键值对，如果指定的key不存在，则忽略。DEL命令的时间复杂度是O(N)，对于除字符串外的其他数据类型，命令的时间复杂度为O(M)，M是值的元素的个数。所以，在生产环境尽量避免一次性删除过多复杂数据类型的操作。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; SET key1 <span class="string">"jackey"</span></span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; SET key2 <span class="string">"zhe"</span></span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; DEL key1 key2 key3</span><br><span class="line">(<span class="built_in">integer</span>) 2</span><br></pre></td></tr></table></figure>
-<h4 id="DUMP"><a href="#DUMP" class="headerlink" title="DUMP"></a>DUMP</h4><p>最早可用版本2.6.0</p>
-<p>使用一种Redis的格式序列化指定键存储的值。可用使用RESTORE命令将这个值反序列化。</p>
-<p>这种序列化格式有以下3个特点：</p>
-<ul>
-<li>它包含有64位的校验和，用于错误检查，RESTORE命令在反序列化之前会先检查校验和</li>
-<li>值的编码格式和RDB文件的编码格式相同</li>
-<li>RDB的版本会被序列化到值中，因此，不同版本的Redis可能会因为不兼容RDB版本而拒绝反序列化</li>
-</ul>
-<p>序列化的值不包含过期时间的相关信息，可以使用PTTL命令获取当前值的存活时间。如果值不存在则会返回nil</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; SET key1 <span class="string">"jackey"</span></span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; DUMP key1</span><br><span class="line"><span class="string">"\x00\x06jackey\b\x00\xec\x89'G'X\xfc:"</span></span><br><span class="line">127.0.0.1:6379&gt; DUMP not-exist-key</span><br><span class="line">(nil)</span><br></pre></td></tr></table></figure>
-<p>DUMP时间复杂度分为两部分：访问key值的时间复杂度为O(1)，而序列化值的时间复杂度为O(N*M)，N是组成值的元素的数量，M是元素的平均大小。如果序列化比较短的字符串，则该命令的时间复杂度可以看做O(1)。</p>
-<h4 id="EXISTS"><a href="#EXISTS" class="headerlink" title="EXISTS"></a>EXISTS</h4><p>最早可用版本1.0.0</p>
-<p>用于判断key是否存在。3.0.3版本以后支持多参数，即可以一次性判断多个key，返回值是存在的key的数量。对于判断单个key是否存在，会返回1或者0，因此，该命令是向后兼容的。</p>
-<p>需要注意的是：如果参数中有重复的存在命令，则返回结果不会去重。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; SET key1 <span class="string">"jackey"</span></span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; SET key2 <span class="string">"zhe"</span></span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; EXISTS key1</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; EXISTS not-exist-key</span><br><span class="line">(<span class="built_in">integer</span>) 0</span><br><span class="line">127.0.0.1:6379&gt; EXISTS key1 key2 not-exist-key</span><br><span class="line">(<span class="built_in">integer</span>) 2</span><br><span class="line">127.0.0.1:6379&gt; EXISTS key1 key1 key1</span><br><span class="line">(<span class="built_in">integer</span>) 3</span><br></pre></td></tr></table></figure>
-<h4 id="EXPIRE"><a href="#EXPIRE" class="headerlink" title="EXPIRE"></a>EXPIRE</h4><p>最早可用版本1.0.0</p>
-<p>为指定的key设置存活时间。存活时间会被DEL，SET，GETSET和所有的STORE命令删除或者覆盖。如果我们只修改key的值而不修改存活时间或者保存到一个新的key中，则原来的key的存活时间保持不变。如果使用RENAME对一个key重命名，那么原有key的存活时间会赋给新的key。</p>
-<p>如果想要清除存活时间，使指定的key成为一个永久的key，则可以使用PERSIST命令，我们稍后会详细介绍这个命令。</p>
-<p>如果使用EXPIRE/PEXPIRE为某个key设置的存活时间为非正数，或者使用EXPIREAT/PEXPIREAT设置了一个过去的时间，则这个key会直接被删除。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; EXPIRE key1 -1</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; EXISTS key1</span><br><span class="line">(<span class="built_in">integer</span>) 0</span><br></pre></td></tr></table></figure>
-<p>对一个已经有存活时间的key再次使用EXPIRE设置存活时间，则将key的存活时间更新，在许多应用中我们都会用到这一点。</p>
-<p>注意：在Redis的2.1.3版本之前，如果修改一个带有存活时间的key的值，则会删除整个key。</p>
-<p>关于时间精度，Redis2.4版本中，一个key过期的一秒内仍可以访问，而到了2.6版本，这一时间已经被精确到了1毫秒。因为从2.6版本开始，存活时间保存的是绝对时间（Unix的时间戳），而这就意味着，你的计算机的时间需要保证可靠，如果你将RDB文件放到另一台机器上加载，当这两台机器的时间差距较大时，你就会发现可能有些key被删除了或者有些key的存活时间被延长了。</p>
-<p>下面我们在来讨论一下Redis究竟是如何使key过期的，Redis的过期策略有两种：一种是被动的，一种是主动的。</p>
-<p>被动过期就是当客户端访问某个key，服务端会去检查这个key的存活时间，判断是否过期。当然，这种过期策略存在一定的问题，如果某个key一直都不访问，就不会被发现它过期了，那么它将永远“苟活”在内存中。所以Redis会定期随机的查看被设置过存活时间的key，看它们是否过期，如果过期了，就会及时清理掉。Redis每秒会做10次下面的操作：</p>
-<ol>
-<li>随机查看20个设置过存活时间的key（从设置存活时间的set中取）</li>
-<li>删除所有过期的key</li>
-<li>如果过期的key超过25%，那么会从第一步开始再执行一次</li>
-</ol>
-<h4 id="EXPIREAT"><a href="#EXPIREAT" class="headerlink" title="EXPIREAT"></a>EXPIREAT</h4><p>最早可用版本1.2.0</p>
-<p>此命令和EXPIRE的作用相同，不同之处是它的参数需要传Unix时间戳（即从1970年1月1日起的毫秒数）。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; GET key2</span><br><span class="line"><span class="string">"zhe"</span></span><br><span class="line">127.0.0.1:6379&gt; EXPIREAT key2 1537733374</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; TTL key2</span><br><span class="line">(<span class="built_in">integer</span>) 12960</span><br></pre></td></tr></table></figure>
-<h4 id="KEYS"><a href="#KEYS" class="headerlink" title="KEYS"></a>KEYS</h4><p>最早可用版本1.0.0</p>
-<p>这个命令会返回匹配到的所有key，时间复杂度为O(N)。在官方文档中说，在入门级的笔记本电脑上，Redis扫描100万条key只需要40毫秒，但是我们仍然要避免在生产环境使用这个命令。特别是千万不要使用KEYS *这样的命令，因为你不知道生产环境存在多少key，这样的命令有可能使你的生产环境的Redis陷入很长一段时间的不可用状态。所以，请马上删除应用层代码中的KEYS命令或者抓紧时间更新自己的简历。</p>
-<p>如果需要查找key，可以使用SCAN命令或者sets命令。</p>
-<p>虽然我们非常不建议使用KEYS命令，但是它的匹配策略还是要介绍一下的：</p>
-<p>？是单个字符的通配符，*是任意个数的通配符，[ae]会匹配到a或e，^e表示不匹配e，a-c表示匹配a或b或c，特殊符号使用\隔开。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; MSET key1hello jackey key2hello zhe age 3</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; KEYS key?hello</span><br><span class="line">1) <span class="string">"key1hello"</span></span><br><span class="line">2) <span class="string">"key2hello"</span></span><br><span class="line">127.0.0.1:6379&gt; KEYS k*</span><br><span class="line">1) <span class="string">"key1hello"</span></span><br><span class="line">2) <span class="string">"key2hello"</span></span><br><span class="line">127.0.0.1:6379&gt; KEYS *age*</span><br><span class="line">1) <span class="string">"age"</span></span><br><span class="line">127.0.0.1:6379&gt; KEYS *</span><br><span class="line">1) <span class="string">"age"</span></span><br><span class="line">2) <span class="string">"key1hello"</span></span><br><span class="line">3) <span class="string">"key2hello"</span></span><br></pre></td></tr></table></figure>
-<h4 id="MIGRATE"><a href="#MIGRATE" class="headerlink" title="MIGRATE"></a>MIGRATE</h4><p>最早可用版本2.6.0</p>
-<p>这个命令用来将源实例的key以原子操作传输到目标实例，然后将源实例的key删除。相当于在源实例执行了DUMP+DEL操作，在目标实例执行了RESTORE操作。这一操作会阻塞进行传输的两个实例，在传输过程中，key总会存在于一个实例中，除非发生超时错误。在3.2版本以后，MIGRATE可以将多个key作为管线一次性传输。</p>
-<p>在执行MIGRATE命令时，必须要设置一个超时时间，如果到了超时时间命令仍未执行完，则会抛出一个IOERR。但返回这个错误时，两个实例的状态可能有两种：要么两个实例都存在指定的key，要么只有源实例存在指定的key。总之，key是不会丢失的。</p>
-<p>从3.0.6版本开始，MIGRATE支持一次传输多个key，为了保证不过载或者出现环形操作，MIGRATE需要使用KEYS参数，而原来指定的key的参数要被设置为空字符串。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MIGRATE 192.168.1.34 6379 <span class="string">""</span> 0 5000 KEYS key1 key2 key3</span><br></pre></td></tr></table></figure>
-<p>这里还有两个选填参数需要介绍：一个是COPY，加上这个参数的话，传输完成后不会删除源实例中的key。另一个是REPLACE，这个参数的作用是替换目标实例已存在的key。这两个参数在3.0版本以后才可以使用。</p>
-<h4 id="MOVE"><a href="#MOVE" class="headerlink" title="MOVE"></a>MOVE</h4><p>最早可用版本1.0.0</p>
-<p>不知道大家还记不记得前文中我们提到过的SELECT命令，SELECT用来切换数据库。使用MOVE命令就是将当前数据库的key移动到指定的数据库中，如果指定库中已经存在这个key或者当前库不存在这个key，那么这个命令什么也不做。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; KEYS *</span><br><span class="line">1) <span class="string">"age"</span></span><br><span class="line">2) <span class="string">"key1hello"</span></span><br><span class="line">3) <span class="string">"key2hello"</span></span><br><span class="line">127.0.0.1:6379&gt; MOVE age 1</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; KEYS *</span><br><span class="line">1) <span class="string">"key1hello"</span></span><br><span class="line">2) <span class="string">"key2hello"</span></span><br><span class="line">127.0.0.1:6379&gt; SELECT 1</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379[1]&gt; KEYS *</span><br><span class="line">1) <span class="string">"age"</span></span><br></pre></td></tr></table></figure>
-<h4 id="OBJECT"><a href="#OBJECT" class="headerlink" title="OBJECT"></a>OBJECT</h4><p>最早可用版本2.2.3</p>
-<p>OBJECT用来查看Redis对象内部的相关信息。这一命令在调试时经常被使用。下面我们来介绍OBJECT命令的具体用法：</p>
-<ul>
-<li>OBJECT REFCOUNT key：返回指定key的值的引用数量</li>
-<li>OBJECT ENCODING key：返回指定key的内部存储使用的编码格式</li>
-<li>OBJECT IDLETIME key：返回指定key的空闲时间（有多长时间没有被读写），目前最小精度为10秒，这一命令经常在Redis淘汰机制中使用（淘汰策略为LRU或noeviction）</li>
-<li>OBJECT FREQ key：返回指定key访问频率的对数，当淘汰策略为LFU时，这一命令会被用到</li>
-<li>OBJECT HELP：返回帮助信息</li>
-</ul>
-<p>对象的编码格式也有很多种：</p>
-<ul>
-<li>Strings会被编码为raw或int</li>
-<li>Lists会被编码为ziplist或linkedlist</li>
-<li>Sets会被编码为intset或hashtable</li>
-<li>Hashs会被编码为ziplist或hashtable</li>
-<li>Sorted Sets会被编码为ziplist或skiplist</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; OBJECT REFCOUNT key1hello</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; OBJECT IDLETIME key2hello</span><br><span class="line">(<span class="built_in">integer</span>) 3637</span><br><span class="line">127.0.0.1:6379&gt; OBJECT ENCODING age</span><br><span class="line"><span class="string">"int"</span></span><br></pre></td></tr></table></figure>
-<h4 id="PERSIST"><a href="#PERSIST" class="headerlink" title="PERSIST"></a>PERSIST</h4><p>最早可用版本2.2.0</p>
-<p>删除指定key的过期时间，使之变成永久的key。</p>
-<h4 id="PEXPIRE"><a href="#PEXPIRE" class="headerlink" title="PEXPIRE"></a>PEXPIRE</h4><p>最早可用版本2.6.0</p>
-<p>PEXPIRE的作用和EXPIRE一样，只不过参数中的时间单位是毫秒。</p>
-<h4 id="PEXPIREAT"><a href="#PEXPIREAT" class="headerlink" title="PEXPIREAT"></a>PEXPIREAT</h4><p>最早可用版本2.6.0</p>
-<p>作用和EXPIREAT相同，参数同样是毫秒。</p>
-<h4 id="PTTL"><a href="#PTTL" class="headerlink" title="PTTL"></a>PTTL</h4><p>最早可用版本2.6.0</p>
-<p>返回指定key的剩余存活时间的毫秒数。2.8以后的版本返回值有些变化，如果key不存在，则返回-2；如果key是永久的，则返回-1。</p>
-<h4 id="RANDOMKEY"><a href="#RANDOMKEY" class="headerlink" title="RANDOMKEY"></a>RANDOMKEY</h4><p>最早可用版本1.0.0</p>
-<p>此命令用于从当前数据库返回一个随机的key。</p>
-<h4 id="RENAME"><a href="#RENAME" class="headerlink" title="RENAME"></a>RENAME</h4><p>最早可用版本1.0.0</p>
-<p>重命名一个key。如果key不存在，则会返回错误。而如果新的key已经存在，则此命令会覆盖原来的key（它其实是执行了一个隐式的DEL命令，因此如果原来的key存储的对象很大的话， 删除操作延时会很高）。在3.2版本以前，如果源key和目标key相同的话，会报错。</p>
-<h4 id="RENAMENX"><a href="#RENAMENX" class="headerlink" title="RENAMENX"></a>RENAMENX</h4><p>如果新的key不存在的话，重命名key，如果存在的话返回0，成功返回1。</p>
-<h4 id="RESTORE"><a href="#RESTORE" class="headerlink" title="RESTORE"></a>RESTORE</h4><p>最早可用版本2.6.0</p>
-<p>用法：RESTORE key ttl serialized-value [REPLACE]</p>
-<p>此命令是将一组数据反序列化，并存到key。如果ttl是0，则key是永久的。在Redis3.0版本以后，如果不使用REPLACE参数并且key已经存在，则会返回一个错误“Target key name is busy”。</p>
-<h4 id="SCAN"><a href="#SCAN" class="headerlink" title="SCAN"></a>SCAN</h4><p>最早可用版本2.8.0</p>
-<p>SCAN命令和SSCAN、HSCAN、ZSCAN命令都用于增量的迭代元素集，它每次返回小部分数据，不会像KEYS那样阻塞Redis。SCAN命令是基于游标的，每次调用后，都会返回一个游标，用于下一次迭代。当游标返回0时，表示迭代结束。</p>
-<p>SCAN每次返回的数量并不固定，也有可能返回数据为空。另外，SCAN命令和KEYS命令一样支持匹配。</p>
-<h4 id="SORT"><a href="#SORT" class="headerlink" title="SORT"></a>SORT</h4><p>最早可用版本1.0.0</p>
-<p>当有N个元素需要排序，并且要返回M个元素时，SORT命令的时间复杂度为O(N+M*log(M))</p>
-<p>此命令用于返回或保存list，set和sorted set的键，默认将数字或者可排序的key进行排序，Redis会将其视为双精度浮点数。</p>
-<p>如果想要对字符串按字典顺序排序，可以使用ALPHA参数。</p>
-<p>如果想要按照外部字段进行排序，可以使用BY参数。</p>
-<h4 id="TOUCH"><a href="#TOUCH" class="headerlink" title="TOUCH"></a>TOUCH</h4><p>最早可用版本3.2.1</p>
-<p>修改某一个或多个key的最后访问时间，如果key不存在，则忽略。</p>
-<h4 id="TTL"><a href="#TTL" class="headerlink" title="TTL"></a>TTL</h4><p>最早可用版本1.0.0</p>
-<p>返回指定key的剩余存活时间，单位为秒。</p>
-<p>在2.6版本及以前，如果key不存在或者是永久key，都会返回-1。从2.8版本开始，如果key不存在，则返回-2，如果key为永久key，则返回-1。</p>
-<h4 id="TYPE"><a href="#TYPE" class="headerlink" title="TYPE"></a>TYPE</h4><p>最早可用版本1.0.0</p>
-<p>返回key存储的值的类型。类型即为我们在<a href="https://jackeyzhe.github.io/2018/09/17/Redis%E5%9F%BA%E7%A1%80%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">Redis基础数据结构</a>一文中描述的5中数据类型。</p>
-<h4 id="UNLINK"><a href="#UNLINK" class="headerlink" title="UNLINK"></a>UNLINK</h4><p>最早可用版本4.0.0</p>
-<p>这个命令和DEL类似，会删除指定的key。所不同的是，此命令的时间复杂度为O(1)，它先将key从keyspace中删除，此时指定的key已经删除，但是内存没有释放。所以，这个命令会在另一个线程中做释放内存的操作。这一步的操作时间复杂度为O(N)。</p>
-<h4 id="WAIT"><a href="#WAIT" class="headerlink" title="WAIT"></a>WAIT</h4><p>最早可用版本3.0.0</p>
-<p>这个命令会阻塞客户端，直到前面所有的写操作都完成并且保存了指定数量的副本。该命令总会返回副本数量或者超时。</p>
-
-          
+          <p>介绍完Redis连接相关命令后，再来介绍一下与Key相关的命令，Redis作为一个key-value数据库，对Key进行操作是无法避免的。
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/09/22/Redis命令详解：Keys/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
