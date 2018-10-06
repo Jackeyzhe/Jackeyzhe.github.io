@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="瞎扯," />
+  <meta name="keywords" content="Redis," />
 
 
 
@@ -79,23 +79,20 @@
 
 
 
-<meta name="description" content="在学校的时候老师一直跟我们强调算法的重要性，我和大多数同学一样不以为然，觉得学起来又难又枯燥。直到开始找工作以后，被各种算法面试题打击得体无完肤的时候，才算明白算法的重要性。">
-<meta name="keywords" content="瞎扯">
+<meta name="description" content="熟悉Redis的人都知道，它是单线程的。因此在使用一些时间复杂度为O(N)的命令时要非常谨慎。可能一不小心就会阻塞进程，导致Redis出现卡顿。">
+<meta name="keywords" content="Redis">
 <meta property="og:type" content="article">
-<meta property="og:title" content="送给你的算法敲门砖">
-<meta property="og:url" content="https://jackeyzhe.github.io/2018/09/12/送给你的算法敲门砖/index.html">
+<meta property="og:title" content="深入理解Redis的scan命令">
+<meta property="og:url" content="https://jackeyzhe.github.io/2018/09/26/深入理解Redis的scan命令/index.html">
 <meta property="og:site_name" content="Jackeyzhe">
-<meta property="og:description" content="在学校的时候老师一直跟我们强调算法的重要性，我和大多数同学一样不以为然，觉得学起来又难又枯燥。直到开始找工作以后，被各种算法面试题打击得体无完肤的时候，才算明白算法的重要性。">
+<meta property="og:description" content="熟悉Redis的人都知道，它是单线程的。因此在使用一些时间复杂度为O(N)的命令时要非常谨慎。可能一不小心就会阻塞进程，导致Redis出现卡顿。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1536766458/Blog/%E7%AE%97%E6%B3%95/suanfa2.jpg">
-<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1536766414/Blog/%E7%AE%97%E6%B3%95/suanfa1.png">
-<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1536767683/Blog/%E7%AE%97%E6%B3%95/suanfa3.png">
-<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1536767926/Blog/%E7%AE%97%E6%B3%95/suanfa4.png">
-<meta property="og:updated_time" content="2018-09-12T16:12:04.579Z">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1538756520/Blog/Redis/rehash.png">
+<meta property="og:updated_time" content="2018-10-06T07:00:34.893Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="送给你的算法敲门砖">
-<meta name="twitter:description" content="在学校的时候老师一直跟我们强调算法的重要性，我和大多数同学一样不以为然，觉得学起来又难又枯燥。直到开始找工作以后，被各种算法面试题打击得体无完肤的时候，才算明白算法的重要性。">
-<meta name="twitter:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1536766458/Blog/%E7%AE%97%E6%B3%95/suanfa2.jpg">
+<meta name="twitter:title" content="深入理解Redis的scan命令">
+<meta name="twitter:description" content="熟悉Redis的人都知道，它是单线程的。因此在使用一些时间复杂度为O(N)的命令时要非常谨慎。可能一不小心就会阻塞进程，导致Redis出现卡顿。">
+<meta name="twitter:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1538756520/Blog/Redis/rehash.png">
 
 
 
@@ -125,13 +122,13 @@
 
 
 
-  <link rel="canonical" href="https://jackeyzhe.github.io/2018/09/12/送给你的算法敲门砖/"/>
+  <link rel="canonical" href="https://jackeyzhe.github.io/2018/09/26/深入理解Redis的scan命令/"/>
 
 
 
 
 
-  <title>送给你的算法敲门砖 | Jackeyzhe</title>
+  <title>深入理解Redis的scan命令 | Jackeyzhe</title>
   
 
 
@@ -293,7 +290,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2018/09/12/送给你的算法敲门砖/">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2018/09/26/深入理解Redis的scan命令/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Jackey Wang">
@@ -310,7 +307,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">送给你的算法敲门砖</h1>
+          <h1 class="post-title" itemprop="name headline">深入理解Redis的scan命令</h1>
         
 
         <div class="post-meta">
@@ -322,8 +319,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-12T22:58:12+08:00">
-                2018-09-12
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-26T23:40:12+08:00">
+                2018-09-26
               </time>
             
 
@@ -365,23 +362,53 @@
       
 
       
-        <p>在学校的时候老师一直跟我们强调算法的重要性，我和大多数同学一样不以为然，觉得学起来又难又枯燥。直到开始找工作以后，被各种算法面试题打击得体无完肤的时候，才算明白算法的重要性。<a id="more"></a></p>
-<p>近年来，人工智能、区块链、大数据等概念非常火热，特别是AlphaGo之后，各大公司也都在积极开展人工智能领域的相关业务，而其中算法工程师这个职位更是供不应求，最近在网上见到好多人说要转算法工程师，不管是学医的、学法律的、学建筑的甚至是学经济的，都有做算法工程师的想法。可以说已经达到了人人转算法的地步了，那么为什么大家都想做算法工程师呢？我们先来看一组数据。</p>
-<p>首先是人工智能类岗位的招聘需求</p>
-<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1536766458/Blog/%E7%AE%97%E6%B3%95/suanfa2.jpg" alt="suanfa2"></p>
-<p>可以看到算法工程师的需求遥遥领先，需求大，机会就多，大家也就都愿意去尝试。但是只是这个原因似乎还不足以吸引这么多人去学算法。我们再来看一下互联网高薪清单</p>
-<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1536766414/Blog/%E7%AE%97%E6%B3%95/suanfa1.png" alt="suanfa1"></p>
-<p>其中，很大一部分都是算法工程师，我们都知道最近几年互联网行业的薪资已经超过了曾经的“高富帅”金融行业。而算法工程师在互联网中又是高薪岗位，这个吸引力可想而知，毕竟没有谁会跟钱过不去。</p>
-<p>上面说的都是国内的情形，在国外，大公司更是注重算法，据说面试Google的Android工程师的时候，会问几道特别难的算法题，而只要这几道题你答得好，Google甚至不在乎你究竟有没有做过Android，因为在他们看来，这么难的算法题都能学会，那么学习Android的技术根本不在话下。</p>
-<p>总得来说，算法可以被称为大公司的敲门砖，说到这，有的人可能已经等不及了，算法是大公司的敲门砖这件事我已经知道了，那你说的算法的敲门砖到底是什么啊？</p>
-<p>其实，今天要推荐的是一个算法学习的网站，对于算法初学者，可能脑子里还不能很好的理清每个算法究竟是怎么一回事，或者说算法的工作原理到底什么样的。这个网站就是将算法可视化，把它的工作原理摆在你面前。</p>
-<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1536767683/Blog/%E7%AE%97%E6%B3%95/suanfa3.png" alt="suanfa3"></p>
-<p>可以看到这里有很多算法和数据结构，包括排序算法、链表、Hash表、二叉搜索树等等。可以说应有尽有，只要你想学，就可以直接搜索相关的算法。点进去之后，会有相关的提示，然后就可以观看相关算法的工作视频了。这对于我们理解算法非常有帮助，把算法做到可视化，并且为你演示每一步如何工作，侧边栏还有相应的讲解。</p>
-<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1536767926/Blog/%E7%AE%97%E6%B3%95/suanfa4.png" alt="suanfa4"></p>
-<p>总之，这个网站对于初学算法的同学来说算是一个非常好用的敲门砖了。这个网站的地址是：</p>
-<p><a href="https://visualgo.net/" target="_blank" rel="noopener">https://visualgo.net/</a></p>
-<p>建议大家最好看英文的，因为中文的翻译还是有些问题。可能在学习过程中造成一定的困惑。</p>
-<p>最后，希望大家不要像我一样从入门到放弃，坚持下去，年薪百万不是梦。</p>
+        <p>熟悉Redis的人都知道，它是单线程的。因此在使用一些时间复杂度为O(N)的命令时要非常谨慎。可能一不小心就会阻塞进程，导致Redis出现卡顿。<a id="more"></a></p>
+<p>有时，我们需要针对符合条件的一部分命令进行操作，比如删除以test_开头的key。那么怎么获取到这些key呢？在Redis2.8版本之前，我们可以使用keys命令按照正则匹配得到我们需要的key。但是这个命令有两个缺点：</p>
+<ol>
+<li>没有limit，我们只能一次性获取所有符合条件的key，如果结果有上百万条，那么等待你的就是“无穷无尽”的字符串输出。</li>
+<li>keys命令是遍历算法，时间复杂度是O(N)。如我们刚才所说，这个命令非常容易导致Redis服务卡顿。因此，我们要尽量避免在生产环境使用该命令。</li>
+</ol>
+<p>在满足需求和存在造成Redis卡顿之间究竟要如何选择呢？面对这个两难的抉择，Redis在2.8版本给我们提供了解决办法——scan命令。</p>
+<p>相比于keys命令，scan命令有两个比较明显的优势：</p>
+<ol>
+<li>scan命令的时间复杂度虽然也是O(N)，但它是分次进行的，不会阻塞线程。</li>
+<li>scan命令提供了limit参数，可以控制每次返回结果的最大条数。</li>
+</ol>
+<p>这两个优势就帮助我们解决了上面的难题，不过scan命令也并不是完美的，它返回的结果有可能重复，因此需要客户端去重。至于为什么会重复，相信你看完本文之后就会有答案了。</p>
+<p>关于scan命令的基本用法，可以参看<a href="https://jackeyzhe.github.io/2018/09/22/Redis%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%EF%BC%9AKeys/">Redis命令详解：Keys</a>一文中关于SCAN命令的介绍。</p>
+<p>今天我们主要从底层的结构和源码的角度来讨论scan是如何工作的。</p>
+<h4 id="Redis的结构"><a href="#Redis的结构" class="headerlink" title="Redis的结构"></a>Redis的结构</h4><p>Redis使用了Hash表作为底层实现，原因不外乎高效且实现简单。说到Hash表，很多Java程序员第一反应就是HashMap。没错，Redis底层key的存储结构就是类似于HashMap那样数组+链表的结构。其中第一维的数组大小为2<sup>n</sup>(n&gt;=0)。每次扩容数组长度扩大一倍。</p>
+<p>scan命令就是对这个一维数组进行遍历。每次返回的游标值也都是这个数组的索引。limit参数表示遍历多少个数组的元素，将这些元素下挂接的符合条件的结果都返回。因为每个元素下挂接的链表大小不同，所以每次返回的结果数量也就不同。</p>
+<h4 id="SCAN的遍历顺序"><a href="#SCAN的遍历顺序" class="headerlink" title="SCAN的遍历顺序"></a>SCAN的遍历顺序</h4><p>关于scan命令的遍历顺序，我们可以用一个小栗子来具体看一下。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; keys *</span><br><span class="line">1) <span class="string">"db_number"</span></span><br><span class="line">2) <span class="string">"key1"</span></span><br><span class="line">3) <span class="string">"myKey"</span></span><br><span class="line">127.0.0.1:6379&gt; scan 0 MATCH * COUNT 1</span><br><span class="line">1) <span class="string">"2"</span></span><br><span class="line">2) 1) <span class="string">"db_number"</span></span><br><span class="line">127.0.0.1:6379&gt; scan 2 MATCH * COUNT 1</span><br><span class="line">1) <span class="string">"1"</span></span><br><span class="line">2) 1) <span class="string">"myKey"</span></span><br><span class="line">127.0.0.1:6379&gt; scan 1 MATCH * COUNT 1</span><br><span class="line">1) <span class="string">"3"</span></span><br><span class="line">2) 1) <span class="string">"key1"</span></span><br><span class="line">127.0.0.1:6379&gt; scan 3 MATCH * COUNT 1</span><br><span class="line">1) <span class="string">"0"</span></span><br><span class="line">2) (empty list or <span class="built_in">set</span>)</span><br></pre></td></tr></table></figure>
+<p>我们的Redis中有3个key，我们每次只遍历一个一维数组中的元素。如上所示，SCAN命令的遍历顺序是</p>
+<p>0-&gt;2-&gt;1-&gt;3</p>
+<p>这个顺序看起来有些奇怪。我们把它转换成二进制就好理解一些了。</p>
+<p>00-&gt;10-&gt;01-&gt;11</p>
+<p>我们发现每次这个序列是高位加1的。普通二进制的加法，是从右往左相加、进位。而这个序列是从左往右相加、进位的。这一点我们在redis的源码中也得到印证。</p>
+<p>在dict.c文件的dictScan函数中对游标进行了如下处理</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">v = rev(v);</span><br><span class="line">v++;</span><br><span class="line">v = rev(v);</span><br></pre></td></tr></table></figure>
+<p>意思是，将游标倒置，加一后，再倒置，也就是我们所说的“高位加1”的操作。</p>
+<p>这里大家可能会有疑问了，为什么要使用这样的顺序进行遍历，而不是用正常的0、1、2……这样的顺序呢，这是因为需要考虑遍历时发生字典扩容与缩容的情况（不得不佩服开发者考虑问题的全面性）。</p>
+<p>我们来看一下在SCAN遍历过程中，发生扩容时，遍历会如何进行。加入我们原始的数组有4个元素，也就是索引有两位，这时需要把它扩充成3位，并进行rehash。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1538756520/Blog/Redis/rehash.png" alt="rehash"></p>
+<p>原来挂接在xx下的所有元素被分配到0xx和1xx下。在上图中，当我们即将遍历10时，dict进行了rehash，这时，scan命令会从010开始遍历，而000和100（原00下挂接的元素）不会再被重复遍历。</p>
+<p>再来看看缩容的情况。假设dict从3位缩容到2位，当即将遍历110时，dict发生了缩容，这时scan会遍历10。这时010下挂接的元素会被重复遍历，但010之前的元素都不会被重复遍历了。所以，缩容时还是可能会有些重复元素出现的。</p>
+<h4 id="Redis的rehash"><a href="#Redis的rehash" class="headerlink" title="Redis的rehash"></a>Redis的rehash</h4><p>rehash是一个比较复杂的过程，为了不阻塞Redis的进程，它采用了一种渐进式的rehash的机制。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 字典 */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">dict</span> &#123;</span></span><br><span class="line">    <span class="comment">// 类型特定函数</span></span><br><span class="line">    dictType *type;</span><br><span class="line">    <span class="comment">// 私有数据</span></span><br><span class="line">    <span class="keyword">void</span> *privdata;</span><br><span class="line">    <span class="comment">// 哈希表</span></span><br><span class="line">    dictht ht[<span class="number">2</span>];</span><br><span class="line">    <span class="comment">// rehash 索引</span></span><br><span class="line">    <span class="comment">// 当 rehash 不在进行时，值为 -1</span></span><br><span class="line">    <span class="keyword">int</span> rehashidx; <span class="comment">/* rehashing not in progress if rehashidx == -1 */</span></span><br><span class="line">    <span class="comment">// 目前正在运行的安全迭代器的数量</span></span><br><span class="line">    <span class="keyword">int</span> iterators; <span class="comment">/* number of iterators currently running */</span></span><br><span class="line">&#125; dict;</span><br></pre></td></tr></table></figure>
+<p>在Redis的字典结构中，有两个hash表，一个新表，一个旧表。在rehash的过程中，redis将旧表中的元素逐步迁移到新表中，接下来我们看一下dict的rehash操作的源码。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Performs N steps of incremental rehashing. Returns 1 if there are still</span></span><br><span class="line"><span class="comment"> * keys to move from the old to the new hash table, otherwise 0 is returned.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Note that a rehashing step consists in moving a bucket (that may have more</span></span><br><span class="line"><span class="comment"> * than one key as we use chaining) from the old to the new hash table, however</span></span><br><span class="line"><span class="comment"> * since part of the hash table may be composed of empty spaces, it is not</span></span><br><span class="line"><span class="comment"> * guaranteed that this function will rehash even a single bucket, since it</span></span><br><span class="line"><span class="comment"> * will visit at max N*10 empty buckets in total, otherwise the amount of</span></span><br><span class="line"><span class="comment"> * work it does would be unbound and the function may block for a long time. */</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">dictRehash</span><span class="params">(dict *d, <span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> empty_visits = n*<span class="number">10</span>; <span class="comment">/* Max number of empty buckets to visit. */</span></span><br><span class="line">    <span class="keyword">if</span> (!dictIsRehashing(d)) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(n-- &amp;&amp; d-&gt;ht[<span class="number">0</span>].used != <span class="number">0</span>) &#123;</span><br><span class="line">        dictEntry *de, *nextde;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* Note that rehashidx can't overflow as we are sure there are more</span></span><br><span class="line"><span class="comment">         * elements because ht[0].used != 0 */</span></span><br><span class="line">        assert(d-&gt;ht[<span class="number">0</span>].size &gt; (<span class="keyword">unsigned</span> <span class="keyword">long</span>)d-&gt;rehashidx);</span><br><span class="line">        <span class="keyword">while</span>(d-&gt;ht[<span class="number">0</span>].table[d-&gt;rehashidx] == <span class="literal">NULL</span>) &#123;</span><br><span class="line">            d-&gt;rehashidx++;</span><br><span class="line">            <span class="keyword">if</span> (--empty_visits == <span class="number">0</span>) <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        de = d-&gt;ht[<span class="number">0</span>].table[d-&gt;rehashidx];</span><br><span class="line">        <span class="comment">/* Move all the keys in this bucket from the old to the new hash HT */</span></span><br><span class="line">        <span class="keyword">while</span>(de) &#123;</span><br><span class="line">            <span class="keyword">uint64_t</span> h;</span><br><span class="line"></span><br><span class="line">            nextde = de-&gt;next;</span><br><span class="line">            <span class="comment">/* Get the index in the new hash table */</span></span><br><span class="line">            h = dictHashKey(d, de-&gt;key) &amp; d-&gt;ht[<span class="number">1</span>].sizemask;</span><br><span class="line">            de-&gt;next = d-&gt;ht[<span class="number">1</span>].table[h];</span><br><span class="line">            d-&gt;ht[<span class="number">1</span>].table[h] = de;</span><br><span class="line">            d-&gt;ht[<span class="number">0</span>].used--;</span><br><span class="line">            d-&gt;ht[<span class="number">1</span>].used++;</span><br><span class="line">            de = nextde;</span><br><span class="line">        &#125;</span><br><span class="line">        d-&gt;ht[<span class="number">0</span>].table[d-&gt;rehashidx] = <span class="literal">NULL</span>;</span><br><span class="line">        d-&gt;rehashidx++;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Check if we already rehashed the whole table... */</span></span><br><span class="line">    <span class="keyword">if</span> (d-&gt;ht[<span class="number">0</span>].used == <span class="number">0</span>) &#123;</span><br><span class="line">        zfree(d-&gt;ht[<span class="number">0</span>].table);</span><br><span class="line">        d-&gt;ht[<span class="number">0</span>] = d-&gt;ht[<span class="number">1</span>];</span><br><span class="line">        _dictReset(&amp;d-&gt;ht[<span class="number">1</span>]);</span><br><span class="line">        d-&gt;rehashidx = <span class="number">-1</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* More to rehash... */</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过注释我们就能了解到，rehash的过程是以bucket为基本单位进行迁移的。所谓的bucket其实就是我们前面所提到的一维数组的元素。每次迁移一个列表。下面来解释一下这段代码。</p>
+<ul>
+<li>首先判断一下是否在进行rehash，如果是，则继续进行；否则直接返回。</li>
+<li>接着就是分n步开始进行渐进式rehash。同时还判断是否还有剩余元素，以保证安全性。</li>
+<li>在进行rehash之前，首先判断要迁移的bucket是否越界。</li>
+<li>然后跳过空的bucket，这里有一个empty_visits变量，表示最大可访问的空bucket的数量，这一变量主要是为了保证不过多的阻塞Redis。</li>
+<li>接下来就是元素的迁移，将当前bucket的全部元素进行rehash，并且更新两张表中元素的数量。</li>
+<li>每次迁移完一个bucket，需要将旧表中的bucket指向NULL。</li>
+<li>最后判断一下是否全部迁移完成，如果是，则收回空间，重置rehash索引，否则告诉调用方，仍有数据未迁移。</li>
+</ul>
+<p>由于Redis使用的是渐进式rehash机制，因此，scan命令在需要同时扫描新表和旧表，将结果返回客户端。</p>
 
       
     </div>
@@ -451,7 +478,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/瞎扯/" rel="tag"><i class="fa fa-tag"></i> 瞎扯</a>
+            <a href="/tags/Redis/" rel="tag"><i class="fa fa-tag"></i> Redis</a>
           
         </div>
       
@@ -464,8 +491,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/09/11/使用ModelMapper的一次踩坑经历/" rel="next" title="使用ModelMapper的一次踩坑经历">
-                <i class="fa fa-chevron-left"></i> 使用ModelMapper的一次踩坑经历
+              <a href="/2018/09/22/Redis命令详解：Keys/" rel="next" title="Redis命令详解：Keys">
+                <i class="fa fa-chevron-left"></i> Redis命令详解：Keys
               </a>
             
           </div>
@@ -473,10 +500,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/09/17/Redis基础数据结构/" rel="prev" title="Redis基础数据结构">
-                Redis基础数据结构 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -534,8 +557,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -614,6 +646,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#Redis的结构"><span class="nav-number">1.</span> <span class="nav-text">Redis的结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SCAN的遍历顺序"><span class="nav-number">2.</span> <span class="nav-text">SCAN的遍历顺序</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Redis的rehash"><span class="nav-number">3.</span> <span class="nav-text">Redis的rehash</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
