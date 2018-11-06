@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="整洁," />
+  <meta name="keywords" content="Redis," />
 
 
 
@@ -79,18 +79,27 @@
 
 
 
-<meta name="description" content="在许多程序员眼中，单元测试似乎是可有可无的，觉得这应该是测试人员的工作。实际上，测试代码和生成代码同样重要。我们不但需要测试代码，而且需要的是整洁的测试代码。">
-<meta name="keywords" content="整洁">
+<meta name="description" content="Redis作为内存数据库，需要具备高可用的特点，不然如果服务器宕机，还在内存里的数据就会丢失。我们最常用的高可用方法就是搭建集群，master机器挂了，可以让slave机器顶上，继续提供服务。但是Redis集群是不会自动进行主从切换的，也就是说，如果主节点非常不争气的在凌晨3点挂了，那么运维同学就要马上起床，把从节点改成主节点，这样的操作是非常繁琐低效的。为此，Redis官方提供了一种解决方案：R">
+<meta name="keywords" content="Redis">
 <meta property="og:type" content="article">
-<meta property="og:title" content="代码洁癖系列（七）：单元测试的地位">
-<meta property="og:url" content="https://jackeyzhe.github.io/2018/09/04/代码洁癖系列（七）：单元测试的地位/index.html">
+<meta property="og:title" content="玩转Redis集群之Sentinel">
+<meta property="og:url" content="https://jackeyzhe.github.io/2018/11/04/玩转Redis集群之Sentinel/index.html">
 <meta property="og:site_name" content="Jackeyzhe">
-<meta property="og:description" content="在许多程序员眼中，单元测试似乎是可有可无的，觉得这应该是测试人员的工作。实际上，测试代码和生成代码同样重要。我们不但需要测试代码，而且需要的是整洁的测试代码。">
+<meta property="og:description" content="Redis作为内存数据库，需要具备高可用的特点，不然如果服务器宕机，还在内存里的数据就会丢失。我们最常用的高可用方法就是搭建集群，master机器挂了，可以让slave机器顶上，继续提供服务。但是Redis集群是不会自动进行主从切换的，也就是说，如果主节点非常不争气的在凌晨3点挂了，那么运维同学就要马上起床，把从节点改成主节点，这样的操作是非常繁琐低效的。为此，Redis官方提供了一种解决方案：R">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-09-05T16:06:42.531Z">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1541434700/Blog/Redis/redis-py.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1541434964/Blog/Redis/redis-py2.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1541481896/Blog/Redis/redis-group.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1541481909/Blog/Redis/redis-master.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1541481923/Blog/Redis/redis-sentinel.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1541481877/Blog/Redis/info-sentinel.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1541481931/Blog/Redis/sentinel-log.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1541481866/Blog/Redis/after-vote.png">
+<meta property="og:updated_time" content="2018-11-06T14:58:25.149Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="代码洁癖系列（七）：单元测试的地位">
-<meta name="twitter:description" content="在许多程序员眼中，单元测试似乎是可有可无的，觉得这应该是测试人员的工作。实际上，测试代码和生成代码同样重要。我们不但需要测试代码，而且需要的是整洁的测试代码。">
+<meta name="twitter:title" content="玩转Redis集群之Sentinel">
+<meta name="twitter:description" content="Redis作为内存数据库，需要具备高可用的特点，不然如果服务器宕机，还在内存里的数据就会丢失。我们最常用的高可用方法就是搭建集群，master机器挂了，可以让slave机器顶上，继续提供服务。但是Redis集群是不会自动进行主从切换的，也就是说，如果主节点非常不争气的在凌晨3点挂了，那么运维同学就要马上起床，把从节点改成主节点，这样的操作是非常繁琐低效的。为此，Redis官方提供了一种解决方案：R">
+<meta name="twitter:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1541434700/Blog/Redis/redis-py.png">
 
 
 
@@ -120,13 +129,13 @@
 
 
 
-  <link rel="canonical" href="https://jackeyzhe.github.io/2018/09/04/代码洁癖系列（七）：单元测试的地位/"/>
+  <link rel="canonical" href="https://jackeyzhe.github.io/2018/11/04/玩转Redis集群之Sentinel/"/>
 
 
 
 
 
-  <title>代码洁癖系列（七）：单元测试的地位 | Jackeyzhe</title>
+  <title>玩转Redis集群之Sentinel | Jackeyzhe</title>
   
 
 
@@ -288,7 +297,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2018/09/04/代码洁癖系列（七）：单元测试的地位/">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2018/11/04/玩转Redis集群之Sentinel/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Jackey Wang">
@@ -305,7 +314,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">代码洁癖系列（七）：单元测试的地位</h1>
+          <h1 class="post-title" itemprop="name headline">玩转Redis集群之Sentinel</h1>
         
 
         <div class="post-meta">
@@ -317,8 +326,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-04T23:51:52+08:00">
-                2018-09-04
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-04T17:08:45+08:00">
+                2018-11-04
               </time>
             
 
@@ -360,20 +369,47 @@
       
 
       
-        <p>在许多程序员眼中，单元测试似乎是可有可无的，觉得这应该是测试人员的工作。实际上，测试代码和生成代码同样重要。我们不但需要测试代码，而且需要的是整洁的测试代码。<a id="more"></a></p>
-<h4 id="测试为什么要整洁"><a href="#测试为什么要整洁" class="headerlink" title="测试为什么要整洁"></a>测试为什么要整洁</h4><p>我们对待测试代码需要像对待生产代码一样，写之前需要进行严谨的思考、详细的设计。这里分享一下我自己的学习编程的一些经历。</p>
-<h5 id="没有单元测试"><a href="#没有单元测试" class="headerlink" title="没有单元测试"></a>没有单元测试</h5><p>刚毕业的时候，我的代码可以说是年少轻狂，总是对自己充满自信。根本就不写单元测试，写完之后自测也是随意的点两下就算自测通过了。代码提交测试后，恐怖的事情就出现了，铺天盖地的bug向我袭来。每天工作有一半以上的时间是在和测试同事沟通，其余的时间是在改bug。本来1天的工作可能需要3天才能完成。当我意识到这样做完全是费力不讨好的时候，我决心每次写完代码之后，要写一段单元测试，保证单元测试通过后再提交。</p>
-<h5 id="随意的单元测试"><a href="#随意的单元测试" class="headerlink" title="随意的单元测试"></a>随意的单元测试</h5><p>在开始写单元测试之后，我的工作效率提高了很多，下班都比原来早了。感觉写单元测试是一个无比正确的决定。随着项目的进行，中间处理过几次紧急的bug fix，当时就没有顾上去写单元测试。然而，当我又一次完成一个新的feature的时候，像往常一样开始跑单元测试，结果是：Failed！就是因为之前的改动导致的。由于手里还有其他比较紧急的工作，单元测试又被放下了。就这样，我又回到了没有单元测试的工作状态。</p>
-<p>现在的我已经不像当初那样盲目的自信了，没有单元测试的代码让我感到恐慌。</p>
-<h5 id="决心重构单元测试"><a href="#决心重构单元测试" class="headerlink" title="决心重构单元测试"></a>决心重构单元测试</h5><p>曾经有一段可用的单元测试放在我面前，但我没有珍惜，直到失去才追悔莫及。这次我决心重建单元测试，不但要重建，还要写一段好的单元测试。吸取上次的教训，要使我的单元测试可扩展，可维护。把一些公共的方法抽取出来，将不同概念的测试进行拆分。做到“每个概念一个测试”，测试中需要使用断言判断是否成功，而不是人为查看日志。每个测试都要包含构造-操作-检验三个环节，这三个环节要定义清楚。</p>
-<p>这样一来，我就有了一套整洁的单元测试，后来修改代码后，单元测试可以方便的进行扩展和复用，工作效率再次提升。</p>
-<h4 id="整洁测试的规则"><a href="#整洁测试的规则" class="headerlink" title="整洁测试的规则"></a>整洁测试的规则</h4><p>整洁测试需要遵循F.I.R.S.T规则。什么是F.I.R.S.T规则呢？</p>
-<h5 id="快速（Fast）"><a href="#快速（Fast）" class="headerlink" title="快速（Fast）"></a>快速（Fast）</h5><p>测试应该足够快，如果测试一次需要等待很长时间，没有人愿意频繁的运行测试，也就没办法快速发现问题。久而久之，我们又会失去测试……</p>
-<h5 id="独立（Independent）"><a href="#独立（Independent）" class="headerlink" title="独立（Independent）"></a>独立（Independent）</h5><p>测试之间应该相互独立，一个测试的失败不应该影响其他的测试，否则就会导致每次测试出现一大堆问题，我们每次只能解决最上级的测试暴露出来的问题，下级测试需要再次测试才行。这就会大大降低工作效率。</p>
-<h5 id="可重复（Repeatable）"><a href="#可重复（Repeatable）" class="headerlink" title="可重复（Repeatable）"></a>可重复（Repeatable）</h5><p>测试应该在各种环境中可以重复执行，不论是你的本地环境，测试环境还是生产环境。测试都应该能够跑通。这样才能保证线上的质量，测试也才有意义。</p>
-<h5 id="自足验证（Self-Validating）"><a href="#自足验证（Self-Validating）" class="headerlink" title="自足验证（Self-Validating）"></a>自足验证（Self-Validating）</h5><p>测试应该有布尔值输出（最好使用断言），我们不应该通过查看日志来判断测试是否通过，更不应该通过人为比较两个文本是否相同来判断测试是否通过。这样不但失去了测试的准确性，也浪费了我们自己的时间。</p>
-<h5 id="及时（Timely）"><a href="#及时（Timely）" class="headerlink" title="及时（Timely）"></a>及时（Timely）</h5><p>测试应该及时编写，在设计生产代码的同时就应该将测试一并设计好，不然的话，当你写好生产代码，也许会因为某些代码难以测试而放弃。</p>
-<h4 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h4><p>总结一下今天讨论的内容，我们需要整洁的单元测试，它的地位与生产代码一样，需要我们认真设计。设计测试的时候需要遵循F.I.R.S.T原则。</p>
+        <p>Redis作为内存数据库，需要具备高可用的特点，不然如果服务器宕机，还在内存里的数据就会丢失。我们最常用的高可用方法就是搭建集群，master机器挂了，可以让slave机器顶上，继续提供服务。但是Redis集群是不会自动进行主从切换的，也就是说，如果主节点非常不争气的在凌晨3点挂了，那么运维同学就要马上起床，把从节点改成主节点，这样的操作是非常繁琐低效的。为此，Redis官方提供了一种解决方案：Redis Sentinel<a id="more"></a></p>
+<h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>Redis Sentinel集群通常由3到5个节点组成，如果个别节点挂了，集群还可以正常运作。它负责监控Redis集群的健康情况。如果主节点挂掉，Sentinel集群会通过投票选择一个新的主节点。当原来的主节点恢复时，它会被当做新的主节点的从节点重新加入Redis集群。</p>
+<h4 id="基本原理"><a href="#基本原理" class="headerlink" title="基本原理"></a>基本原理</h4><p>Sentinel集群通过指定的配置文件发现master，对其进行监控，并且会发送info指令获取master的从节点信息。Sentinel集群中的节点通过向其监控的主从节点发送hello信息（包含Sentinel本身的ip、端口和id等内容）来向其他Sentinel宣告自己的存在。</p>
+<p>Sentinel集群通过订阅连接来接收其他Sentinel的hello信息。</p>
+<p>Sentinel集群通过ping命令来检查监控的实例状态，如果在指定时间内没有返回，则认为该实例下线。</p>
+<p>Sentinel触发failover主从切换后，并不会马上进行，只有指定(quorum)Sentinel授权后，master节点被标记为ODOWN状态。这时才真正开始投票选择新的master。</p>
+<p>Sentinel选择新的master的原则是：首先判断优先级，选择优先级较小的；如果优先级相同，查看复制下标，选择复制数据较多的；如果复制下标也相同，就选择进程ID较小的。</p>
+<p>Sentinel被授权后，它将会获得宕掉的master的一份最新配置版本号(config-epoch)，当failover执行结束以后，这个版本号将会被用于最新的配置，通过广播形式通知其它Sentinel，其它的Sentinel则更新对应master的配置。</p>
+<h4 id="基本使用"><a href="#基本使用" class="headerlink" title="基本使用"></a>基本使用</h4><p>我们以Python为例，简单说明一下在客户端如何使用Sentinel</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> redis.sentinel <span class="keyword">import</span> Sentinel</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    sentinel = Sentinel([<span class="string">'localhost'</span>, <span class="number">26379</span>], socket_timeout=<span class="number">0.1</span>)</span><br><span class="line">    print(sentinel.discover_master(<span class="string">'mymaster'</span>))</span><br><span class="line">    print(sentinel.discover_slaves(<span class="string">'mymaster'</span>))</span><br><span class="line">    master = sentinel.master_for(<span class="string">'mymaster'</span>, socket_timeout=<span class="number">0.1</span>)</span><br><span class="line">    slave = sentinel.slave_for(<span class="string">'mymaster'</span>, socket_timeout=<span class="number">0.1</span>)</span><br><span class="line">    master.set(<span class="string">'follow'</span>, <span class="string">'Jackeyzhe2018'</span>)</span><br><span class="line">    follow = slave.get(<span class="string">'follow'</span>)</span><br><span class="line">    print(follow)</span><br></pre></td></tr></table></figure>
+<p>master_for和slave_for方法会从连接池中拿出一个连接来使用，如果从地址有多个，则会采用轮询的方法。</p>
+<p>当redis发生了主从切换时，客户端如何知道地址已经变更了呢？我们从redis-py的源码里找一找答案。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1541434700/Blog/Redis/redis-py.png" alt="redis-py"></p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1541434964/Blog/Redis/redis-py2.png" alt="get_master_address"></p>
+<p>可以看到，redis在创建一个新的连接时，会调用get_master_address方法来获取主节点地址。get_master_address方法中，客户端先查询主节点地址，然后与内存中的地址进行比较。如果不一致，则会断开连接，然后使用新的地址重新进行连接。</p>
+<p>如果主节点没有挂，而Sentinel主动进行了主从切换，对于这种情况redis-py也做了处理。就是捕获一个ReadOnlyError的异常，然后断开连接，后续指令都需要重新进行连接了。当然，如果没有修改性指令，那么连接就不会切换，不过数据也不会被破坏，所以影响不大。</p>
+<h4 id="动手搭建"><a href="#动手搭建" class="headerlink" title="动手搭建"></a>动手搭建</h4><p>关于Sentinel的工作原理和使用方法我们已经有了大概的认识，为了加深理解，我们来自己动手搭建一套Sentinel集群。</p>
+<p>首先搭建我们我需要的redis集群环境</p>
+<p>安装好redis后，将redis目录下的配置文件redis.conf复制3份。分别命名为redis6379.conf，redis6380.conf，redis6381.conf。</p>
+<p>在redis6381.conf文件中修改以下几项</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">bind</span> 127.0.0.1</span><br><span class="line">port 6381</span><br><span class="line">logfile <span class="string">"6381.log"</span></span><br><span class="line">dbfilename <span class="string">"dump-6381.rdb"</span></span><br></pre></td></tr></table></figure>
+<p>在redis6379.conf中修改</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">bind</span> 127.0.0.1</span><br><span class="line">port 6379</span><br><span class="line">logfile <span class="string">"6379.log"</span></span><br><span class="line">dbfilename <span class="string">"dump-6379.rdb"</span></span><br><span class="line">slaveof 127.0.0.1 6381</span><br></pre></td></tr></table></figure>
+<p>redis6380.conf的修改参照redis6379.conf。修改完成后，分别启动三个实例。就搭建好了我们想要的redis主从环境了。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1541481896/Blog/Redis/redis-group.png" alt="master-slave"></p>
+<p>我们连接上master节点，可以看到它的主从配置信息</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1541481909/Blog/Redis/redis-master.png" alt="master"></p>
+<p>接着，我们来配置Sentinel集群。这里我们同样配置三个实例。复制3份sentinel.conf文件，分别命名为sentinel-26379.conf，sentinel-26380.conf和sentinel-26381.conf。</p>
+<p>sentinel-26379.conf文件中编辑以下内容</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">port 26379  </span><br><span class="line">daemonize yes  </span><br><span class="line">logfile <span class="string">"26379.log"</span>  </span><br><span class="line">dir /home/xxx/redis/data  </span><br><span class="line">sentinel monitor mymaster 127.0.0.1 6381 2</span><br><span class="line">sentinel down-after-milliseconds mymaster 30000  </span><br><span class="line">sentinel parallel-syncs mymaster 1  </span><br><span class="line">sentinel failover-timeout mymaster 180000</span><br></pre></td></tr></table></figure>
+<p>sentinel-26380.conf和sentinel-26381.conf的内容与上述类似。配置好后，我们使用命令redis-sentinel来启动3个sentinel实例。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1541481923/Blog/Redis/redis-sentinel.png" alt="redis-sentinel"></p>
+<p>此时，我们用redis-cli命令连接26379的实例，查看sentinel的信息。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1541481877/Blog/Redis/info-sentinel.png" alt="sentinel-info"></p>
+<p>发现它已经开始监控我们的3个redis节点了。这时我们的整个集群就部署好了，接下来测试一下。</p>
+<p>kill掉master节点，查看sentinel的日志，会发现sentinel已经按照我们前面说的步骤选择了新的master。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1541481931/Blog/Redis/sentinel-log.png" alt="sentinel-log"></p>
+<p>此时再来看sentinel信息。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1541481866/Blog/Redis/after-vote.png" alt="new-master"></p>
+<p>此时，6380已经成了新的master。</p>
+<p>恭喜你，以后都不需要在凌晨起床切换Redis主从实例了。</p>
 
       
     </div>
@@ -443,7 +479,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/整洁/" rel="tag"><i class="fa fa-tag"></i> 整洁</a>
+            <a href="/tags/Redis/" rel="tag"><i class="fa fa-tag"></i> Redis</a>
           
         </div>
       
@@ -456,8 +492,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/09/03/代码洁癖系列（六）：处理错误/" rel="next" title="代码洁癖系列（六）：处理错误">
-                <i class="fa fa-chevron-left"></i> 代码洁癖系列（六）：处理错误
+              <a href="/2018/10/07/Redis命令详解：Strings/" rel="next" title="Redis命令详解：Strings">
+                <i class="fa fa-chevron-left"></i> Redis命令详解：Strings
               </a>
             
           </div>
@@ -465,10 +501,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/09/07/实用的工具，有趣的人/" rel="prev" title="实用的工具，有趣的人">
-                实用的工具，有趣的人 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -625,7 +657,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#测试为什么要整洁"><span class="nav-number">1.</span> <span class="nav-text">测试为什么要整洁</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#没有单元测试"><span class="nav-number">1.1.</span> <span class="nav-text">没有单元测试</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#随意的单元测试"><span class="nav-number">1.2.</span> <span class="nav-text">随意的单元测试</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#决心重构单元测试"><span class="nav-number">1.3.</span> <span class="nav-text">决心重构单元测试</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#整洁测试的规则"><span class="nav-number">2.</span> <span class="nav-text">整洁测试的规则</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#快速（Fast）"><span class="nav-number">2.1.</span> <span class="nav-text">快速（Fast）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#独立（Independent）"><span class="nav-number">2.2.</span> <span class="nav-text">独立（Independent）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#可重复（Repeatable）"><span class="nav-number">2.3.</span> <span class="nav-text">可重复（Repeatable）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#自足验证（Self-Validating）"><span class="nav-number">2.4.</span> <span class="nav-text">自足验证（Self-Validating）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#及时（Timely）"><span class="nav-number">2.5.</span> <span class="nav-text">及时（Timely）</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#结语"><span class="nav-number">3.</span> <span class="nav-text">结语</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#基本原理"><span class="nav-number">2.</span> <span class="nav-text">基本原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#基本使用"><span class="nav-number">3.</span> <span class="nav-text">基本使用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#动手搭建"><span class="nav-number">4.</span> <span class="nav-text">动手搭建</span></a></li></ol></div>
             
 
           </div>
