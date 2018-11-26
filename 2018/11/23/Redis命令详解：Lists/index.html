@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="整洁," />
+  <meta name="keywords" content="Redis," />
 
 
 
@@ -79,20 +79,18 @@
 
 
 
-<meta name="description" content="不知道大家还记不记得《家有儿女》里有这么一段经典台词：“我叫夏雪”，“我叫夏雨”，“我叫夏冰雹”。">
-<meta name="keywords" content="整洁">
+<meta name="description" content="List是Redis的基础数据类型之一，类似于Java中的LinkedList。一个列表最多包含232个元素，常被用作模拟队列操作，接下来我们具体介绍一下List相关的命令。">
+<meta name="keywords" content="Redis">
 <meta property="og:type" content="article">
-<meta property="og:title" content="代码洁癖系列（二）：命名的艺术">
-<meta property="og:url" content="https://jackeyzhe.github.io/2018/08/27/代码洁癖系列（二）：命名的艺术/index.html">
+<meta property="og:title" content="Redis命令详解：Lists">
+<meta property="og:url" content="https://jackeyzhe.github.io/2018/11/23/Redis命令详解：Lists/index.html">
 <meta property="og:site_name" content="Jackeyzhe">
-<meta property="og:description" content="不知道大家还记不记得《家有儿女》里有这么一段经典台词：“我叫夏雪”，“我叫夏雨”，“我叫夏冰雹”。">
+<meta property="og:description" content="List是Redis的基础数据类型之一，类似于Java中的LinkedList。一个列表最多包含232个元素，常被用作模拟队列操作，接下来我们具体介绍一下List相关的命令。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1535382734/Blog/clean/%E4%B8%8B%E5%86%B0%E9%9B%B9.png">
-<meta property="og:updated_time" content="2018-09-05T14:54:08.754Z">
+<meta property="og:updated_time" content="2018-11-26T15:29:03.349Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="代码洁癖系列（二）：命名的艺术">
-<meta name="twitter:description" content="不知道大家还记不记得《家有儿女》里有这么一段经典台词：“我叫夏雪”，“我叫夏雨”，“我叫夏冰雹”。">
-<meta name="twitter:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1535382734/Blog/clean/%E4%B8%8B%E5%86%B0%E9%9B%B9.png">
+<meta name="twitter:title" content="Redis命令详解：Lists">
+<meta name="twitter:description" content="List是Redis的基础数据类型之一，类似于Java中的LinkedList。一个列表最多包含232个元素，常被用作模拟队列操作，接下来我们具体介绍一下List相关的命令。">
 
 
 
@@ -122,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="https://jackeyzhe.github.io/2018/08/27/代码洁癖系列（二）：命名的艺术/"/>
+  <link rel="canonical" href="https://jackeyzhe.github.io/2018/11/23/Redis命令详解：Lists/"/>
 
 
 
 
 
-  <title>代码洁癖系列（二）：命名的艺术 | Jackeyzhe</title>
+  <title>Redis命令详解：Lists | Jackeyzhe</title>
   
 
 
@@ -290,7 +288,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2018/08/27/代码洁癖系列（二）：命名的艺术/">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2018/11/23/Redis命令详解：Lists/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Jackey Wang">
@@ -307,7 +305,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">代码洁癖系列（二）：命名的艺术</h1>
+          <h1 class="post-title" itemprop="name headline">Redis命令详解：Lists</h1>
         
 
         <div class="post-meta">
@@ -319,8 +317,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-08-27T22:58:43+08:00">
-                2018-08-27
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-23T23:21:06+08:00">
+                2018-11-23
               </time>
             
 
@@ -362,43 +360,97 @@
       
 
       
-        <p>不知道大家还记不记得《家有儿女》里有这么一段经典台词：“我叫夏雪”，“我叫夏雨”，“我叫夏冰雹”。</p>
-<a id="more"></a>
-<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1535382734/Blog/clean/%E4%B8%8B%E5%86%B0%E9%9B%B9.png" alt="xiabingbao"></p>
-<p>刘星自己给自己起的名字承包了我所有笑点。但仔细想想这名字取的竟然还挺不错，不但有意义，还和夏雨夏雪的名字相呼应。</p>
-<p>回到主题，在我们的代码里，命名是随处可见的，比如给包命名，给类命名，方法名，参数名，变量名等等。那么什么样的命名才算是好的命名呢。这就是我们今天要讨论的。</p>
-<h4 id="名副其实"><a href="#名副其实" class="headerlink" title="名副其实"></a>名副其实</h4><p>首先还是要强调这一点，我读过的糟糕的代码有一个共同的特点，那就是代码中存在大量随意的，无意义的命名。比如：表示消耗多少小时的变量命名为h，同作用域中还有一个想要表示“小时”相关的变量直接命名为h1，一个List类型的变量就命名为list。读这种代码不会令人开心，同时写这种代码的程序员的人身安全是无法保证的。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> List&lt;String&gt; <span class="title">getThem</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    List&lt;String&gt; list = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    <span class="keyword">for</span> (String key : keys) &#123;</span><br><span class="line">        <span class="keyword">if</span> (theMap.get(key) == <span class="number">1</span>) &#123;</span><br><span class="line">            list.add(key);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> list;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>读一下上面这段代码，能看出有什么问题吗？或者说看完有人明白这段代码要做什么吗？</p>
-<p>我先来说一下我的问题：</p>
-<ol>
-<li>getThem是get什么？</li>
-<li>list里存的是什么</li>
-<li>keys指的是什么，为什么遍历它</li>
-<li>常量”1“的意义是什么</li>
-</ol>
-<p>这几个问题可能只有写这段代码的人才能解释（没错，就是我写的）。所以我来给大家解释一下，不过我不想一一回答上面的问题，我把代码重写一遍，看看还会不会有这样的问题。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> List&lt;String&gt; <span class="title">getPaidOrderIds</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    List&lt;String&gt; paidOrderIds = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    <span class="keyword">for</span> (String orderId : orderIds) &#123;</span><br><span class="line">        <span class="keyword">if</span> (orderStatus.get(orderId) == OrderConstatn.PAID) &#123;</span><br><span class="line">            paidOrderIds.add(orderId);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> paidOrderIds;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>怎么样，上面的问题都清楚了吗，如果不清楚可以私下和我联系，我会给你推荐一个非常好的英语学习软件。</p>
-<p>这就是名副其实的重要性。</p>
-<h4 id="避免误导"><a href="#避免误导" class="headerlink" title="避免误导"></a>避免误导</h4><p>命名过程中要注意的第二点就是要避免名称对别人产生误导，例如上面代码中paidOrderIds这个变量，如果我们命名成paidOrderIdList呢，看起来似乎没什么问题，但是如果这个变量是Set类型或者其他类型呢？命名为xxxList还合适吗，别人读代码的时候会下意识的认为这是个List类型的变量（尽量避免名称中出现类型的名字）。</p>
-<p>另一点容易产生误导的是数字和字母相像的情况，比如，我命名一个变量叫做O1，在编辑器里就很难分辨是O1还是01，如果我写一个这样的表达式 </p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">O0 = l1;</span><br></pre></td></tr></table></figure>
-<p>估计别人会以为我发明了什么新的语言吧。</p>
-<p>第三点是要避免区别较小的两个名称，比如XYZContinentController和XYZCentinentController这样的命名，对于读代码的人来说简直就是灾难，对于写代码的人来说也存在很大的风险。（为什么不是灾难？因为大部分人都是Ctrl+C/Ctrl+V的，这样就减小一些出错的几率。看来善用Ctrl+C/Ctrl+V还是很有必要的）</p>
-<h4 id="做有意义的区分"><a href="#做有意义的区分" class="headerlink" title="做有意义的区分"></a>做有意义的区分</h4><p>编译器要求我们在同一个区域内不能重复命名。那么有的程序员就会写出a1,a2,a3……这样的命名，这看起来很烂，谁也不知道它们有什么区别。再举过来一个栗子，一个包中有两个类，Product和ProductInfo，这时让你查一下商品名称，你知道要去哪个类里找吗？事实证明，这样的命名与a1,a2,a3之流别无二致。</p>
-<p>既然要做区分，为什么不做些有意义的区分呢，一个类叫做Product，表示商品信息，另一个叫做ProductStocks表示商品的库存信息。这样是不是更清晰一点呢，当然，我这里只是举个栗子，实际上可能不需要这样定义。</p>
-<h4 id="别随意使用简写"><a href="#别随意使用简写" class="headerlink" title="别随意使用简写"></a>别随意使用简写</h4><p>不要随意使用简写，除非是大家都知道的简写。比如美国的命名写成US，大家都可以理解，而如果generateCode写成genCode就令人费解了。</p>
-<h4 id="使用可以被搜索的名称"><a href="#使用可以被搜索的名称" class="headerlink" title="使用可以被搜索的名称"></a>使用可以被搜索的名称</h4><p>像我们在一开始的那段代码，为什么要把常量“1”写成OrderConstatn.PAID，不仅是为了可读，也是为了可搜索，试想，如果你要找这段代码，去搜索数字1，会有多少结果？搜索PAID呢？亲自试过之后相信你会回来点赞的。</p>
-<h4 id="类名和方法名"><a href="#类名和方法名" class="headerlink" title="类名和方法名"></a>类名和方法名</h4><p>类名和方法名也要遵循上面的规范，除此之外，它们还有各自的规范：</p>
+        <p>List是Redis的基础数据类型之一，类似于Java中的LinkedList。一个列表最多包含2<sup>32</sup>个元素，常被用作模拟队列操作，接下来我们具体介绍一下List相关的命令。<a id="more"></a></p>
+<h4 id="BLPOP"><a href="#BLPOP" class="headerlink" title="BLPOP"></a>BLPOP</h4><p>最早可用版本：2.0.0</p>
+<p>时间复杂度：O(1)</p>
+<p>用法：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">BLPOP key [key ...] timeout</span><br></pre></td></tr></table></figure>
+<p>BLPOP是LPOP的阻塞版本，当列表没有元素可以被弹出时，连接将被阻塞。当给定多个key，会按参数key的顺序检查各个列表，弹出第一个非空列表的的头元素。timeout表示阻塞的最大秒数，timeout为0表示无限阻塞。</p>
+<p>这里有一个问题，当多个元素同时push进一个list时，阻塞的BLPOP命令会有什么操作。在说明之前，我们先思考一下如何操作才会出现这样的情况：</p>
 <ul>
-<li>类名不应该是动词，避免使用Data、Info这样的词汇。</li>
-<li>方法名应该是动词，比如，saveXXX、deleteXXX</li>
+<li>对list执行LPUSH mylist a b c这样的命令</li>
+<li>对同一个list进行多次push操作，这些操作是在事务中执行的</li>
+<li>使用Redis2.6以后的版本执行Lua脚本进行push操作</li>
 </ul>
-<h4 id="要专一"><a href="#要专一" class="headerlink" title="要专一"></a>要专一</h4><p>假如你在不同的类中，分别定义了方法getXXX、fetchXXX和findXXX，我要调用的时候怎么知道某个类中应该使用哪种方法？所以，为什么不都用getXXX的形式呢？这样无论是对写代码的人还是对调用的人来说都是莫大的喜讯。</p>
-<h4 id="适当添加语境"><a href="#适当添加语境" class="headerlink" title="适当添加语境"></a>适当添加语境</h4><p>当你一些变量：firstName、lastName、street、houseNumber、city、state、zipcode。我们可以很轻易的判断出，他们组合在一起表示一个地址。那么把state单独拿出来呢？你还能知道它是什么意思吗？这时，我们可以把变量命名为addrState、addrFirstName……这样即便单独看某个变量，也会理解它要表达什么。当然更好的方法是定义一个名为Address的类，把这些变量放到类中，事实上我们也都是这样做的。</p>
-<p>当然，有时候也不能添加一些无意义的语境。我们要开发一个“画图”的应用，那在每个类名前加Drawing可不是什么好主意。</p>
-<h4 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h4><p>命名并不能算是什么技术，而是一种写代码的习惯，但这种习惯有可能会决定你作为一名程序员给人的第一印象。所以，养成一个好的命名习惯，也是对自己形象的维护。同时还能让自己的生命安全更有保障（避免被同事……</p>
+<p>对于这个问题，Redis2.4版本和Redis2.6以后的版本处理方法有所不同。</p>
+<p>假如客户端A执行命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">BLPOP mylist 0</span><br></pre></td></tr></table></figure>
+<p>这时mylist为空，客户端A会被阻塞，此时客户端B执行了命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LPUSH mylist a b c</span><br></pre></td></tr></table></figure>
+<p>如果在Redis2.6版本之后，客户端A会返回c，因为在客户端Bpush了元素a、b、c后，其从左到右的顺序是c、b、a，但是在Redis2.4版本中，客户端会在push操作的上下文，所以当LPUSH开始往list里push第一个元素时，它就被传送到客户端A，也就是客户端A会接收到a。</p>
+<p>有时，我们会有这样的需求：我们需要为了等待Set的新元素而阻塞队列，这样就需要一个阻塞版的SPOP，可惜目前还没有支持这样的命令。不过我们可以使用BLPOP命令来实现，下面是实现的伪代码：</p>
+<p>消费者：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">LOOP forever</span><br><span class="line">    WHILE SPOP(key) returns elements</span><br><span class="line">        ... process elements ...</span><br><span class="line">    END</span><br><span class="line">    BRPOP helper_key</span><br><span class="line">END</span><br></pre></td></tr></table></figure>
+<p>生产者：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">MULTI</span><br><span class="line">SADD key element</span><br><span class="line">LPUSH helper_key x</span><br><span class="line">EXEC</span><br></pre></td></tr></table></figure>
+<h4 id="BRPOP"><a href="#BRPOP" class="headerlink" title="BRPOP"></a>BRPOP</h4><p>最早可用版本：2.0.0</p>
+<p>时间复杂度：O(1)</p>
+<p>它与BLPOP基本相同，不同的地方在于它是从尾部弹出元素，而BLPOP是从头部弹出元素。</p>
+<h4 id="BRPOPLPUSH"><a href="#BRPOPLPUSH" class="headerlink" title="BRPOPLPUSH"></a>BRPOPLPUSH</h4><p>最早可用版本：2.2.0</p>
+<p>时间复杂度：O(1)</p>
+<p>用法：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">BRPOPLPUSH <span class="built_in">source</span> destination timeout</span><br></pre></td></tr></table></figure>
+<p>它是RPOPLPUSH的阻塞版本，当source包含元素时，它与RPOPLPUSH表现的一样，当source为空时，Redis会被阻塞，直到另一个客户端push元素，或者达到timeout时间限制。</p>
+<h4 id="LINDEX"><a href="#LINDEX" class="headerlink" title="LINDEX"></a>LINDEX</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：O(N)，N是找到目标元素所跨越元素的个数，当目标元素为第一个或者最后一个时，时间复杂度为O(1)。</p>
+<p>该命令用于返回列表中指定位置的元素，index是从0开始的，-1表示倒数第一个元素，-2表示倒数第二个元素，以此类推。当key不是一个list时，会返回一个错误。当index超出范围时返回nil。</p>
+<h4 id="LINSERT"><a href="#LINSERT" class="headerlink" title="LINSERT"></a>LINSERT</h4><p>最早可用版本：2.2.0</p>
+<p>时间复杂度：O(N)，N为在找到基准value前所跨越的元素个数。也就是说，如果插入到头部，时间复杂度为O(1)，如果插入到尾部，时间复杂度为O(N)。</p>
+<p>用法：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LINSERT key BEFORE|AFTER pivot value</span><br></pre></td></tr></table></figure>
+<p>该命令把value插入到基准值pivot的前面或者后面，如果key不存在，list被当做空列表，不会发生任何操作。如果key存储的不是list，则会报错。命令的返回值是，插入操作后，list的长度，如果找不到基准值pivot，则会返回-1。</p>
+<h4 id="LLEN"><a href="#LLEN" class="headerlink" title="LLEN"></a>LLEN</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：O(1)</p>
+<p>返回指定key的list的长度，如果key不存在，则被看作是空列表，返回0。如果key存储的不是list，则会报错。</p>
+<h4 id="LPOP"><a href="#LPOP" class="headerlink" title="LPOP"></a>LPOP</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：O(1)</p>
+<p>该命令用于删除并返回list的第一个元素。当key不存在时，返回nil。</p>
+<h4 id="LPUSH"><a href="#LPUSH" class="headerlink" title="LPUSH"></a>LPUSH</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：O(1)</p>
+<p>将所有指定的value插入列表的头部，如果key不存在，就先创建一个空列表并进行插入操作，如果key存储的不是list，则会返回一个错误。我们可以一次插入多个元素，他们从左到右依次被插入到list中，因此，</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LPUSH mylist a b c</span><br></pre></td></tr></table></figure>
+<p> 命令生成的列表，c是第一个元素，a是第三个元素。该命令的返回值是插入操作后列表的长度。需要注意的一点是：在Redis2.4版本以前（不包括2.4）是不支持一次插入多个元素的。</p>
+<h4 id="LPUSHX"><a href="#LPUSHX" class="headerlink" title="LPUSHX"></a>LPUSHX</h4><p>最早可用版本：2.2.0</p>
+<p>时间复杂度：O(1)</p>
+<p>当key存在时，在头部插入指定元素，key不存在时，不进行插入操作。</p>
+<h4 id="LRANGE"><a href="#LRANGE" class="headerlink" title="LRANGE"></a>LRANGE</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：O(S+N)，S是start元素的偏移量，N是指定范围元素的个数</p>
+<p>用法：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LRANGE key start stop</span><br></pre></td></tr></table></figure>
+<p>返回指定key的指定范围的元素，start和stop都是下标（从0开始），同样，下标可以是负数，-1表示倒数第一个，-2表示倒数第二个。命令返回的结果会包含下标为stop的元素。如果start超出list的长度返回，则会返回一个空的列表，如果stop超出list的长度返回，则会返回到最后一个元素。</p>
+<h4 id="LREM"><a href="#LREM" class="headerlink" title="LREM"></a>LREM</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：O(1)</p>
+<p>用法：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LREM key count value</span><br></pre></td></tr></table></figure>
+<p>移除list中前count次出现的value</p>
+<ul>
+<li>count&gt;0时：从头到尾匹配value</li>
+<li>count=0时：移除全部匹配到value的元素</li>
+<li>count&lt;0时，从尾部到头部匹配value</li>
+</ul>
+<p>当key不存在时，被当做空列表看待，直接返回0。</p>
+<h4 id="LSET"><a href="#LSET" class="headerlink" title="LSET"></a>LSET</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：O(N)，N为list的长度</p>
+<p>设置指定下标的value，如果下标超出范围，则会返回一个错误。</p>
+<h4 id="LTRIM"><a href="#LTRIM" class="headerlink" title="LTRIM"></a>LTRIM</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：O(N)，N删除掉的元素的个数</p>
+<p>该命令用来修剪一个已经存在的list，修剪后的list只包含指定范围的元素。start和stop都是从0开始的索引，例如，</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LTRIM foobar 0 2</span><br></pre></td></tr></table></figure>
+<p>就是只保留foobar的前3个元素。start和stop也可以是负数，-1表示倒数第一个元素，-2表示倒数第二个，以此类推。如果下标超出范围，并不会报错，而是进行如下处理：如果start比list的最后一个元素的下标大，或者start&gt;end，结果就是空list，如果end大于最大下标，Redis会将其当成最后一个元素来处理。</p>
+<h4 id="RPOP"><a href="#RPOP" class="headerlink" title="RPOP"></a>RPOP</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：O(1)</p>
+<p>删除并返回list的最后一个元素。当key不存在时，返回nil。</p>
+<h4 id="RPOPLPUSH"><a href="#RPOPLPUSH" class="headerlink" title="RPOPLPUSH"></a>RPOPLPUSH</h4><p>最早可用版本：1.2.0</p>
+<p>时间复杂度：O(1)</p>
+<p>原子性的返回并删除source的最后一个元素，并把该元素存储到destination的第一个元素的位置。举个栗子，source保存了元素a、b、c，destination保存了x、y、z，执行了</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">RPOPLPUSH <span class="built_in">source</span> destination</span><br></pre></td></tr></table></figure>
+<p>后，source保存的会是a、b，而destination保存的则是c、x、y、z。该命令的返回值是那个从source被移出和存入destination的元素。</p>
+<h4 id="RPUSH"><a href="#RPUSH" class="headerlink" title="RPUSH"></a>RPUSH</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：O(1)</p>
+<p>将指定元素插入到指定key的尾部。如果key不存在，就创建一个空的列表。如果key保存的不是list，则会返回一个错误。在2.4版本之后，可以使用一条命令一次插入多个值，插入的顺序是从左到右。</p>
+<h4 id="RPUSHX"><a href="#RPUSHX" class="headerlink" title="RPUSHX"></a>RPUSHX</h4><p>最早可用版本：2.2.0</p>
+<p>时间复杂度：O(1)</p>
+<p>它和RPUSH唯一不同的一点就是如果key不存在，就不会进行任何操作。</p>
 
       
     </div>
@@ -468,7 +520,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/整洁/" rel="tag"><i class="fa fa-tag"></i> 整洁</a>
+            <a href="/tags/Redis/" rel="tag"><i class="fa fa-tag"></i> Redis</a>
           
         </div>
       
@@ -481,8 +533,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/08/26/代码洁癖系列（一）：什么是整洁代码/" rel="next" title="代码洁癖系列（一）：什么是整洁代码">
-                <i class="fa fa-chevron-left"></i> 代码洁癖系列（一）：什么是整洁代码
+              <a href="/2018/11/22/Redis命令详解：Hashs/" rel="next" title="Redis命令详解：Hashs">
+                <i class="fa fa-chevron-left"></i> Redis命令详解：Hashs
               </a>
             
           </div>
@@ -490,10 +542,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/08/29/代码洁癖系列（三）：整洁的类和函数/" rel="prev" title="代码洁癖系列（三）：整洁的类和函数">
-                代码洁癖系列（三）：整洁的类和函数 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -650,7 +698,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#名副其实"><span class="nav-number">1.</span> <span class="nav-text">名副其实</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#避免误导"><span class="nav-number">2.</span> <span class="nav-text">避免误导</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#做有意义的区分"><span class="nav-number">3.</span> <span class="nav-text">做有意义的区分</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#别随意使用简写"><span class="nav-number">4.</span> <span class="nav-text">别随意使用简写</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用可以被搜索的名称"><span class="nav-number">5.</span> <span class="nav-text">使用可以被搜索的名称</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#类名和方法名"><span class="nav-number">6.</span> <span class="nav-text">类名和方法名</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#要专一"><span class="nav-number">7.</span> <span class="nav-text">要专一</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#适当添加语境"><span class="nav-number">8.</span> <span class="nav-text">适当添加语境</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#结语"><span class="nav-number">9.</span> <span class="nav-text">结语</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#BLPOP"><span class="nav-number">1.</span> <span class="nav-text">BLPOP</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#BRPOP"><span class="nav-number">2.</span> <span class="nav-text">BRPOP</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#BRPOPLPUSH"><span class="nav-number">3.</span> <span class="nav-text">BRPOPLPUSH</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#LINDEX"><span class="nav-number">4.</span> <span class="nav-text">LINDEX</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#LINSERT"><span class="nav-number">5.</span> <span class="nav-text">LINSERT</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#LLEN"><span class="nav-number">6.</span> <span class="nav-text">LLEN</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#LPOP"><span class="nav-number">7.</span> <span class="nav-text">LPOP</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#LPUSH"><span class="nav-number">8.</span> <span class="nav-text">LPUSH</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#LPUSHX"><span class="nav-number">9.</span> <span class="nav-text">LPUSHX</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#LRANGE"><span class="nav-number">10.</span> <span class="nav-text">LRANGE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#LREM"><span class="nav-number">11.</span> <span class="nav-text">LREM</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#LSET"><span class="nav-number">12.</span> <span class="nav-text">LSET</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#LTRIM"><span class="nav-number">13.</span> <span class="nav-text">LTRIM</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#RPOP"><span class="nav-number">14.</span> <span class="nav-text">RPOP</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#RPOPLPUSH"><span class="nav-number">15.</span> <span class="nav-text">RPOPLPUSH</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#RPUSH"><span class="nav-number">16.</span> <span class="nav-text">RPUSH</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#RPUSHX"><span class="nav-number">17.</span> <span class="nav-text">RPUSHX</span></a></li></ol></div>
             
 
           </div>
