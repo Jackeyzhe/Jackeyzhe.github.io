@@ -93,7 +93,7 @@
 <meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1544443793/Blog/Redis/reshard_end.png">
 <meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1544443769/Blog/Redis/add_node.png">
 <meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1544443767/Blog/Redis/add_node_slave.png">
-<meta property="og:updated_time" content="2018-12-18T17:03:52.348Z">
+<meta property="og:updated_time" content="2018-12-19T15:29:46.007Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="玩转Redis集群之Cluster">
 <meta name="twitter:description" content="前面我们介绍了国人自己开发的Redis集群方案——Codis，Codis友好的管理界面以及强大的自动平衡槽位的功能深受广大开发者的喜爱。今天我们一起来聊一聊Redis作者自己提供的集群方案——Cluster。希望读完这篇文章，你能够充分了解Codis和Cluster各自的优缺点，面对不同的应用场景可以从容的做出选择。">
@@ -461,7 +461,7 @@
 <li>检测到一个FAIL后，需要通知所有节点，但是没有办法保证每个节点都能成功收到消息</li>
 </ul>
 <p>由于是弱协议，Redis Cluster只要求所有节点对某个节点的状态最终保持一致。如果大部分master认为某个节点FAIL，那么最终所有节点都会将其标为FAIL。而如果只有一小部分master节点认为某个节点FAIL，slave并不会被提升为master，因此，FAIL状态将会被清除。</p>
-<h4 id="搭建"><a href="#搭建" class="headerlink" title="搭建"></a>搭建</h4><p>原理说了这么多，我们一定要来亲自动手搭建一个Redis Cluster，下面演示一个在一台机器上模拟搭建3主3从的Redis Cluster。</p>
+<h4 id="搭建"><a href="#搭建" class="headerlink" title="搭建"></a>搭建</h4><p>原理说了这么多，我们一定要来亲自动手搭建一个Redis Cluster，下面演示一个在一台机器上模拟搭建3主3从的Redis Cluster。当然，如果你想了解更多Redis Cluster的其他原理，可以查看<a href="https://redis.io/topics/cluster-spec" target="_blank" rel="noopener">官网</a>的介绍。</p>
 <h5 id="Redis环境"><a href="#Redis环境" class="headerlink" title="Redis环境"></a>Redis环境</h5><p>首先要搭建起我们需要的Redis环境，这里启动6个Redis实例，端口号分别是6379、6380、6479、6480、6579、6580</p>
 <p>拷贝6份Redis配置文件并进行如下修改（以6379为例，端口号和配置文件根据需要修改）：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">port 6379</span><br><span class="line">cluster-enabled yes</span><br><span class="line">cluster-config-file nodes6379.conf</span><br><span class="line">appendonly yes</span><br></pre></td></tr></table></figure>
