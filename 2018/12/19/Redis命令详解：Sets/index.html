@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="整洁," />
+  <meta name="keywords" content="Redis," />
 
 
 
@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="我们都知道，一个软件的维护成本往往要高于其研发成本。在维护过程中，我们的代码需要不断的进行迭代。迭代的目的有两个：修复bug和增加新特性。但是迭代也会带来一系列新的问题，比如新的bug，或者是破坏代码的整洁性。这里我们从保持代码整洁性的角度来讨论一下迭代的几个原则。">
-<meta name="keywords" content="整洁">
+<meta name="description" content="Redis的Set结构相当于Java中的HashSet，是无序的元素集合，并且元素都是唯一的。由于Set是通过hash表实现的，所以它的增加、删除、查找操作的时间复杂度都是O(1)。最大成员个数为232-1。 SADD最早可用版本：1.0.0 时间复杂度：每个元素的添加的时间复杂度为O(1)，如果要添加N个，时间复杂度就为O(N) 用法：SADD key member [member…] 将指定的">
+<meta name="keywords" content="Redis">
 <meta property="og:type" content="article">
-<meta property="og:title" content="代码洁癖系列（八）：迭代的原则">
-<meta property="og:url" content="https://jackeyzhe.github.io/2018/09/08/代码洁癖系列（八）：迭代的原则/index.html">
+<meta property="og:title" content="Redis命令详解：Sets">
+<meta property="og:url" content="https://jackeyzhe.github.io/2018/12/19/Redis命令详解：Sets/index.html">
 <meta property="og:site_name" content="Jackeyzhe">
-<meta property="og:description" content="我们都知道，一个软件的维护成本往往要高于其研发成本。在维护过程中，我们的代码需要不断的进行迭代。迭代的目的有两个：修复bug和增加新特性。但是迭代也会带来一系列新的问题，比如新的bug，或者是破坏代码的整洁性。这里我们从保持代码整洁性的角度来讨论一下迭代的几个原则。">
+<meta property="og:description" content="Redis的Set结构相当于Java中的HashSet，是无序的元素集合，并且元素都是唯一的。由于Set是通过hash表实现的，所以它的增加、删除、查找操作的时间复杂度都是O(1)。最大成员个数为232-1。 SADD最早可用版本：1.0.0 时间复杂度：每个元素的添加的时间复杂度为O(1)，如果要添加N个，时间复杂度就为O(N) 用法：SADD key member [member…] 将指定的">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-09-08T15:09:40.016Z">
+<meta property="og:updated_time" content="2018-12-20T15:13:16.415Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="代码洁癖系列（八）：迭代的原则">
-<meta name="twitter:description" content="我们都知道，一个软件的维护成本往往要高于其研发成本。在维护过程中，我们的代码需要不断的进行迭代。迭代的目的有两个：修复bug和增加新特性。但是迭代也会带来一系列新的问题，比如新的bug，或者是破坏代码的整洁性。这里我们从保持代码整洁性的角度来讨论一下迭代的几个原则。">
+<meta name="twitter:title" content="Redis命令详解：Sets">
+<meta name="twitter:description" content="Redis的Set结构相当于Java中的HashSet，是无序的元素集合，并且元素都是唯一的。由于Set是通过hash表实现的，所以它的增加、删除、查找操作的时间复杂度都是O(1)。最大成员个数为232-1。 SADD最早可用版本：1.0.0 时间复杂度：每个元素的添加的时间复杂度为O(1)，如果要添加N个，时间复杂度就为O(N) 用法：SADD key member [member…] 将指定的">
 
 
 
@@ -120,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="https://jackeyzhe.github.io/2018/09/08/代码洁癖系列（八）：迭代的原则/"/>
+  <link rel="canonical" href="https://jackeyzhe.github.io/2018/12/19/Redis命令详解：Sets/"/>
 
 
 
 
 
-  <title>代码洁癖系列（八）：迭代的原则 | Jackeyzhe</title>
+  <title>Redis命令详解：Sets | Jackeyzhe</title>
   
 
 
@@ -288,7 +288,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2018/09/08/代码洁癖系列（八）：迭代的原则/">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2018/12/19/Redis命令详解：Sets/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Jackey Wang">
@@ -305,7 +305,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">代码洁癖系列（八）：迭代的原则</h1>
+          <h1 class="post-title" itemprop="name headline">Redis命令详解：Sets</h1>
         
 
         <div class="post-meta">
@@ -317,8 +317,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-08T20:21:08+08:00">
-                2018-09-08
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-19T23:47:02+08:00">
+                2018-12-19
               </time>
             
 
@@ -360,12 +360,64 @@
       
 
       
-        <p>我们都知道，一个软件的维护成本往往要高于其研发成本。在维护过程中，我们的代码需要不断的进行迭代。迭代的目的有两个：修复bug和增加新特性。但是迭代也会带来一系列新的问题，比如新的bug，或者是破坏代码的整洁性。这里我们从保持代码整洁性的角度来讨论一下迭代的几个原则。<a id="more"></a></p>
-<h4 id="运行所有测试"><a href="#运行所有测试" class="headerlink" title="运行所有测试"></a>运行所有测试</h4><p>没错，首先的要说的还是测试，我们要在每次迭代代码之后，运行所有的测试，如有必要，也要编写新的测试。我们要编写尽量简单的测试，简单的测试会驱使我们降低类与类之间的耦合度。如果还不了解如何编写单元测试，可以参考一下旧文<a href="https://jackeyzhe.github.io/2018/09/04/%E4%BB%A3%E7%A0%81%E6%B4%81%E7%99%96%E7%B3%BB%E5%88%97%EF%BC%88%E4%B8%83%EF%BC%89%EF%BC%9A%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E7%9A%84%E5%9C%B0%E4%BD%8D/">代码洁癖系列（七）：单元测试的地位</a>。良好的测试不但是代码质量的保证，同时也是良好设计的引导。</p>
-<h4 id="不要重复“造轮子”"><a href="#不要重复“造轮子”" class="headerlink" title="不要重复“造轮子”"></a>不要重复“造轮子”</h4><p>记得我的leader曾经告诉过我：写每一行代码之前，要先思考一下有没有必要写这行代码。在实现一个功能之前，先确认一下这个功能是否已经被实现了。永远不要重复“造轮子”。但是，当我们进行一定的共性抽取时，可能已经违反了SRP原则（Single Responsibility Principle）。因此，抽取出的方法可能需要放在其他类中。</p>
-<h4 id="可读"><a href="#可读" class="headerlink" title="可读"></a>可读</h4><p>代码是程序员之间的交流工具，要想获得其他程序员的尊重，必须使你的代码具备可读性。这也是我们要保持代码整洁的原因。如何保证代码的可读性呢？首先需要的就是有意义的命名，关于命名规则，可以参考<a href="https://jackeyzhe.github.io/2018/08/27/%E4%BB%A3%E7%A0%81%E6%B4%81%E7%99%96%E7%B3%BB%E5%88%97%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9A%E5%91%BD%E5%90%8D%E7%9A%84%E8%89%BA%E6%9C%AF/">代码洁癖系列（二）：命名的艺术</a>这篇文章，其次就是通过测试用例让别人了解你的代码。</p>
-<h4 id="尽可能少的类和方法"><a href="#尽可能少的类和方法" class="headerlink" title="尽可能少的类和方法"></a>尽可能少的类和方法</h4><p>在<a href="https://jackeyzhe.github.io/2018/08/29/%E4%BB%A3%E7%A0%81%E6%B4%81%E7%99%96%E7%B3%BB%E5%88%97%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E6%95%B4%E6%B4%81%E7%9A%84%E7%B1%BB%E5%92%8C%E5%87%BD%E6%95%B0/">代码洁癖系列（三）：整洁的类和函数</a>一文中，我们说过类和函数都应该尽量短小。有人问了，为了类和函数都足够短小，我要把代码拆分成许多的类吗？这里需要说明一下，在这方面，我们并不需要追求极致。应该根据实际情况，合理的拆分。所以，也要尽量减少类和方法，这可能与“类和函数应该短小”这一原则相矛盾。这需要工程师自己去衡量了，首先要保证“类和函数应该短小”，其次才是尽可能减少类和方法。</p>
-<h4 id="结束语"><a href="#结束语" class="headerlink" title="结束语"></a>结束语</h4><p>到这里，”代码洁癖系列“的文章要告一段落了，希望大家在写代码的时候可以多思考，保证自己代码的整洁性。文章有什么问题，或者我有哪些遗漏的地方，大家可以通过去我的微信公众号后台留言和我讨论。</p>
+        <p>Redis的Set结构相当于Java中的HashSet，是无序的元素集合，并且元素都是唯一的。由于Set是通过hash表实现的，所以它的增加、删除、查找操作的时间复杂度都是O(1)。最大成员个数为2<sup>32</sup>-1。</p>
+<h4 id="SADD"><a href="#SADD" class="headerlink" title="SADD"></a>SADD</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：每个元素的添加的时间复杂度为O(1)，如果要添加N个，时间复杂度就为O(N)</p>
+<p>用法：SADD key member [member…]</p>
+<p>将指定的成员保存到key，如果成员已经存在，则直接忽略。如果key不存在，则先新建一个空set，再将成员添加进去。如果key存储不是一个set，则会报错。该命令执行成功后会返回实际添加成功的元素的个数。</p>
+<p>在2.4版本之后可以支持多个参数，即一个命令添加多个成员。</p>
+<h4 id="SCARD"><a href="#SCARD" class="headerlink" title="SCARD"></a>SCARD</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：O(1)</p>
+<p>返回key存储的set的元素个数。</p>
+<h4 id="SDIFF"><a href="#SDIFF" class="headerlink" title="SDIFF"></a>SDIFF</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：O(N)，N是所给出的元素个数的总和</p>
+<p>返回第一个set与后面元素的差集。不存在的key都被当做空set处理。</p>
+<p>栗子时间：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; SADD key1 a</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SADD key1 b</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SADD key1 c</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SADD key2 b</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SADD key3 c</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SADD key3 d</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SDIFF key1 key2 key3</span><br><span class="line">1) <span class="string">"a"</span></span><br></pre></td></tr></table></figure>
+<h4 id="SDIFFSTORE"><a href="#SDIFFSTORE" class="headerlink" title="SDIFFSTORE"></a>SDIFFSTORE</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：O(N)，N是所给出的元素个数的总和</p>
+<p>用法：SDIFFSTORE destination key [key…]</p>
+<p>这个命令和SDIFF命令的作用相同，但是不同的是，该命令不返回差集，而是将差集存储到destination，如果destination已经存在，就将覆盖旧值。该命令的返回值是差集中元素的个数。</p>
+<h4 id="SINTER"><a href="#SINTER" class="headerlink" title="SINTER"></a>SINTER</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：O(N*M)，N是最小set的元素个数，M是set的个数</p>
+<p>返回给出的所有set的交集。我们沿用刚刚SDIFF命令中使用的三个key，给key2增加一个元素c，此时三个key存储的元素情况为</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">key1=&#123;a,b,c&#125;</span><br><span class="line">key2=&#123;b,c&#125;</span><br><span class="line">key3=&#123;c,d&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; SADD key2 c</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SINTER key1 key2 key3</span><br><span class="line">1) <span class="string">"c"</span></span><br></pre></td></tr></table></figure>
+<h4 id="SINTERSTORE"><a href="#SINTERSTORE" class="headerlink" title="SINTERSTORE"></a>SINTERSTORE</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：O(N*M)，N是最小set的元素个数，M是set的个数</p>
+<p>该命令与SINTER的关系就像SDIFF与SDIFFSTORE的关系一样，因此我们不过多介绍了。</p>
+<h4 id="SISMEMBER"><a href="#SISMEMBER" class="headerlink" title="SISMEMBER"></a>SISMEMBER</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：O(1)</p>
+<p>该命令用于判断某个元素是否属于指定的key，如果属于，返回1；如果不属于或者key不存在，返回0。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; SADD myset <span class="string">"jackeyzhe"</span></span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SISMEMBER myset <span class="string">"jackeyzhe"</span></span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SISMEMBER myset <span class="string">"2018"</span></span><br><span class="line">(<span class="built_in">integer</span>) 0</span><br></pre></td></tr></table></figure>
+<h4 id="SMEMBERS"><a href="#SMEMBERS" class="headerlink" title="SMEMBERS"></a>SMEMBERS</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：O(N)，N是set的元素个数</p>
+<p>返回指定set的全部成员，当SINTER只有一个参数时，作用与该命令相同。</p>
+<h4 id="SMOVE"><a href="#SMOVE" class="headerlink" title="SMOVE"></a>SMOVE</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：O(1)</p>
+<p>将成员从一个set转移到另一个set中，这个操作是原子操作。如果源set不存在，或者不包含要转移的成员，那么就不会有任何操作，直接返回0。如果转移的成员在目标set中已经存在，那么只需要将该成员从源set中删除即可。如果源set或者目标set中的一个不是set结构，那么该命令就会报错。</p>
+<p>如果成员被成功转移，就会返回1，如果没有进行转移操作，就会返回0。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; SADD from_set <span class="string">"a"</span></span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SADD from_set <span class="string">"b"</span></span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SMOVE from_set to_set <span class="string">"a"</span></span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SMEMBERS from_set</span><br><span class="line">1) <span class="string">"b"</span></span><br><span class="line">127.0.0.1:6379&gt; SMEMBERS to_set</span><br><span class="line">1) <span class="string">"a"</span></span><br></pre></td></tr></table></figure>
+<h4 id="SPOP"><a href="#SPOP" class="headerlink" title="SPOP"></a>SPOP</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：O(1)</p>
+<p>用法：SPOP key [count]</p>
+<p>从指定set中删除并返回一个或多个随机元素。3.2版本以后支持count参数，即可以一次返回多个元素。如果key不存在，则返回nil。</p>
+<p>如果count大于set中元素的个数，那么该命令就会返回set中现有的所有元素。</p>
+<h4 id="SRANDMEMBER"><a href="#SRANDMEMBER" class="headerlink" title="SRANDMEMBER"></a>SRANDMEMBER</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：当没有count参数时是O(1)，否则为O(N)，N为count的绝对值</p>
+<p>该命令用于随机返回set中的元素。从2.6版本开始支持count参数，如果count是正数，则返回count个不同元素的数组；如果count是负数，则允许同一个元素多次返回。</p>
+<h4 id="SREM"><a href="#SREM" class="headerlink" title="SREM"></a>SREM</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：O(N)，N为指定member的个数</p>
+<p>该命令用于从set中删除指定元素，如果不包含该元素，那么直接忽略。如果key不存在，则会当做空set处理，直接返回0。从2.4版本开始，该命令支持一次删除多个成员。</p>
+<h4 id="SSCAN"><a href="#SSCAN" class="headerlink" title="SSCAN"></a>SSCAN</h4><p>此命令是SCAN命令的同类，可以通过我的另一篇文章<a href="https://jackeyzhe.github.io/2018/09/26/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Redis%E7%9A%84scan%E5%91%BD%E4%BB%A4/">深入理解Redis的scan命令</a>来进行更深入的了解</p>
+<h4 id="SUNION"><a href="#SUNION" class="headerlink" title="SUNION"></a>SUNION</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：O(N)，N为给出的所有set的元素个数之和</p>
+<p>返回给定set的并集。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; SMEMBERS key2</span><br><span class="line">1) <span class="string">"b"</span></span><br><span class="line">2) <span class="string">"c"</span></span><br><span class="line">127.0.0.1:6379&gt; SMEMBERS key3</span><br><span class="line">1) <span class="string">"d"</span></span><br><span class="line">2) <span class="string">"c"</span></span><br><span class="line">127.0.0.1:6379&gt; SUNION key2 key3</span><br><span class="line">1) <span class="string">"d"</span></span><br><span class="line">2) <span class="string">"b"</span></span><br><span class="line">3) <span class="string">"c"</span></span><br></pre></td></tr></table></figure>
+<h4 id="SUNIONSTORE"><a href="#SUNIONSTORE" class="headerlink" title="SUNIONSTORE"></a>SUNIONSTORE</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：O(N)，N为给出的所有set的元素个数之和</p>
+<p>该命令与SUNION的关系就像SDIFF与SDIFFSTORE的关系一样。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; SUNIONSTORE mykey key2 key3</span><br><span class="line">(<span class="built_in">integer</span>) 3</span><br><span class="line">127.0.0.1:6379&gt; SMEMBERS mykey</span><br><span class="line">1) <span class="string">"d"</span></span><br><span class="line">2) <span class="string">"b"</span></span><br><span class="line">3) <span class="string">"c"</span></span><br></pre></td></tr></table></figure>
 
       
     </div>
@@ -435,7 +487,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/整洁/" rel="tag"><i class="fa fa-tag"></i> 整洁</a>
+            <a href="/tags/Redis/" rel="tag"><i class="fa fa-tag"></i> Redis</a>
           
         </div>
       
@@ -448,8 +500,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/09/07/实用的工具，有趣的人/" rel="next" title="实用的工具，有趣的人">
-                <i class="fa fa-chevron-left"></i> 实用的工具，有趣的人
+              <a href="/2018/11/27/玩转Redis集群之Cluster/" rel="next" title="玩转Redis集群之Cluster">
+                <i class="fa fa-chevron-left"></i> 玩转Redis集群之Cluster
               </a>
             
           </div>
@@ -457,10 +509,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/09/11/使用ModelMapper的一次踩坑经历/" rel="prev" title="使用ModelMapper的一次踩坑经历">
-                使用ModelMapper的一次踩坑经历 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -617,7 +665,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#运行所有测试"><span class="nav-number">1.</span> <span class="nav-text">运行所有测试</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#不要重复“造轮子”"><span class="nav-number">2.</span> <span class="nav-text">不要重复“造轮子”</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#可读"><span class="nav-number">3.</span> <span class="nav-text">可读</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#尽可能少的类和方法"><span class="nav-number">4.</span> <span class="nav-text">尽可能少的类和方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#结束语"><span class="nav-number">5.</span> <span class="nav-text">结束语</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#SADD"><span class="nav-number">1.</span> <span class="nav-text">SADD</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SCARD"><span class="nav-number">2.</span> <span class="nav-text">SCARD</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SDIFF"><span class="nav-number">3.</span> <span class="nav-text">SDIFF</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SDIFFSTORE"><span class="nav-number">4.</span> <span class="nav-text">SDIFFSTORE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SINTER"><span class="nav-number">5.</span> <span class="nav-text">SINTER</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SINTERSTORE"><span class="nav-number">6.</span> <span class="nav-text">SINTERSTORE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SISMEMBER"><span class="nav-number">7.</span> <span class="nav-text">SISMEMBER</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SMEMBERS"><span class="nav-number">8.</span> <span class="nav-text">SMEMBERS</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SMOVE"><span class="nav-number">9.</span> <span class="nav-text">SMOVE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SPOP"><span class="nav-number">10.</span> <span class="nav-text">SPOP</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SRANDMEMBER"><span class="nav-number">11.</span> <span class="nav-text">SRANDMEMBER</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SREM"><span class="nav-number">12.</span> <span class="nav-text">SREM</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SSCAN"><span class="nav-number">13.</span> <span class="nav-text">SSCAN</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SUNION"><span class="nav-number">14.</span> <span class="nav-text">SUNION</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SUNIONSTORE"><span class="nav-number">15.</span> <span class="nav-text">SUNIONSTORE</span></a></li></ol></div>
             
 
           </div>

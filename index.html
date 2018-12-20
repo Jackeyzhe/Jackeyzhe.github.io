@@ -285,6 +285,187 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2018/12/19/Redis命令详解：Sets/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jackey Wang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/12/19/Redis命令详解：Sets/" itemprop="url">Redis命令详解：Sets</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-19T23:47:02+08:00">
+                2018-12-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>Redis的Set结构相当于Java中的HashSet，是无序的元素集合，并且元素都是唯一的。由于Set是通过hash表实现的，所以它的增加、删除、查找操作的时间复杂度都是O(1)。最大成员个数为2<sup>32</sup>-1。</p>
+<h4 id="SADD"><a href="#SADD" class="headerlink" title="SADD"></a>SADD</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：每个元素的添加的时间复杂度为O(1)，如果要添加N个，时间复杂度就为O(N)</p>
+<p>用法：SADD key member [member…]</p>
+<p>将指定的成员保存到key，如果成员已经存在，则直接忽略。如果key不存在，则先新建一个空set，再将成员添加进去。如果key存储不是一个set，则会报错。该命令执行成功后会返回实际添加成功的元素的个数。</p>
+<p>在2.4版本之后可以支持多个参数，即一个命令添加多个成员。</p>
+<h4 id="SCARD"><a href="#SCARD" class="headerlink" title="SCARD"></a>SCARD</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：O(1)</p>
+<p>返回key存储的set的元素个数。</p>
+<h4 id="SDIFF"><a href="#SDIFF" class="headerlink" title="SDIFF"></a>SDIFF</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：O(N)，N是所给出的元素个数的总和</p>
+<p>返回第一个set与后面元素的差集。不存在的key都被当做空set处理。</p>
+<p>栗子时间：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; SADD key1 a</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SADD key1 b</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SADD key1 c</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SADD key2 b</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SADD key3 c</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SADD key3 d</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SDIFF key1 key2 key3</span><br><span class="line">1) <span class="string">"a"</span></span><br></pre></td></tr></table></figure>
+<h4 id="SDIFFSTORE"><a href="#SDIFFSTORE" class="headerlink" title="SDIFFSTORE"></a>SDIFFSTORE</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：O(N)，N是所给出的元素个数的总和</p>
+<p>用法：SDIFFSTORE destination key [key…]</p>
+<p>这个命令和SDIFF命令的作用相同，但是不同的是，该命令不返回差集，而是将差集存储到destination，如果destination已经存在，就将覆盖旧值。该命令的返回值是差集中元素的个数。</p>
+<h4 id="SINTER"><a href="#SINTER" class="headerlink" title="SINTER"></a>SINTER</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：O(N*M)，N是最小set的元素个数，M是set的个数</p>
+<p>返回给出的所有set的交集。我们沿用刚刚SDIFF命令中使用的三个key，给key2增加一个元素c，此时三个key存储的元素情况为</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">key1=&#123;a,b,c&#125;</span><br><span class="line">key2=&#123;b,c&#125;</span><br><span class="line">key3=&#123;c,d&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; SADD key2 c</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SINTER key1 key2 key3</span><br><span class="line">1) <span class="string">"c"</span></span><br></pre></td></tr></table></figure>
+<h4 id="SINTERSTORE"><a href="#SINTERSTORE" class="headerlink" title="SINTERSTORE"></a>SINTERSTORE</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：O(N*M)，N是最小set的元素个数，M是set的个数</p>
+<p>该命令与SINTER的关系就像SDIFF与SDIFFSTORE的关系一样，因此我们不过多介绍了。</p>
+<h4 id="SISMEMBER"><a href="#SISMEMBER" class="headerlink" title="SISMEMBER"></a>SISMEMBER</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：O(1)</p>
+<p>该命令用于判断某个元素是否属于指定的key，如果属于，返回1；如果不属于或者key不存在，返回0。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; SADD myset <span class="string">"jackeyzhe"</span></span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SISMEMBER myset <span class="string">"jackeyzhe"</span></span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SISMEMBER myset <span class="string">"2018"</span></span><br><span class="line">(<span class="built_in">integer</span>) 0</span><br></pre></td></tr></table></figure>
+<h4 id="SMEMBERS"><a href="#SMEMBERS" class="headerlink" title="SMEMBERS"></a>SMEMBERS</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：O(N)，N是set的元素个数</p>
+<p>返回指定set的全部成员，当SINTER只有一个参数时，作用与该命令相同。</p>
+<h4 id="SMOVE"><a href="#SMOVE" class="headerlink" title="SMOVE"></a>SMOVE</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：O(1)</p>
+<p>将成员从一个set转移到另一个set中，这个操作是原子操作。如果源set不存在，或者不包含要转移的成员，那么就不会有任何操作，直接返回0。如果转移的成员在目标set中已经存在，那么只需要将该成员从源set中删除即可。如果源set或者目标set中的一个不是set结构，那么该命令就会报错。</p>
+<p>如果成员被成功转移，就会返回1，如果没有进行转移操作，就会返回0。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; SADD from_set <span class="string">"a"</span></span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SADD from_set <span class="string">"b"</span></span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SMOVE from_set to_set <span class="string">"a"</span></span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SMEMBERS from_set</span><br><span class="line">1) <span class="string">"b"</span></span><br><span class="line">127.0.0.1:6379&gt; SMEMBERS to_set</span><br><span class="line">1) <span class="string">"a"</span></span><br></pre></td></tr></table></figure>
+<h4 id="SPOP"><a href="#SPOP" class="headerlink" title="SPOP"></a>SPOP</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：O(1)</p>
+<p>用法：SPOP key [count]</p>
+<p>从指定set中删除并返回一个或多个随机元素。3.2版本以后支持count参数，即可以一次返回多个元素。如果key不存在，则返回nil。</p>
+<p>如果count大于set中元素的个数，那么该命令就会返回set中现有的所有元素。</p>
+<h4 id="SRANDMEMBER"><a href="#SRANDMEMBER" class="headerlink" title="SRANDMEMBER"></a>SRANDMEMBER</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：当没有count参数时是O(1)，否则为O(N)，N为count的绝对值</p>
+<p>该命令用于随机返回set中的元素。从2.6版本开始支持count参数，如果count是正数，则返回count个不同元素的数组；如果count是负数，则允许同一个元素多次返回。</p>
+<h4 id="SREM"><a href="#SREM" class="headerlink" title="SREM"></a>SREM</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：O(N)，N为指定member的个数</p>
+<p>该命令用于从set中删除指定元素，如果不包含该元素，那么直接忽略。如果key不存在，则会当做空set处理，直接返回0。从2.4版本开始，该命令支持一次删除多个成员。</p>
+<h4 id="SSCAN"><a href="#SSCAN" class="headerlink" title="SSCAN"></a>SSCAN</h4><p>此命令是SCAN命令的同类，可以通过我的另一篇文章<a href="https://jackeyzhe.github.io/2018/09/26/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Redis%E7%9A%84scan%E5%91%BD%E4%BB%A4/">深入理解Redis的scan命令</a>来进行更深入的了解</p>
+<h4 id="SUNION"><a href="#SUNION" class="headerlink" title="SUNION"></a>SUNION</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：O(N)，N为给出的所有set的元素个数之和</p>
+<p>返回给定set的并集。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; SMEMBERS key2</span><br><span class="line">1) <span class="string">"b"</span></span><br><span class="line">2) <span class="string">"c"</span></span><br><span class="line">127.0.0.1:6379&gt; SMEMBERS key3</span><br><span class="line">1) <span class="string">"d"</span></span><br><span class="line">2) <span class="string">"c"</span></span><br><span class="line">127.0.0.1:6379&gt; SUNION key2 key3</span><br><span class="line">1) <span class="string">"d"</span></span><br><span class="line">2) <span class="string">"b"</span></span><br><span class="line">3) <span class="string">"c"</span></span><br></pre></td></tr></table></figure>
+<h4 id="SUNIONSTORE"><a href="#SUNIONSTORE" class="headerlink" title="SUNIONSTORE"></a>SUNIONSTORE</h4><p>最早可用版本：1.0.0</p>
+<p>时间复杂度：O(N)，N为给出的所有set的元素个数之和</p>
+<p>该命令与SUNION的关系就像SDIFF与SDIFFSTORE的关系一样。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; SUNIONSTORE mykey key2 key3</span><br><span class="line">(<span class="built_in">integer</span>) 3</span><br><span class="line">127.0.0.1:6379&gt; SMEMBERS mykey</span><br><span class="line">1) <span class="string">"d"</span></span><br><span class="line">2) <span class="string">"b"</span></span><br><span class="line">3) <span class="string">"c"</span></span><br></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+      <div>
+        
+      </div>
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2018/11/27/玩转Redis集群之Cluster/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1424,134 +1605,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2018/09/17/Redis基础数据结构/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Jackey Wang">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Jackeyzhe">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/09/17/Redis基础数据结构/" itemprop="url">Redis基础数据结构</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-17T23:04:19+08:00">
-                2018-09-17
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>Redis是一款完全免费的，高性能的key-value数据库，目前被大多数公司用来做缓存。Redis作为一个内存数据库，它的读写速度非常快：读速度可以达到110000次/s，写的速度是81000次/s 。相比于其他key-value数据库，Redis的另一大特性就是支持多种数据类型。今天我们来一起聊一聊Redis的5种基础数据类型。
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/09/17/Redis基础数据结构/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-      <div>
-        
-      </div>
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1602,7 +1655,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">25</span>
+                  <span class="site-state-item-count">26</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
