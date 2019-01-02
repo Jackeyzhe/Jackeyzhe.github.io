@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="Redis的Set结构相当于Java中的HashSet，是无序的元素集合，并且元素都是唯一的。由于Set是通过hash表实现的，所以它的增加、删除、查找操作的时间复杂度都是O(1)。最大成员个数为232-1。 SADD最早可用版本：1.0.0 时间复杂度：每个元素的添加的时间复杂度为O(1)，如果要添加N个，时间复杂度就为O(N) 用法：SADD key member [member…] 将指定的">
+<meta name="description" content="Redis的Set结构相当于Java中的HashSet，是无序的元素集合，并且元素都是唯一的。由于Set是通过hash表实现的，所以它的增加、删除、查找操作的时间复杂度都是O(1)。最大成员个数为232-1。">
 <meta name="keywords" content="Redis">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Redis命令详解：Sets">
 <meta property="og:url" content="https://jackeyzhe.github.io/2018/12/19/Redis命令详解：Sets/index.html">
 <meta property="og:site_name" content="Jackeyzhe">
-<meta property="og:description" content="Redis的Set结构相当于Java中的HashSet，是无序的元素集合，并且元素都是唯一的。由于Set是通过hash表实现的，所以它的增加、删除、查找操作的时间复杂度都是O(1)。最大成员个数为232-1。 SADD最早可用版本：1.0.0 时间复杂度：每个元素的添加的时间复杂度为O(1)，如果要添加N个，时间复杂度就为O(N) 用法：SADD key member [member…] 将指定的">
+<meta property="og:description" content="Redis的Set结构相当于Java中的HashSet，是无序的元素集合，并且元素都是唯一的。由于Set是通过hash表实现的，所以它的增加、删除、查找操作的时间复杂度都是O(1)。最大成员个数为232-1。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-12-20T15:13:16.415Z">
+<meta property="og:updated_time" content="2019-01-01T16:25:44.121Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Redis命令详解：Sets">
-<meta name="twitter:description" content="Redis的Set结构相当于Java中的HashSet，是无序的元素集合，并且元素都是唯一的。由于Set是通过hash表实现的，所以它的增加、删除、查找操作的时间复杂度都是O(1)。最大成员个数为232-1。 SADD最早可用版本：1.0.0 时间复杂度：每个元素的添加的时间复杂度为O(1)，如果要添加N个，时间复杂度就为O(N) 用法：SADD key member [member…] 将指定的">
+<meta name="twitter:description" content="Redis的Set结构相当于Java中的HashSet，是无序的元素集合，并且元素都是唯一的。由于Set是通过hash表实现的，所以它的增加、删除、查找操作的时间复杂度都是O(1)。最大成员个数为232-1。">
 
 
 
@@ -360,7 +360,7 @@
       
 
       
-        <p>Redis的Set结构相当于Java中的HashSet，是无序的元素集合，并且元素都是唯一的。由于Set是通过hash表实现的，所以它的增加、删除、查找操作的时间复杂度都是O(1)。最大成员个数为2<sup>32</sup>-1。</p>
+        <p>Redis的Set结构相当于Java中的HashSet，是无序的元素集合，并且元素都是唯一的。由于Set是通过hash表实现的，所以它的增加、删除、查找操作的时间复杂度都是O(1)。最大成员个数为2<sup>32</sup>-1。<a id="more"></a></p>
 <h4 id="SADD"><a href="#SADD" class="headerlink" title="SADD"></a>SADD</h4><p>最早可用版本：1.0.0</p>
 <p>时间复杂度：每个元素的添加的时间复杂度为O(1)，如果要添加N个，时间复杂度就为O(N)</p>
 <p>用法：SADD key member [member…]</p>
