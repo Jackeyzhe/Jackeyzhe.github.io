@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="Jackeyzhe">
 <meta property="og:description" content="当我们对不断加深对某一项技术的了解时，一定会在一个特定的时间对它的实现方式产生兴趣。没错，这就是我现在的状态，所以，多年没有读/写C语言的我，决定要啃一下Redis的源码。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-01-04T16:38:17.795Z">
+<meta property="og:updated_time" content="2019-01-05T05:21:35.900Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="走近源码：Redis的启动过程">
 <meta name="twitter:description" content="当我们对不断加深对某一项技术的了解时，一定会在一个特定的时间对它的实现方式产生兴趣。没错，这就是我现在的状态，所以，多年没有读/写C语言的我，决定要啃一下Redis的源码。">
@@ -444,6 +444,7 @@
 <h5 id="进入主循环事件"><a href="#进入主循环事件" class="headerlink" title="进入主循环事件"></a>进入主循环事件</h5><p>程序调用aeMain()函数，进入主循环，这时其他的一些循环事件也会分别被调用</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">aeMain</span><span class="params">(aeEventLoop *eventLoop)</span> </span>&#123;</span><br><span class="line">    eventLoop-&gt;stop = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (!eventLoop-&gt;stop) &#123;</span><br><span class="line">        <span class="keyword">if</span> (eventLoop-&gt;beforesleep != <span class="literal">NULL</span>)</span><br><span class="line">            eventLoop-&gt;beforesleep(eventLoop);</span><br><span class="line">        aeProcessEvents(eventLoop, AE_ALL_EVENTS|AE_CALL_AFTER_SLEEP);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>到此，Redis服务器已经完全准备好处理各种事件了。后面我们会继续了解Redis命令执行过程究竟做了哪些事情。</p>
+<p><code>参考</code>：<a href="https://pauladamsmith.com/articles/redis-under-the-hood.html" target="_blank" rel="noopener">Redis: under the hood</a></p>
 
       
     </div>
@@ -536,6 +537,10 @@
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/2019/01/05/走近源码：Redis如何执行命令/" rel="prev" title="走近源码：Redis如何执行命令">
+                走近源码：Redis如何执行命令 <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -617,7 +622,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-count">29</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Java,Python,Linux" />
+  <meta name="keywords" content="Redis," />
 
 
 
@@ -79,15 +79,18 @@
 
 
 
-<meta name="keywords" content="Java,Linux,Python,Hadoop">
-<meta property="og:type" content="website">
-<meta property="og:title" content="标签">
-<meta property="og:url" content="https://jackeyzhe.github.io/tags/index.html">
+<meta name="description" content="前文我们了解了Redis的启动过程。在initServer()函数中创建了一些循环事件来监听TCP端口和Unix的Sockets，从而使Redis服务器可以接收新的连接。今天我们再一起来看一下Redis究竟是如何处理命令并返回结果的。">
+<meta name="keywords" content="Redis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="走近源码：Redis如何执行命令">
+<meta property="og:url" content="https://jackeyzhe.github.io/2019/01/05/走近源码：Redis如何执行命令/index.html">
 <meta property="og:site_name" content="Jackeyzhe">
+<meta property="og:description" content="前文我们了解了Redis的启动过程。在initServer()函数中创建了一些循环事件来监听TCP端口和Unix的Sockets，从而使Redis服务器可以接收新的连接。今天我们再一起来看一下Redis究竟是如何处理命令并返回结果的。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-08-05T06:31:43.842Z">
+<meta property="og:updated_time" content="2019-01-06T11:31:52.984Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="标签">
+<meta name="twitter:title" content="走近源码：Redis如何执行命令">
+<meta name="twitter:description" content="前文我们了解了Redis的启动过程。在initServer()函数中创建了一些循环事件来监听TCP端口和Unix的Sockets，从而使Redis服务器可以接收新的连接。今天我们再一起来看一下Redis究竟是如何处理命令并返回结果的。">
 
 
 
@@ -117,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="https://jackeyzhe.github.io/tags/"/>
+  <link rel="canonical" href="https://jackeyzhe.github.io/2019/01/05/走近源码：Redis如何执行命令/"/>
 
 
 
 
 
-  <title>标签 | Jackeyzhe</title>
+  <title>走近源码：Redis如何执行命令 | Jackeyzhe</title>
   
 
 
@@ -273,40 +276,233 @@
 
   <div id="posts" class="posts-expand">
     
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2019/01/05/走近源码：Redis如何执行命令/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jackey Wang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe">
+    </span>
+
     
-    
-    <div class="post-block page">
       <header class="post-header">
 
-	<h1 class="post-title" itemprop="name headline">标签</h1>
-
-
-
-</header>
-
-      
-      
-      
-      <div class="post-body">
         
         
-          <div class="tag-cloud">
-            <div class="tag-cloud-title">
-                目前共计 5 个标签
-            </div>
-            <div class="tag-cloud-tags">
-              <a href="/tags/Java/" style="font-size: 18px; color: #8e8e8e">Java</a> <a href="/tags/Redis/" style="font-size: 30px; color: #111">Redis</a> <a href="/tags/git/" style="font-size: 12px; color: #ccc">git</a> <a href="/tags/整洁/" style="font-size: 24px; color: #4f4f4f">整洁</a> <a href="/tags/瞎扯/" style="font-size: 18px; color: #8e8e8e">瞎扯</a>
-            </div>
-          </div>
+          <h1 class="post-title" itemprop="name headline">走近源码：Redis如何执行命令</h1>
         
-      </div>
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-01-05T17:23:28+08:00">
+                2019-01-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
       
+
+      
+        <p><a href="https://jackeyzhe.github.io/2019/01/04/%E8%B5%B0%E8%BF%91%E6%BA%90%E7%A0%81%EF%BC%9ARedis%E7%9A%84%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/">前文</a>我们了解了Redis的启动过程。在initServer()函数中创建了一些循环事件来监听TCP端口和Unix的Sockets，从而使Redis服务器可以接收新的连接。今天我们再一起来看一下Redis究竟是如何处理命令并返回结果的。<a id="more"></a></p>
+<h5 id="处理新连接"><a href="#处理新连接" class="headerlink" title="处理新连接"></a>处理新连接</h5><p>Redis在initServer()函数中创建循环事件调用了acceptTcpHandler和acceptUnixHandler函数（都在networking.c文件中）来处理接收到的TCP连接和Unix的Sockets连接。这两个函数又调用了acceptCommonHandler()函数，在这个函数中调用了createClient()函数创建一个新的client对象，用来表示一个新的客户端连接。</p>
+<p>createClient()函数具体做了哪些事情呢？</p>
+<p>首先为变量c分配了内存，接着将Socket连接置为非阻塞状态，并且设置了TCP无延迟。然后创建了File循环事件（aeCreateFileEvent）来调用readQueryFromClient函数。新建的客户端默认连接的是服务器的第一个数据库（编码为0），最后需要设置好客户端的各种属性和状态。</p>
+<h5 id="读一个客户端的命令"><a href="#读一个客户端的命令" class="headerlink" title="读一个客户端的命令"></a>读一个客户端的命令</h5><p>刚刚我们提到了readQueryFromClient函数，从名称上就能看出来这个函数是用来从客户端读取命令的。下面来看看函数的具体实现。</p>
+<p>Redis会先将命令读入缓冲区，一次最多读取的大小是PROTO_IOBUF_LEN（1024*16）bit。然后调用processInputBufferAndReplicate()函数，来处理缓冲区中的数据，如果客户端是master（主从同步过程），那么Redis会计算处理前后缓冲区的不同部分，以确定从节点接收了多少数据。processInputBufferAndReplicate()函数会处理客户端向服务器发送命令和主节点向从节点发送命令这两种情况，不过最后都需要调用processInputBuffer()函数。</p>
+<p>processInputBuffer()函数会先判断客户端是否正常，如果出现连接中断或者客户端阻塞等情况，就会立即停止处理命令，不做无用功。然后根据读取的请求生成相应的Redis可以执行的命令（包括参数）。不同的请求类型分别调用processInlineBuffer()和processMultibulkBuffer()函数。生成好命令之后，交给processCommand()（server.c文件中）函数执行，如果返回C_OK则重置客户端，等待下一个命令。如果返回的是C_ERR，则客户端会被销毁（比如执行QUIT命令）。</p>
+<p>processCommand()函数会从Redis启动时加载的命令表中查找命令，然后检查命令的执行权限。</p>
+<p>如果是cluster，这时会判断key是否属于当前的master，不属于需要返回重定向信息。</p>
+<p>如果内存不够用，这里也需要判断一下是否有可以释放的内存，如果没有，就不能执行命令，返回错误信息。</p>
+<p>接下来会判断一些不能接收写命令的情况：</p>
+<ul>
+<li>服务器不能进行持久化</li>
+<li>作为master，没有足够的可用的slave</li>
+<li>此服务器为只读的slave，只有它的master可以接收写命令</li>
+</ul>
+<p>在订阅模式中，只能接收指定的命令：(P)SUBSCRIBE / (P)UNSUBSCRIBE / PING / QUIT。</p>
+<p>当slave和master失联时，只能接收有flag “t”的命令，例如，INFO，SLAVEOF等。</p>
+<p>如果命令没有CMD_LOADING标志，并且当前服务器正在加载数据，则不能接收此命令。</p>
+<p>对lua脚本的长度进行限制。</p>
+<p>进行完上面的各种条件判断之后，才可以真正开始调用call()函数执行命令。</p>
+<h5 id="执行命令并返回"><a href="#执行命令并返回" class="headerlink" title="执行命令并返回"></a>执行命令并返回</h5><p>call()函数的参数是client类型的，取出cmd成员进行执行。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Call the command. */</span></span><br><span class="line">dirty = server.dirty;</span><br><span class="line">start = ustime();</span><br><span class="line">c-&gt;cmd-&gt;proc(c);</span><br><span class="line">duration = ustime()-start;</span><br><span class="line">dirty = server.dirty-dirty;</span><br><span class="line"><span class="keyword">if</span> (dirty &lt; <span class="number">0</span>) dirty = <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+<p>如果是写命令，就会使服务器变“脏”，也就是服务器需要标记一下内存中的某些页有了改变。这对于Redis的持久化来说非常重要，它可以知道这个命令影响了多少个key。命令执行完之后并没有结束，call函数还会做一些其他操作。例如记录日志，写AOF文件，向从节点同步命令等。</p>
+<p>至于返回值，每个命令有各自的处理方法，我们后面在介绍。</p>
+<p>到这里，Redis处理命令的过程也就完成了。</p>
+<p>后面我们会再通过具体的命令来对这个过程做一个更清晰的介绍。</p>
+
       
     </div>
     
     
     
+
+    
+      <div>
+            
+              
+            
+      </div>
+      <div>
+        <div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+    <img id="wechat_subscriber_qcode" src="/images/wechat-qcode.jpg" alt="Jackey Wang wechat" style="width: 200px; max-width: 100%;"/>
+    <div>欢迎关注我的公众号，一起讨论如何写bug</div>
+</div>
+
+      </div>
+    
+
+      <div>
+        
+          <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+        
+      </div>
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>喜欢我的文章的话可以请作者喝杯咖啡~</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/weixinpay.jpg" alt="Jackey Wang 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpg" alt="Jackey Wang 支付宝"/>
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Redis/" rel="tag"><i class="fa fa-tag"></i> Redis</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/01/04/走近源码：Redis的启动过程/" rel="next" title="走近源码：Redis的启动过程">
+                <i class="fa fa-chevron-left"></i> 走近源码：Redis的启动过程
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_inline_share_toolbox">
+  <script type = "text/javascript" src = "//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5b669c42ef338b5b" async = "async" ></script>
+</div>
+
+      
+    </div>
   </div>
 
 
@@ -339,8 +535,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -419,6 +624,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#处理新连接"><span class="nav-number">1.</span> <span class="nav-text">处理新连接</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#读一个客户端的命令"><span class="nav-number">2.</span> <span class="nav-text">读一个客户端的命令</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#执行命令并返回"><span class="nav-number">3.</span> <span class="nav-text">执行命令并返回</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
