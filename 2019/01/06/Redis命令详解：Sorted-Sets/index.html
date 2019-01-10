@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="整洁," />
+  <meta name="keywords" content="Redis命令," />
 
 
 
@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="前面我们讨论了什么样的命名更能够让你赏心悦目，今天来讨论一下面向对象编程过程中最重要的环节，编写类和函数。我们仍然用Java来演示，什么样的类和函数才算是整洁的。">
-<meta name="keywords" content="整洁">
+<meta name="description" content="Sorted Set（也称ZSET）和Set一样也是string类型的集合，你可以将它理解为Java中SortedSet和HashMap的集合体，一方面它是一个set，保证了元素的唯一性，另一方面它给每个value赋予了一个权重score，用来进行排序。集合中成员的最大个数为232-1个。">
+<meta name="keywords" content="Redis命令">
 <meta property="og:type" content="article">
-<meta property="og:title" content="代码洁癖系列（三）：整洁的类和函数">
-<meta property="og:url" content="https://jackeyzhe.github.io/2018/08/29/代码洁癖系列（三）：整洁的类和函数/index.html">
+<meta property="og:title" content="Redis命令详解：Sorted Sets">
+<meta property="og:url" content="https://jackeyzhe.github.io/2019/01/06/Redis命令详解：Sorted-Sets/index.html">
 <meta property="og:site_name" content="Jackeyzhe">
-<meta property="og:description" content="前面我们讨论了什么样的命名更能够让你赏心悦目，今天来讨论一下面向对象编程过程中最重要的环节，编写类和函数。我们仍然用Java来演示，什么样的类和函数才算是整洁的。">
+<meta property="og:description" content="Sorted Set（也称ZSET）和Set一样也是string类型的集合，你可以将它理解为Java中SortedSet和HashMap的集合体，一方面它是一个set，保证了元素的唯一性，另一方面它给每个value赋予了一个权重score，用来进行排序。集合中成员的最大个数为232-1个。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-09-05T14:53:56.242Z">
+<meta property="og:updated_time" content="2019-01-10T16:21:07.095Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="代码洁癖系列（三）：整洁的类和函数">
-<meta name="twitter:description" content="前面我们讨论了什么样的命名更能够让你赏心悦目，今天来讨论一下面向对象编程过程中最重要的环节，编写类和函数。我们仍然用Java来演示，什么样的类和函数才算是整洁的。">
+<meta name="twitter:title" content="Redis命令详解：Sorted Sets">
+<meta name="twitter:description" content="Sorted Set（也称ZSET）和Set一样也是string类型的集合，你可以将它理解为Java中SortedSet和HashMap的集合体，一方面它是一个set，保证了元素的唯一性，另一方面它给每个value赋予了一个权重score，用来进行排序。集合中成员的最大个数为232-1个。">
 
 
 
@@ -120,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="https://jackeyzhe.github.io/2018/08/29/代码洁癖系列（三）：整洁的类和函数/"/>
+  <link rel="canonical" href="https://jackeyzhe.github.io/2019/01/06/Redis命令详解：Sorted-Sets/"/>
 
 
 
 
 
-  <title>代码洁癖系列（三）：整洁的类和函数 | Jackeyzhe</title>
+  <title>Redis命令详解：Sorted Sets | Jackeyzhe</title>
   
 
 
@@ -288,7 +288,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2018/08/29/代码洁癖系列（三）：整洁的类和函数/">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2019/01/06/Redis命令详解：Sorted-Sets/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Jackey Wang">
@@ -305,7 +305,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">代码洁癖系列（三）：整洁的类和函数</h1>
+          <h1 class="post-title" itemprop="name headline">Redis命令详解：Sorted Sets</h1>
         
 
         <div class="post-meta">
@@ -317,8 +317,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-08-29T22:40:37+08:00">
-                2018-08-29
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-01-06T19:41:10+08:00">
+                2019-01-06
               </time>
             
 
@@ -360,23 +360,139 @@
       
 
       
-        <p>前面我们讨论了什么样的命名更能够让你赏心悦目，今天来讨论一下面向对象编程过程中最重要的环节，编写类和函数。我们仍然用Java来演示，什么样的类和函数才算是整洁的。<a id="more"></a></p>
-<p>首先讨论函数，函数定义好了，类也就容易了。</p>
-<h4 id="短小"><a href="#短小" class="headerlink" title="短小"></a>短小</h4><p>相信大家在读代码的时候都会遇到过冗长的函数定义。没有的话可以私信我，我把原来写过的一段300+行的函数发给你，不过不要问我这个函数是做什么的，因为我也忘了，而且不想回顾。当然如果你足够耐心研究出来了，请教教我。</p>
-<p>言归正传，为什么函数要短小呢，如何才能是自己的函数更加短小？第一个问题我也无法证明，只能告诉你短小的函数看起来更加清晰，更加容易理解。那怎么才能让函数变得更加短小呢？很简单，抽离方法。将一些代码抽离成另一个函数。什么样的长度才是合适的呢？我认为不必过于追求短。这里的长度我们可以以代码块的层来定义，对于下面这种代码相信任何人看了都会崩溃吧。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doSomething</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span>() &#123;</span><br><span class="line">        ...</span><br><span class="line">        <span class="keyword">while</span>() &#123;</span><br><span class="line">            ...</span><br><span class="line">            <span class="keyword">if</span>() &#123;</span><br><span class="line">                ...</span><br><span class="line">            &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">                ...</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>所以每个函数中有一层或两层为最佳，每层代码块最好不超过3行。这是我认为最佳的函数长度，当然，这个也可以根据个人习惯稍作调整。</p>
-<h4 id="只做一件事"><a href="#只做一件事" class="headerlink" title="只做一件事"></a>只做一件事</h4><p>如果说长度还可以根据个人习惯，那么“只做一件事”的要求应该是大家都应该遵守的公约了。如果一个函数中做了太多的事，那么代码阅读起来的难度将会成倍增加，而且文档书写难度同样增大。还有就是给其他代码调用造成不便。比如我定义了函数A做了1和2两件事，函数B想做2和3，怎么办？这时B只能再写一遍A中做2的代码。而这样就会有大量重复代码出现，不但增加工作量，对日后的维护工作也造成很大的负担。而把1和2分别定义为函数C和函数D的话，只需要在AB中分别调用就可以了。</p>
-<h4 id="命名"><a href="#命名" class="headerlink" title="命名"></a>命名</h4><p>这里不多解释，函数的命名需要具有描述意义，函数越短也就越容易描述。</p>
-<h4 id="函数参数"><a href="#函数参数" class="headerlink" title="函数参数"></a>函数参数</h4><p>参数数量越少越好（这个我目前也没有做到），究其原因，首先是读代码时每次都要搞清楚每个参数的意义，所以自然越少越好。另一方面就是为测试的同事提供方便，如果有多个函数，测试的同学就需要考虑更多的测试用例对其进行覆盖。如果一个函数有3个以上的参数，那测试的同学可能想要打人了。</p>
-<h4 id="使用异常代替返回错误码"><a href="#使用异常代替返回错误码" class="headerlink" title="使用异常代替返回错误码"></a>使用异常代替返回错误码</h4><p>这样就可以将Try/catch代码块抽离出来，因为Try/catch代码块影响了正常程序的流程，看起来很丑陋。</p>
-<p>函数的主要规则就是这些，那么如何才能写出这样的函数呢？其实没有什么特别的技巧，就是记住这些规则，在每次写完代码之后再斟酌一番，对代码进行反复的打磨，修改不合适的命名，抽离冗长的函数。久而久之，你的代码一定会被人称赞的。</p>
-<p>说完函数再来说一下如何写好一个类。</p>
-<h4 id="还是短小"><a href="#还是短小" class="headerlink" title="还是短小"></a>还是短小</h4><p>没错，类也应该短小，不过这里短小的定义和函数短小的定义稍有不同，我们通常以“权责”来衡量。先看下面这个类。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SuperDashboard</span> <span class="keyword">extends</span> <span class="title">JFrame</span> <span class="keyword">implements</span> <span class="title">MetaDataUser</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Component <span class="title">getLastFocusedComponent</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setLastFocused</span><span class="params">(Component lastFocused)</span></span></span><br><span class="line"><span class="function">    <span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getMajorVersionNumber</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    <span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getMinorVersionNumber</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    <span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getBuildNumber</span><span class="params">()</span></span></span><br><span class="line"><span class="function">&#125;</span></span><br></pre></td></tr></table></figure>
-<p>这个类只提供了5个方法，应该不算长，但是我要说，它仍然不满足我们“短小”的条件，原因就是违反了单一权责原则。单一权责指的是一个类只描述一类事。上面这个类有对最后焦点组件的读写方法，还有获取版本号和序列号的方法。只要我们描述一个类时，用到了类似于“还有”这样的字眼时，那么这个类就违反了单一权责原则，就需要对其中的方法进行抽离。</p>
-<h4 id="为了修改而组织"><a href="#为了修改而组织" class="headerlink" title="为了修改而组织"></a>为了修改而组织</h4><p>大多数系统都会进行持续的迭代，而这也意味着我们需要不断对代码进行修改。而修改代码往往伴随着风险。所以，我们需要做的就是，修改一个方法时，不对其他方法造成影响。当我们开始修改时，就要评估好影响，然后将方法进行抽象，拆分。力求做到每次修改都不影响其他类（即降低耦合）。</p>
-<p>对于写好一个类，总结来说就是“高内聚，低耦合”。</p>
+        <p>Sorted Set（也称ZSET）和Set一样也是string类型的集合，你可以将它理解为Java中SortedSet和HashMap的集合体，一方面它是一个set，保证了元素的唯一性，另一方面它给每个value赋予了一个权重score，用来进行排序。集合中成员的最大个数为2<sup>32</sup>-1个。<a id="more"></a></p>
+<h4 id="BZPOPMAX"><a href="#BZPOPMAX" class="headerlink" title="BZPOPMAX"></a>BZPOPMAX</h4><p>最早可用版本：5.0.0</p>
+<p>时间复杂度：O(log(N))，N是元素个数</p>
+<p>用法：BZPOPMAX key [key …] timeout</p>
+<p>BZPOPMAX是ZPOPMAX的原始阻塞版。如果没有存在sorted set不能pop出元素，则连接会被阻塞。该命令会返回第一个非空的有序set的最高分的元素。</p>
+<p>timeout参数是用来指定最大的阻塞时间，如果是0，则无限阻塞。</p>
+<p>当没有元素被pop出，并且阻塞时间达到timeout时，返回nil。</p>
+<p>如果有元素被pop出，则返回三个值：第一个是该元素来自哪个zset，第二个是pop元素的score，第三个是pop元素的value。</p>
+<h4 id="BZPOPMIN"><a href="#BZPOPMIN" class="headerlink" title="BZPOPMIN"></a>BZPOPMIN</h4><p>最早可用版本：5.0.0</p>
+<p>时间复杂度：O(log(N))，N是元素个数</p>
+<p>用法：BZPOPMIN key [key …] timeout</p>
+<p>BZPOPMIN是ZPOPMIN的阻塞版本。它与BZPOPMAX相似，唯一不同的是它返回的是第一个非空有序set的最低分的元素。</p>
+<h4 id="ZADD"><a href="#ZADD" class="headerlink" title="ZADD"></a>ZADD</h4><p>最早可用版本：1.2.0</p>
+<p>时间复杂度：O(log(N))，N是元素个数</p>
+<p>用法：ZADD key [NX|XX][CH][INCR]score member [score member …]</p>
+<p>将所有指定的成员和它的score加入zset，如果要插入的成员已经存在，则会更新该成员的分数，并将它排到正确的位置。如果key不存在，则创建一个新的zset并且插入成员。如果key存在，但不是zset类型，就会报错。score是双精度的浮点数，+inf和-inf同样有效。</p>
+<p>在Redis3.2版本之后，ZADD命令支持了以下参数：</p>
+<ul>
+<li>XX：只更新已有的成员，不新增</li>
+<li>NX：只新增成员，不更新</li>
+<li>CH：将返回值从新增成员数修改为发生变化的成员总数</li>
+<li>INCR：当指定这个参数时，ZADD命令和ZINCRBY相似，但是只能接受一个成员的参数</li>
+</ul>
+<h5 id="分数的范围"><a href="#分数的范围" class="headerlink" title="分数的范围"></a>分数的范围</h5><p>Redis的Sorted Set的分数范围从-(2^53)到+(2^53)。或者说是-9007199254740992 到 9007199254740992。更大的整数在内部用指数表示。</p>
+<h5 id="相同分数的成员"><a href="#相同分数的成员" class="headerlink" title="相同分数的成员"></a>相同分数的成员</h5><p>由于所有的成员都是唯一的，当分数相同时，成员将按照字典序进行排序。它比较的是成员的字节数组，当所有成员的分数都相同时，范围查询可以用ZRANGEBYLEX命令（分数范围查询用ZRANGEBYSCORE命令）。</p>
+<p>该命令返回值是新增成员的数量，如果是INCR参数模式，就返回新增成员的分数。</p>
+<p>Redis2.4版本以后该命令才支持指定多个成员/分数对。</p>
+<h4 id="ZCARD"><a href="#ZCARD" class="headerlink" title="ZCARD"></a>ZCARD</h4><p>最早可用版本：1.2.0</p>
+<p>时间复杂度：O(1)</p>
+<p>当key存在时，返回zset的成员数量；否则返回0。</p>
+<h4 id="ZCOUNT"><a href="#ZCOUNT" class="headerlink" title="ZCOUNT"></a>ZCOUNT</h4><p>最早可用版本：2.0.0</p>
+<p>时间复杂度：O(log(N))，N是zset的成员个数</p>
+<p>用法：ZCOUNT key min max</p>
+<p>返回分数在min到max（默认包括min和max）之间的成员个数。</p>
+<p>ZCOUNT命令的时间复杂度为O(log(N))，因为它使用了ZRANK进行排序，然后获取范围的成员个数。</p>
+<h4 id="ZINCRBY"><a href="#ZINCRBY" class="headerlink" title="ZINCRBY"></a>ZINCRBY</h4><p>最早可用版本：1.2.0</p>
+<p>时间复杂度：O(log(N))，N是zset的成员个数</p>
+<p>用法：ZINCRBY key increment member</p>
+<p>给指定zset中的指定的成员加上increment分数。如果成员不存在，则新增成员，将分数置为increment。如果key不存在，则先创建一个zset，然后加入新的成员。命令的返回值是成员的新分数。</p>
+<h4 id="ZINTERSTORE"><a href="#ZINTERSTORE" class="headerlink" title="ZINTERSTORE"></a>ZINTERSTORE</h4><p>最早可用版本：2.0.0</p>
+<p>时间复杂度：O(N <em> K)+O(M </em> log(M))，N是输入的zset中的最小的成员数量，K为输入的zset的数量。M是结果中zset的成员数量</p>
+<p>用法：ZINTERSTORE destination numkeys key [key …][WEIGHTS weight [weight …]][AGGREGATE SUM|MIN|MAX]</p>
+<p>ZINTERSTORE命令用于计算给出的numkeys个zset的交集，并将结果保存到destination中。在给出要计算的key和其他参数之前，必须先给出numkeys。默认情况下，输出的zset成员的分数，会是输入的zset的成员的分数之和。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; ZADD myzset1 1 <span class="string">"jackey"</span></span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; ZADD myzset1 2 <span class="string">"zhe"</span></span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; ZADD myzset2 1 <span class="string">"jackey"</span></span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; ZADD myzset2 2 <span class="string">"zhe"</span></span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; ZADD myzset2 3 <span class="string">"2018"</span></span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; ZINTERSTORE deszset 2 myzset1 myzset2</span><br><span class="line">(<span class="built_in">integer</span>) 2</span><br><span class="line">127.0.0.1:6379&gt; ZRANGE deszset 0 -1 WITHSCORES</span><br><span class="line">1) <span class="string">"jackey"</span></span><br><span class="line">2) <span class="string">"2"</span></span><br><span class="line">3) <span class="string">"zhe"</span></span><br><span class="line">4) <span class="string">"4"</span></span><br></pre></td></tr></table></figure>
+<p>WEIGHTS用来对每一个zset设置一个乘数因子，在计算分数时乘以指定的数值，默认是1。</p>
+<p>AGGREGATE参数用来指定分数的聚合策略，默认是SUM，也就是相加。还可以选择取最大或最小的分数。</p>
+<p>如果destination已经存在，则覆盖原来的值。命令的返回值是结果的成员个数。</p>
+<h4 id="ZLEXCOUNT"><a href="#ZLEXCOUNT" class="headerlink" title="ZLEXCOUNT"></a>ZLEXCOUNT</h4><p>最早可用版本：2.8.9</p>
+<p>时间复杂度：O(log(N))，N是zset的成员个数</p>
+<p>用法：ZLEXCOUNT key min max</p>
+<p>当所有成员的分数都相同时，使用这个命令计算min和max之间的成员个数。</p>
+<p>关于min和max：</p>
+<ul>
+<li>成员名称前需要加上[，[符号和成员名称之间不能有空格</li>
+<li>可以使用-和+表示最大值和最小值</li>
+<li>计算数量时，包括min和max</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; ZADD myzset 0 a 0 b 0 e 0 d 0 i 0 f 0 k</span><br><span class="line">(<span class="built_in">integer</span>) 7</span><br><span class="line">127.0.0.1:6379&gt; ZLEXCOUNT myzset - +</span><br><span class="line">(<span class="built_in">integer</span>) 7</span><br><span class="line">127.0.0.1:6379&gt; ZLEXCOUNT myzset b e</span><br><span class="line">(error) ERR min or max not valid string range item</span><br><span class="line">127.0.0.1:6379&gt; ZLEXCOUNT myzset [b [e</span><br><span class="line">(<span class="built_in">integer</span>) 3</span><br><span class="line">127.0.0.1:6379&gt; ZRANGE myzset 0 -1</span><br><span class="line">1) <span class="string">"a"</span></span><br><span class="line">2) <span class="string">"b"</span></span><br><span class="line">3) <span class="string">"d"</span></span><br><span class="line">4) <span class="string">"e"</span></span><br><span class="line">5) <span class="string">"f"</span></span><br><span class="line">6) <span class="string">"i"</span></span><br><span class="line">7) <span class="string">"k"</span></span><br></pre></td></tr></table></figure>
+<h4 id="ZPOPMAX"><a href="#ZPOPMAX" class="headerlink" title="ZPOPMAX"></a>ZPOPMAX</h4><p>最早可用版本：5.0.0</p>
+<p>时间复杂度：O(log(N)*M)，N是zset的成员数量，M是弹出的成员数量</p>
+<p>用法：ZPOPMAX key [count]</p>
+<p>该命令用于移除并返回一定数量的分数最高的成员。count默认是1，count大于zset成员，当返回多个元素时，分数最高的最先被返回。</p>
+<h4 id="ZPOPMIN"><a href="#ZPOPMIN" class="headerlink" title="ZPOPMIN"></a>ZPOPMIN</h4><p>最早可用版本：5.0.0</p>
+<p>时间复杂度：O(log(N)*M)，N是zset的成员数量，M是弹出的成员数量</p>
+<p>该命令和ZPOPMAX相反，返回的是分数最低的元素。只有这点不同，其他都相同。</p>
+<h4 id="ZRANGE"><a href="#ZRANGE" class="headerlink" title="ZRANGE"></a>ZRANGE</h4><p>最早可用版本：1.2.0</p>
+<p>时间复杂度：O(log(N)+M)，N是zset的成员数量，M是返回的成员数量</p>
+<p>用法：ZRANGE key start stop [WITHSCORES]</p>
+<p>该命令返回指定范围的成员，按照分数从低到高的顺序排。start和stop都是从0开始，也可以是负数，-1表示倒数第一个。返回的时候包括start和stop位置的成员。</p>
+<p>如果start大于zset成员数量或者start大于stop，则返回空集合；如果stop大于最后一位，则返回start到最后一位的成员。</p>
+<p>WITHSCORES参数表示返回的结果中是否要带分数。</p>
+<h4 id="ZRANGEBYLEX"><a href="#ZRANGEBYLEX" class="headerlink" title="ZRANGEBYLEX"></a>ZRANGEBYLEX</h4><p>最早可用版本：2.8.9</p>
+<p>时间复杂度：O(log(N)+M)，N是zset的成员数量，M是返回的成员数量</p>
+<p>用法：ZRANGEBYLEX key min max [LIMIT offset count]</p>
+<p>前面我们提到过，当所有的成员的分数相同时，它们会按照字典顺序排列。对于中情况，ZRANGEBYLEX命令就是用来返回指定区间成员的。指定成员时可以使用(或者[，(表示不包含指定的成员，[表示包含。</p>
+<p>成员字符串作为二进制数组来排序，默认是ASCII字符集的顺序。</p>
+<p>LIMIT参数用于分页，类似于SQL中的LIMIT关键字。</p>
+<h4 id="ZRANGEBYSCORE"><a href="#ZRANGEBYSCORE" class="headerlink" title="ZRANGEBYSCORE"></a>ZRANGEBYSCORE</h4><p>最早可用版本：1.0.5</p>
+<p>时间复杂度：O(log(N)+M)，N是zset的成员数量，M是返回的成员数量</p>
+<p>用法：ZRANGEBYSCORE key min max [WITHSCORES][LIMIT offset count]</p>
+<p>这个命令用来返回指定分数范围的成员，包括min和max。如果分数相同，则按字典顺序排列。</p>
+<p>LIMIT参数用来分页。</p>
+<p>在Redis2.0以后，可用使用WITHSCORES参数，使返回值中带有分数。</p>
+<p>我们可以使用(表示不包括指定的分数，举个栗子：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ZRANGEBYSCORE zset (1 5</span><br></pre></td></tr></table></figure>
+<p>取的分数范围是1&lt;score&lt;=5</p>
+<h4 id="ZRANK"><a href="#ZRANK" class="headerlink" title="ZRANK"></a>ZRANK</h4><p>最早可用版本：2.0.0</p>
+<p>时间复杂度：O(log(N))</p>
+<p>该命令用于返回指定的成员从低到高的排名。返回值从0开始，第一个元素的rank是0，第二个是1……</p>
+<p>如果成员存在，返回它的rank值；如果不存在，返回nil。</p>
+<h4 id="ZREM"><a href="#ZREM" class="headerlink" title="ZREM"></a>ZREM</h4><p>最早可用版本：1.2.0</p>
+<p>时间复杂度：O(M*log(N))，N是zset的成员数量，M是要删除的成员数量</p>
+<p>从zset中删除指定的成员。返回值为实际删除的成员数量。</p>
+<p>Redis2.4版本以后支持一次指定多个成员。</p>
+<h4 id="ZREMRANGEBYLEX"><a href="#ZREMRANGEBYLEX" class="headerlink" title="ZREMRANGEBYLEX"></a>ZREMRANGEBYLEX</h4><p>最早可用版本：2.8.9</p>
+<p>时间复杂度：O(log(N)+M)，N是zset的成员数量，M是要删除的成员数量</p>
+<p>用法：ZREMRANGEBYLEX key min max</p>
+<p>该命令用于删除指定返回的成员，最好用于所有分数都相同的集合，否则结果会不准确。</p>
+<p>关于min和max的描述可以查看ZRANGEBYLEX命令。</p>
+<h4 id="ZREMRANGEBYRANK"><a href="#ZREMRANGEBYRANK" class="headerlink" title="ZREMRANGEBYRANK"></a>ZREMRANGEBYRANK</h4><p>最早可用版本：2.0.0</p>
+<p>时间复杂度：O(log(N)+M)，N是zset的成员数量，M是要删除的成员数量</p>
+<p>用法：ZREMRANGEBYRANK key start stop</p>
+<p>用于删除指定rank范围的成员。start和stop的介绍可以查看ZRANGE命令。</p>
+<h4 id="ZREMRANGEBYSCORE"><a href="#ZREMRANGEBYSCORE" class="headerlink" title="ZREMRANGEBYSCORE"></a>ZREMRANGEBYSCORE</h4><p>最早可用版本：1.2.0</p>
+<p>时间复杂度：O(log(N)+M)，N是zset的成员数量，M是要删除的成员数量</p>
+<p>用法：ZREMRANGEBYSCORE key min max</p>
+<p>删除指定分数范围的成员，默认包括min和max的分数，在2.1.6版本以后可以不包括min和max，具体可以查看ZRANGEBYSCORE命令。</p>
+<h4 id="ZREVRANGE"><a href="#ZREVRANGE" class="headerlink" title="ZREVRANGE"></a>ZREVRANGE</h4><p>最早可用版本：1.2.0</p>
+<p>时间复杂度：O(log(N)+M)，N是zset的成员数量，M是要返回的成员数量</p>
+<p>用法：ZREVRANGE key start stop [WITHSCORES]</p>
+<p>返回分数从高到低的成员，也就是说，顺序与ZRANGE相反。其他条件都相同。</p>
+<h4 id="ZREVRANGEBYLEX"><a href="#ZREVRANGEBYLEX" class="headerlink" title="ZREVRANGEBYLEX"></a>ZREVRANGEBYLEX</h4><p>最早可用版本：1.2.0</p>
+<p>时间复杂度：O(log(N)+M)，N是zset的成员数量，M是要返回的成员数量</p>
+<p>该命令是ZRANGEBYLEX命令的倒序版本。</p>
+<p>####ZREVRANGEBYSCORE</p>
+<p>最早可用版本：2.2.0</p>
+<p>时间复杂度：O(log(N)+M)，N是zset的成员数量，M是要返回的成员数量</p>
+<p>是ZRANGEBYSCORE命令的倒序。</p>
+<h4 id="ZREVRANK"><a href="#ZREVRANK" class="headerlink" title="ZREVRANK"></a>ZREVRANK</h4><p>最早可用版本：2.0.0</p>
+<p>时间复杂度：O(log(N))</p>
+<p>是ZRANK的倒序。</p>
+<h4 id="ZSCAN"><a href="#ZSCAN" class="headerlink" title="ZSCAN"></a>ZSCAN</h4><p>最早可用版本：2.8.0</p>
+<p>时间复杂度：每次调用为O(1)</p>
+<p>用法：ZSCAN key cursor [MATCH pattern][COUNT count]</p>
+<p>这是一个SCAN类的命令，可以看<a href="https://jackeyzhe.github.io/2018/09/26/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Redis%E7%9A%84scan%E5%91%BD%E4%BB%A4/">这里</a>进行更深入的了解。</p>
+<h4 id="ZSCORE"><a href="#ZSCORE" class="headerlink" title="ZSCORE"></a>ZSCORE</h4><p>最早可用版本：1.2.0</p>
+<p>时间复杂度：O(1)</p>
+<p>该命令用于返回指定成员的分数。如果指定成员不存在或者key不存在，则返回nil。</p>
+<h4 id="ZUNIONSTORE"><a href="#ZUNIONSTORE" class="headerlink" title="ZUNIONSTORE"></a>ZUNIONSTORE</h4><p>最早可用版本：2.0.0</p>
+<p>时间复杂度：O(N)+O(M log(M))，N是输入的zset的大小之和，M是结果的zset的大小</p>
+<p>用法：ZUNIONSTORE destination numkeys key [key …][WEIGHTS weight [weight …]][AGGREGATE SUM|MIN|MAX]</p>
+<p>计算给出的zset的并集，并把结果存到destination，在给定要计算的key和其他参数之前，要给出numkeys，也就是key的数量。默认情况下，结果中的成员的分数，是输入的zset的该成员分数的和。</p>
+<p>关于WEIGHTS和AGGREGATE参数，可以查看ZINTERSTORE命令中的介绍。</p>
 
       
     </div>
@@ -446,7 +562,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/整洁/" rel="tag"><i class="fa fa-tag"></i> 整洁</a>
+            <a href="/tags/Redis命令/" rel="tag"><i class="fa fa-tag"></i> Redis命令</a>
           
         </div>
       
@@ -459,8 +575,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/08/27/代码洁癖系列（二）：命名的艺术/" rel="next" title="代码洁癖系列（二）：命名的艺术">
-                <i class="fa fa-chevron-left"></i> 代码洁癖系列（二）：命名的艺术
+              <a href="/2019/01/05/走近源码：Redis如何执行命令/" rel="next" title="走近源码：Redis如何执行命令">
+                <i class="fa fa-chevron-left"></i> 走近源码：Redis如何执行命令
               </a>
             
           </div>
@@ -468,10 +584,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/08/30/代码洁癖系列（四）：可忽略的注释/" rel="prev" title="代码洁癖系列（四）：可忽略的注释">
-                代码洁癖系列（四）：可忽略的注释 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -628,7 +740,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#短小"><span class="nav-number">1.</span> <span class="nav-text">短小</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#只做一件事"><span class="nav-number">2.</span> <span class="nav-text">只做一件事</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#命名"><span class="nav-number">3.</span> <span class="nav-text">命名</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#函数参数"><span class="nav-number">4.</span> <span class="nav-text">函数参数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用异常代替返回错误码"><span class="nav-number">5.</span> <span class="nav-text">使用异常代替返回错误码</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#还是短小"><span class="nav-number">6.</span> <span class="nav-text">还是短小</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#为了修改而组织"><span class="nav-number">7.</span> <span class="nav-text">为了修改而组织</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#BZPOPMAX"><span class="nav-number">1.</span> <span class="nav-text">BZPOPMAX</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#BZPOPMIN"><span class="nav-number">2.</span> <span class="nav-text">BZPOPMIN</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZADD"><span class="nav-number">3.</span> <span class="nav-text">ZADD</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#分数的范围"><span class="nav-number">3.1.</span> <span class="nav-text">分数的范围</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#相同分数的成员"><span class="nav-number">3.2.</span> <span class="nav-text">相同分数的成员</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZCARD"><span class="nav-number">4.</span> <span class="nav-text">ZCARD</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZCOUNT"><span class="nav-number">5.</span> <span class="nav-text">ZCOUNT</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZINCRBY"><span class="nav-number">6.</span> <span class="nav-text">ZINCRBY</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZINTERSTORE"><span class="nav-number">7.</span> <span class="nav-text">ZINTERSTORE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZLEXCOUNT"><span class="nav-number">8.</span> <span class="nav-text">ZLEXCOUNT</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZPOPMAX"><span class="nav-number">9.</span> <span class="nav-text">ZPOPMAX</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZPOPMIN"><span class="nav-number">10.</span> <span class="nav-text">ZPOPMIN</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZRANGE"><span class="nav-number">11.</span> <span class="nav-text">ZRANGE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZRANGEBYLEX"><span class="nav-number">12.</span> <span class="nav-text">ZRANGEBYLEX</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZRANGEBYSCORE"><span class="nav-number">13.</span> <span class="nav-text">ZRANGEBYSCORE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZRANK"><span class="nav-number">14.</span> <span class="nav-text">ZRANK</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZREM"><span class="nav-number">15.</span> <span class="nav-text">ZREM</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZREMRANGEBYLEX"><span class="nav-number">16.</span> <span class="nav-text">ZREMRANGEBYLEX</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZREMRANGEBYRANK"><span class="nav-number">17.</span> <span class="nav-text">ZREMRANGEBYRANK</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZREMRANGEBYSCORE"><span class="nav-number">18.</span> <span class="nav-text">ZREMRANGEBYSCORE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZREVRANGE"><span class="nav-number">19.</span> <span class="nav-text">ZREVRANGE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZREVRANGEBYLEX"><span class="nav-number">20.</span> <span class="nav-text">ZREVRANGEBYLEX</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZREVRANK"><span class="nav-number">21.</span> <span class="nav-text">ZREVRANK</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZSCAN"><span class="nav-number">22.</span> <span class="nav-text">ZSCAN</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZSCORE"><span class="nav-number">23.</span> <span class="nav-text">ZSCORE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZUNIONSTORE"><span class="nav-number">24.</span> <span class="nav-text">ZUNIONSTORE</span></a></li></ol></div>
             
 
           </div>
