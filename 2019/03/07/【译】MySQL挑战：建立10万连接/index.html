@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Redis命令," />
+  <meta name="keywords" content="MySQL," />
 
 
 
@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="最近在学习Redis的相关知识，上一篇我们也介绍了Redis的安装方法和基本数据结构，后面就打算开一个新的系列文章：Redis命令详解。既是对基础的巩固，也是为了以后查询起来更方便。">
-<meta name="keywords" content="Redis命令">
+<meta name="description" content="原文地址：https://www.percona.com/blog/2019/02/25/mysql-challenge-100k-connections/ 本文的目的是探索一种在一台MySQL服务器上建立10w个连接的方法。我们要建立的是可以执行查询的连接，而不是10w个空闲连接。">
+<meta name="keywords" content="MySQL">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Redis命令详解：Connection">
-<meta property="og:url" content="https://jackeyzhe.github.io/2018/09/19/Redis命令详解：Connection/index.html">
+<meta property="og:title" content="【译】MySQL挑战：建立10万连接">
+<meta property="og:url" content="https://jackeyzhe.github.io/2019/03/07/【译】MySQL挑战：建立10万连接/index.html">
 <meta property="og:site_name" content="Jackeyzhe">
-<meta property="og:description" content="最近在学习Redis的相关知识，上一篇我们也介绍了Redis的安装方法和基本数据结构，后面就打算开一个新的系列文章：Redis命令详解。既是对基础的巩固，也是为了以后查询起来更方便。">
+<meta property="og:description" content="原文地址：https://www.percona.com/blog/2019/02/25/mysql-challenge-100k-connections/ 本文的目的是探索一种在一台MySQL服务器上建立10w个连接的方法。我们要建立的是可以执行查询的连接，而不是10w个空闲连接。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-01-20T15:10:10.434Z">
+<meta property="og:updated_time" content="2019-03-07T15:59:55.226Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Redis命令详解：Connection">
-<meta name="twitter:description" content="最近在学习Redis的相关知识，上一篇我们也介绍了Redis的安装方法和基本数据结构，后面就打算开一个新的系列文章：Redis命令详解。既是对基础的巩固，也是为了以后查询起来更方便。">
+<meta name="twitter:title" content="【译】MySQL挑战：建立10万连接">
+<meta name="twitter:description" content="原文地址：https://www.percona.com/blog/2019/02/25/mysql-challenge-100k-connections/ 本文的目的是探索一种在一台MySQL服务器上建立10w个连接的方法。我们要建立的是可以执行查询的连接，而不是10w个空闲连接。">
 
 
 
@@ -120,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="https://jackeyzhe.github.io/2018/09/19/Redis命令详解：Connection/"/>
+  <link rel="canonical" href="https://jackeyzhe.github.io/2019/03/07/【译】MySQL挑战：建立10万连接/"/>
 
 
 
 
 
-  <title>Redis命令详解：Connection | Jackeyzhe</title>
+  <title>【译】MySQL挑战：建立10万连接 | Jackeyzhe</title>
   
 
 
@@ -288,7 +288,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2018/09/19/Redis命令详解：Connection/">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2019/03/07/【译】MySQL挑战：建立10万连接/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Jackey Wang">
@@ -305,7 +305,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Redis命令详解：Connection</h1>
+          <h1 class="post-title" itemprop="name headline">【译】MySQL挑战：建立10万连接</h1>
         
 
         <div class="post-meta">
@@ -317,8 +317,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-19T23:00:05+08:00">
-                2018-09-19
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-07T22:16:08+08:00">
+                2019-03-07
               </time>
             
 
@@ -360,45 +360,67 @@
       
 
       
-        <p>最近在学习Redis的相关知识，上一篇我们也介绍了Redis的安装方法和基本数据结构，后面就打算开一个新的系列文章：Redis命令详解。既是对基础的巩固，也是为了以后查询起来更方便。<a id="more"></a></p>
-<p>整个系列会分为以下几个部分：</p>
-<ul>
-<li>Connection</li>
-<li><a href="https://jackeyzhe.github.io/2018/09/22/Redis%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%EF%BC%9AKeys/">Keys</a></li>
-<li><a href="https://jackeyzhe.github.io/2018/10/07/Redis%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%EF%BC%9AStrings/">Strings</a></li>
-<li><a href="https://jackeyzhe.github.io/2018/11/22/Redis%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%EF%BC%9AHashs/">Hashs</a></li>
-<li><a href="https://jackeyzhe.github.io/2018/11/23/Redis%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%EF%BC%9ALists/">Lists</a></li>
-<li><a href="https://jackeyzhe.github.io/2018/12/19/Redis%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%EF%BC%9ASets/">Sets</a></li>
-<li><a href="https://jackeyzhe.github.io/2019/01/06/Redis%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%EF%BC%9ASorted-Sets/">Sorted Sets</a></li>
-<li><a href="https://jackeyzhe.github.io/2019/01/15/Redis%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%EF%BC%9AHyperLogLog/">HyperLogLog</a></li>
-<li>Transactions</li>
-<li>Server</li>
-<li>Streams</li>
-<li>Pub/Sub</li>
-<li>Cluster</li>
-<li>Geo</li>
-<li>Scripting</li>
-</ul>
-<p>今天我们从Redis连接的相关命令开始。</p>
-<h4 id="AUTH"><a href="#AUTH" class="headerlink" title="AUTH"></a>AUTH</h4><p>可用版本：1.0.0</p>
-<p>AUTH命令用于检测密码是否与配置文件中的密码是否一致，如果一致，则服务器会返回OK，并且继续接受后面的命令，否则，Redis会拒绝执行接下来的命令。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; config <span class="built_in">set</span> requirepass <span class="string">"mypass"</span></span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; AUTH my</span><br><span class="line">(error) ERR invalid password</span><br><span class="line">127.0.0.1:6379&gt; ping</span><br><span class="line">(error) NOAUTH Authentication required.</span><br><span class="line">127.0.0.1:6379&gt; AUTH mypass</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; ping</span><br><span class="line">PONG</span><br></pre></td></tr></table></figure>
-<p>需要注意的是：由于Redis的读写性能非常高，所以可以在段时间内处理许多次AUTH操作，这样使得密码被暴力破解的可能性增加，所以我们在设置密码的时候需要尽量使密码安全性更强。</p>
-<h4 id="ECHO"><a href="#ECHO" class="headerlink" title="ECHO"></a>ECHO</h4><p>可用版本：1.0.0</p>
-<p>ECHO命令打印字符串。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; ECHO <span class="string">"Hello!"</span></span><br><span class="line"><span class="string">"Hello!"</span></span><br></pre></td></tr></table></figure>
-<h4 id="PING"><a href="#PING" class="headerlink" title="PING"></a>PING</h4><p>可用版本：1.0.0</p>
-<p>PING命令用于检测服务器是否在运行，或者测试延迟。正常情况下，如果没有参数，则服务器会返回一个PONG，如果有参数的话，服务器会将参数复制一份，返回为字符串。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; PING</span><br><span class="line">PONG</span><br><span class="line">127.0.0.1:6379&gt; PING <span class="string">"hi"</span></span><br><span class="line"><span class="string">"hi"</span></span><br></pre></td></tr></table></figure>
-<h4 id="QUIT"><a href="#QUIT" class="headerlink" title="QUIT"></a>QUIT</h4><p>可用版本：1.0.0</p>
-<p>QUIT命令用于关闭当前连接，当所有等待中的回复都写入客户端后，就会立即关闭当前连接。</p>
-<h4 id="SELECT"><a href="#SELECT" class="headerlink" title="SELECT"></a>SELECT</h4><p>可用版本：1.0.0</p>
-<p>SELECT命令用于切换数据库，参数为数据库索引号。一个新连接的默认数据库索引号是0，所有的数据库都持久化到一个相同的RDB或AOF文件。不同的数据库可以有相同的key。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; SELECT 1</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379[1]&gt;</span><br></pre></td></tr></table></figure>
-<p>切换数据库后，提示符后面会出现数据库索引号。需要注意的是：当使用Redis Cluster时，不能使用SELECT命令。</p>
-<h4 id="SWAPDB"><a href="#SWAPDB" class="headerlink" title="SWAPDB"></a>SWAPDB</h4><p>可用版本：4.0.0</p>
-<p>SWAPDB用于交换两个数据库，连接到这个数据库的其他客户端会立即看到另一个数据库的数据。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#client 0</span></span><br><span class="line">127.0.0.1:6379&gt; <span class="built_in">set</span> db db_0</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; get db</span><br><span class="line"><span class="string">"db_0"</span></span><br><span class="line">127.0.0.1:6379&gt; SWAPDB 0 1</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; get db</span><br><span class="line">(nil)</span><br><span class="line"></span><br><span class="line"><span class="comment">#client 1</span></span><br><span class="line">127.0.0.1:6379&gt; SELECT 1</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379[1]&gt; get db</span><br><span class="line"><span class="string">"db_0"</span></span><br></pre></td></tr></table></figure>
+        <p>原文地址：<a href="https://www.percona.com/blog/2019/02/25/mysql-challenge-100k-connections/" target="_blank" rel="noopener">https://www.percona.com/blog/2019/02/25/mysql-challenge-100k-connections/</a></p>
+<p>本文的目的是探索一种在一台MySQL服务器上建立10w个连接的方法。我们要建立的是可以执行查询的连接，而不是10w个空闲连接。<a id="more"></a></p>
+<p>你可能会问，我的MySQL服务器真的需要10w连接吗？我见过很多不同的部署方案，例如使用连接池，每个应用的连接池里放1000个连接，部署100个这样的应用服务器。还有一些非常糟糕的实践，使用“查询慢则重连并重试”的技术。这会造成雪球效应，有可能导致在几秒内需要建立上千个连接的情况。</p>
+<p>所以我决定设置一个“小目标”，看能否实现。</p>
+<h4 id="准备阶段"><a href="#准备阶段" class="headerlink" title="准备阶段"></a>准备阶段</h4><p>先看一下硬件，服务器由packet.net（一个云服务商）提供，配置如下：</p>
+<p>instance size: c2.medium.x86<br>Physical Cores @ 2.2 GHz<br>(1 X AMD EPYC 7401P)<br>Memory: 64 GB of ECC RAM<br>Storage : INTEL® SSD DC S4500, 480GB</p>
+<p>我们需要5台这样的服务器，1台用来作MySQL服务器，其余4台作为客户端。MySQL服务器使用的是Percona  Server的带有线程池插件的MySQL 8.0.13-4，这个插件需要支持上千个连接。</p>
+<h4 id="初始化服务器配置"><a href="#初始化服务器配置" class="headerlink" title="初始化服务器配置"></a>初始化服务器配置</h4><p>网络设置：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">- &#123; name: 'net.core.somaxconn', value: 32768 &#125;</span><br><span class="line">- &#123; name: 'net.core.rmem_max', value: 134217728 &#125;</span><br><span class="line">- &#123; name: 'net.core.wmem_max', value: 134217728 &#125;</span><br><span class="line">- &#123; name: 'net.ipv4.tcp_rmem', value: '4096 87380 134217728' &#125;</span><br><span class="line">- &#123; name: 'net.ipv4.tcp_wmem', value: '4096 87380 134217728' &#125;</span><br><span class="line">- &#123; name: 'net.core.netdev_max_backlog', value: 300000 &#125;</span><br><span class="line">- &#123; name: 'net.ipv4.tcp_moderate_rcvbuf', value: 1 &#125;</span><br><span class="line">- &#123; name: 'net.ipv4.tcp_no_metrics_save', value: 1 &#125;</span><br><span class="line">- &#123; name: 'net.ipv4.tcp_congestion_control', value: 'htcp' &#125;</span><br><span class="line">- &#123; name: 'net.ipv4.tcp_mtu_probing', value: 1 &#125;</span><br><span class="line">- &#123; name: 'net.ipv4.tcp_timestamps', value: 0 &#125;</span><br><span class="line">- &#123; name: 'net.ipv4.tcp_sack', value: 0 &#125;</span><br><span class="line">- &#123; name: 'net.ipv4.tcp_syncookies', value: 1 &#125;</span><br><span class="line">- &#123; name: 'net.ipv4.tcp_max_syn_backlog', value: 4096 &#125;</span><br><span class="line">- &#123; name: 'net.ipv4.tcp_mem', value: '50576   64768 98152' &#125;</span><br><span class="line">- &#123; name: 'net.ipv4.ip_local_port_range', value: '4000 65000' &#125;</span><br><span class="line">- &#123; name: 'net.ipv4.netdev_max_backlog', value: 2500 &#125;</span><br><span class="line">- &#123; name: 'net.ipv4.tcp_tw_reuse', value: 1 &#125;</span><br><span class="line">- &#123; name: 'net.ipv4.tcp_fin_timeout', value: 5 &#125;</span><br></pre></td></tr></table></figure>
+<p>系统限制设置：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[Service]</span><br><span class="line">LimitNOFILE=1000000</span><br><span class="line">LimitNPROC=500000</span><br></pre></td></tr></table></figure>
+<p>相应的MySQL配置（my.cnf文件）：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">back_log=3500</span><br><span class="line">max_connections=110000</span><br></pre></td></tr></table></figure>
+<p>客户端使用的是sysbench0.5版本，而不是1.0.x。具体原因我们在后面做解释。</p>
+<p>执行命令：sysbench –test=sysbench/tests/db/select.lua –mysql-host=139.178.82.47 –mysql-user=sbtest–mysql-password=sbtest –oltp-tables-count=10 –report-interval=1 –num-threads=10000 –max-time=300 –max-requests=0 –oltp-table-size=10000000 –rand-type=uniform –rand-init=on run</p>
+<h4 id="第一步，10-000个连接"><a href="#第一步，10-000个连接" class="headerlink" title="第一步，10,000个连接"></a>第一步，10,000个连接</h4><p>这一步非常简单，我们不需要做过多调整就可以实现。这一步只需要一台机器做客户端，不过客户端有可能会有如下错误：</p>
+<p><code>FATAL: error 2004: Can&#39;t create TCP/IP socket (24)</code></p>
+<p>这是由于打开文件数限制，这个限制限制了TCP/IP的sockets数量，可以在客户端上进行调整：</p>
+<p><code>ulimit -n100000</code></p>
+<p>此时我们来观察一下性能：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[  26s] threads: 10000, tps: 0.00, reads: 33367.48, writes: 0.00, response time: 3681.42ms (95%), errors: 0.00, reconnects:  0.00</span><br><span class="line">[  27s] threads: 10000, tps: 0.00, reads: 33289.74, writes: 0.00, response time: 3690.25ms (95%), errors: 0.00, reconnects:  0.00</span><br></pre></td></tr></table></figure>
+<h4 id="第二步，25-000个连接"><a href="#第二步，25-000个连接" class="headerlink" title="第二步，25,000个连接"></a>第二步，25,000个连接</h4><p>这一步会在MySQL服务端发生错误：</p>
+<p><code>Can&#39;t create a new thread (errno 11); if you are not out of available memory, you can consult the manualfor a possible OS-dependent bug</code></p>
+<p>关于这个问题的解决办法可以看这个链接：</p>
+<p><a href="https://www.percona.com/blog/2013/02/04/cant_create_thread_errno_11/" target="_blank" rel="noopener">https://www.percona.com/blog/2013/02/04/cant_create_thread_errno_11/</a></p>
+<p>不过这个办法不适用于我们现在的情况，因为我们已经把所有限制调到最高：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">cat /proc/`pidof mysqld`/limits</span><br><span class="line">Limit                     Soft Limit Hard Limit           Units</span><br><span class="line">Max cpu time              unlimited  unlimited            seconds</span><br><span class="line">Max file size             unlimited  unlimited            bytes</span><br><span class="line">Max data size             unlimited  unlimited            bytes</span><br><span class="line">Max stack size            8388608    unlimited            bytes</span><br><span class="line">Max core file size        0          unlimited            bytes</span><br><span class="line">Max resident set          unlimited  unlimited            bytes</span><br><span class="line">Max processes             500000     500000               processes</span><br><span class="line">Max open files            1000000    1000000              files</span><br><span class="line">Max locked memory         16777216   16777216             bytes</span><br><span class="line">Max address space         unlimited  unlimited            bytes</span><br><span class="line">Max file locks            unlimited  unlimited            locks</span><br><span class="line">Max pending signals       255051     255051               signals</span><br><span class="line">Max msgqueue size         819200     819200               bytes</span><br><span class="line">Max nice priority         0          0</span><br><span class="line">Max realtime priority     0          0</span><br><span class="line">Max realtime timeout      unlimited unlimited            us</span><br></pre></td></tr></table></figure>
+<p>这也是为什么我们最开始要选择有线程池的服务：<a href="https://www.percona.com/doc/percona-server/8.0/performance/threadpool.html" target="_blank" rel="noopener">https://www.percona.com/doc/percona-server/8.0/performance/threadpool.html</a></p>
+<p>在my.cnf文件中加上下面这行设置，然后重启服务</p>
+<p><code>thread_handling=pool-of-threads</code></p>
+<p>查看一下结果</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[   7s] threads: 25000, tps: 0.00, reads: 33332.57, writes: 0.00, response time: 974.56ms (95%), errors: 0.00, reconnects:  0.00</span><br><span class="line">[   8s] threads: 25000, tps: 0.00, reads: 33187.01, writes: 0.00, response time: 979.24ms (95%), errors: 0.00, reconnects:  0.00</span><br></pre></td></tr></table></figure>
+<p>吞吐量相同，但是又95%的响应从3690 ms降到了979 ms。</p>
+<h4 id="第三步，50-000个连接"><a href="#第三步，50-000个连接" class="headerlink" title="第三步，50,000个连接"></a>第三步，50,000个连接</h4><p>到这里，我们遇到了最大的挑战。首先尝试建立5w连接的时候，sysbench报错：</p>
+<p><code>FATAL: error 2003: Can&#39;t connect to MySQL server on &#39;139.178.82.47&#39; (99)</code></p>
+<p>Error (99)错误比较神秘，它意味着不能分配指定的地址。这个问题是由一个应用可以打开的端口数限制引起的，我们的系统默认配置是：</p>
+<p><code>cat /proc/sys/net/ipv4/ip_local_port_range : 32768   60999</code></p>
+<p>这表示我们只有28,231可用端口（60999减32768），或者是你最多能建立的到指定IP地址的TCP连接数。你可以在服务器和客户端扩宽这个范围：</p>
+<p><code>echo 4000 65000 &gt; /proc/sys/net/ipv4/ip_local_port_range</code></p>
+<p>这样我们就能建立61,000个连接了，这已经接近一个IP可用端口的最大限制了（65535）。这里的关键点是，如果我们想要达到10w连接，就需要为MySQL服务器分配更多的IP地址，所以我为MySQL服务器分配了两个IP地址。</p>
+<p>解决了端口个数问题后，我们又遇到了新的问题：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sysbench 0.5:  multi-threaded system evaluation benchmark</span><br><span class="line">Running the test with following options:</span><br><span class="line">Number of threads: 50000</span><br><span class="line">FATAL: pthread_create() for thread #32352 failed. errno = 12 (Cannot allocate memory)</span><br></pre></td></tr></table></figure>
+<p>这个问题是由sysbench的内存分配问题引起的。sysbench只能分配的内存只能创建32,351个连接，这个问题在1.0.x版本中更为严重。</p>
+<h5 id="Sysbench-1-0-x的限制"><a href="#Sysbench-1-0-x的限制" class="headerlink" title="Sysbench 1.0.x的限制"></a>Sysbench 1.0.x的限制</h5><p>Sysbench 1.0.x版本使用了不同的Lua编译器，导致我们不可能创建超过4000个连接。所以看起来Sysbench比 Percona Server更早到达了极限，所以我们需要使用更多的客户端。每个客户端最多32,351个连接的话，我们最少要使用4个客户端才能达到10w连接的目标。</p>
+<p>为了达到5w连接，我们使用了两台机器做客户端，每台机器开启25,000个线程。结果如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[  29s] threads: 25000, tps: 0.00, reads: 16794.09, writes: 0.00, response time: 1799.63ms (95%), errors: 0.00, reconnects:  0.00</span><br><span class="line">[  30s] threads: 25000, tps: 0.00, reads: 16491.03, writes: 0.00, response time: 1800.70ms (95%), errors: 0.00, reconnects:  0.00</span><br></pre></td></tr></table></figure>
+<p>吞吐量和上一步差不多（总的tps是16794*2 = 33588），但是性能降低了，有95%的响应时间长了一倍。这是意料之中的事情，因为与上一步相比，我们的连接数扩大了一倍。</p>
+<h4 id="第四步，75-000个连接"><a href="#第四步，75-000个连接" class="headerlink" title="第四步，75,000个连接"></a>第四步，75,000个连接</h4><p>这一步我们再增加一台服务器做客户端，每台客户端上同样是跑25,000个线程。结果如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[ 157s] threads: 25000, tps: 0.00, reads: 11633.87, writes: 0.00, response time: 2651.76ms (95%), errors: 0.00, reconnects:  0.00</span><br><span class="line">[ 158s] threads: 25000, tps: 0.00, reads: 10783.09, writes: 0.00, response time: 2601.44ms (95%), errors: 0.00, reconnects:  0.00</span><br></pre></td></tr></table></figure>
+<h4 id="第五步，100-000个连接"><a href="#第五步，100-000个连接" class="headerlink" title="第五步，100,000个连接"></a>第五步，100,000个连接</h4><p>终于到站了，这一步同样没什么困难，只需要再开一个客户端，同样跑25,000个线程。结果如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[ 101s] threads: 25000, tps: 0.00, reads: 8033.83, writes: 0.00, response time: 3320.21ms (95%), errors: 0.00, reconnects:  0.00</span><br><span class="line">[ 102s] threads: 25000, tps: 0.00, reads: 8065.02, writes: 0.00, response time: 3405.77ms (95%), errors: 0.00, reconnects:  0.00</span><br></pre></td></tr></table></figure>
+<p>吞吐量仍然保持在32260的水平（8065*4），95%的响应时间是3405ms。</p>
+<p>这里有个非常重要的事情，想必大家已经发现了：在有线程的情况下10w连接数的响应速度甚至要优于没有线程池的情况下的1w连接数的响应速度。<strong>线程池使得Percona Server可以更加有效的管理资源，然后提供更好的响应速度。</strong></p>
+<h4 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h4><p>10w连接数是可以实现的，并且可以更多，实现这个目标有三个重要的组件：</p>
+<ol>
+<li>Percona Server的线程池</li>
+<li>正确的网络设置</li>
+<li>为MySQL服务器配置多个IP地址（每个IP限制65535个连接）</li>
+</ol>
+<h4 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h4><p>最后贴上完整的my.cnf文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">[mysqld]</span><br><span class="line">datadir &#123;&#123; mysqldir &#125;&#125;</span><br><span class="line">ssl=0</span><br><span class="line">skip-log-bin</span><br><span class="line">log-error=error.log</span><br><span class="line"><span class="meta">#</span><span class="bash"> Disabling symbolic-links is recommended to prevent assorted security risks</span></span><br><span class="line">symbolic-links=0</span><br><span class="line">character_set_server=latin1</span><br><span class="line">collation_server=latin1_swedish_ci</span><br><span class="line">skip-character-set-client-handshake</span><br><span class="line">innodb_undo_log_truncate=off</span><br><span class="line"><span class="meta">#</span><span class="bash"> general</span></span><br><span class="line">table_open_cache = 200000</span><br><span class="line">table_open_cache_instances=64</span><br><span class="line">back_log=3500</span><br><span class="line">max_connections=110000</span><br><span class="line"><span class="meta">#</span><span class="bash"> files</span></span><br><span class="line">innodb_file_per_table</span><br><span class="line">innodb_log_file_size=15G</span><br><span class="line">innodb_log_files_in_group=2</span><br><span class="line">innodb_open_files=4000</span><br><span class="line"><span class="meta">#</span><span class="bash"> buffers</span></span><br><span class="line">innodb_buffer_pool_size= 40G</span><br><span class="line">innodb_buffer_pool_instances=8</span><br><span class="line">innodb_log_buffer_size=64M</span><br><span class="line"><span class="meta">#</span><span class="bash"> tune</span></span><br><span class="line">innodb_doublewrite= 1</span><br><span class="line">innodb_thread_concurrency=0</span><br><span class="line">innodb_flush_log_at_trx_commit= 0</span><br><span class="line">innodb_flush_method=O_DIRECT_NO_FSYNC</span><br><span class="line">innodb_max_dirty_pages_pct=90</span><br><span class="line">innodb_max_dirty_pages_pct_lwm=10</span><br><span class="line">innodb_lru_scan_depth=2048</span><br><span class="line">innodb_page_cleaners=4</span><br><span class="line">join_buffer_size=256K</span><br><span class="line">sort_buffer_size=256K</span><br><span class="line">innodb_use_native_aio=1</span><br><span class="line">innodb_stats_persistent = 1</span><br><span class="line"><span class="meta">#</span><span class="bash">innodb_spin_wait_delay=96</span></span><br><span class="line">innodb_adaptive_flushing = 1</span><br><span class="line">innodb_flush_neighbors = 0</span><br><span class="line">innodb_read_io_threads = 16</span><br><span class="line">innodb_write_io_threads = 16</span><br><span class="line">innodb_io_capacity=1500</span><br><span class="line">innodb_io_capacity_max=2500</span><br><span class="line">innodb_purge_threads=4</span><br><span class="line">innodb_adaptive_hash_index=0</span><br><span class="line">max_prepared_stmt_count=1000000</span><br><span class="line">innodb_monitor_enable = '%'</span><br><span class="line">performance_schema = ON</span><br></pre></td></tr></table></figure>
 
       
     </div>
@@ -468,7 +490,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Redis命令/" rel="tag"><i class="fa fa-tag"></i> Redis命令</a>
+            <a href="/tags/MySQL/" rel="tag"><i class="fa fa-tag"></i> MySQL</a>
           
         </div>
       
@@ -481,8 +503,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/09/17/Redis基础数据结构/" rel="next" title="Redis基础数据结构">
-                <i class="fa fa-chevron-left"></i> Redis基础数据结构
+              <a href="/2019/03/04/Redis命令详解：Transactions/" rel="next" title="Redis命令详解：Transactions">
+                <i class="fa fa-chevron-left"></i> Redis命令详解：Transactions
               </a>
             
           </div>
@@ -490,10 +512,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/09/22/Redis命令详解：Keys/" rel="prev" title="Redis命令详解：Keys">
-                Redis命令详解：Keys <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -650,7 +668,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#AUTH"><span class="nav-number">1.</span> <span class="nav-text">AUTH</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ECHO"><span class="nav-number">2.</span> <span class="nav-text">ECHO</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#PING"><span class="nav-number">3.</span> <span class="nav-text">PING</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#QUIT"><span class="nav-number">4.</span> <span class="nav-text">QUIT</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SELECT"><span class="nav-number">5.</span> <span class="nav-text">SELECT</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SWAPDB"><span class="nav-number">6.</span> <span class="nav-text">SWAPDB</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#准备阶段"><span class="nav-number">1.</span> <span class="nav-text">准备阶段</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#初始化服务器配置"><span class="nav-number">2.</span> <span class="nav-text">初始化服务器配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#第一步，10-000个连接"><span class="nav-number">3.</span> <span class="nav-text">第一步，10,000个连接</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#第二步，25-000个连接"><span class="nav-number">4.</span> <span class="nav-text">第二步，25,000个连接</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#第三步，50-000个连接"><span class="nav-number">5.</span> <span class="nav-text">第三步，50,000个连接</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Sysbench-1-0-x的限制"><span class="nav-number">5.1.</span> <span class="nav-text">Sysbench 1.0.x的限制</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#第四步，75-000个连接"><span class="nav-number">6.</span> <span class="nav-text">第四步，75,000个连接</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#第五步，100-000个连接"><span class="nav-number">7.</span> <span class="nav-text">第五步，100,000个连接</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#结论"><span class="nav-number">8.</span> <span class="nav-text">结论</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#附录"><span class="nav-number">9.</span> <span class="nav-text">附录</span></a></li></ol></div>
             
 
           </div>
