@@ -540,7 +540,7 @@
 
   
 
-
+  
 
         </div>
         
@@ -870,6 +870,22 @@
 
 
 
+
+
+  <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+  <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+   <script type="text/javascript">
+        var gitalk = new Gitalk({
+          clientID: 'e612d8a6ea1fdbd51d05',
+          clientSecret: 'e0058400773f4903fad60f971346093e984ae867',
+          repo: 'Jackeyzhe.github.io',
+          owner: 'Jackeyzhe',
+          admin: ['Jackeyzhe'],
+          id: location.pathname,
+          distractionFreeMode: 'true'
+        })
+        gitalk.render('gitalk-container')           
+       </script>
 
 
   
