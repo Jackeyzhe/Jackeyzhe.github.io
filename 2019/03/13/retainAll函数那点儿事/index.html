@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Java,Python,Linux" />
+  <meta name="keywords" content="技术杂记," />
 
 
 
@@ -79,14 +79,21 @@
 
 
 
-<meta name="keywords" content="Java,Linux,Python,Hadoop">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Jackeyzhe">
-<meta property="og:url" content="https://jackeyzhe.github.io/page/3/index.html">
+<meta name="description" content="王小锤是一家电商网站的Java程序员，下午刚打开电脑，公司的运营妹子小美就过来找他：“小锤，你能帮我导一份数据吗？我需要昨天成为SVIP用户，并且之前给过差评的这些账号，不过要把一个叫大宝的账号去掉，他老板亲戚。”对于小美的需求，小锤从来没有拒绝过，这次也不例外。">
+<meta name="keywords" content="技术杂记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="retainAll函数那点儿事">
+<meta property="og:url" content="https://jackeyzhe.github.io/2019/03/13/retainAll函数那点儿事/index.html">
 <meta property="og:site_name" content="Jackeyzhe">
+<meta property="og:description" content="王小锤是一家电商网站的Java程序员，下午刚打开电脑，公司的运营妹子小美就过来找他：“小锤，你能帮我导一份数据吗？我需要昨天成为SVIP用户，并且之前给过差评的这些账号，不过要把一个叫大宝的账号去掉，他老板亲戚。”对于小美的需求，小锤从来没有拒绝过，这次也不例外。">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1552493631/Blog/Other/%E5%B0%8F%E9%94%A4%E5%B7%A5%E4%BD%9C%E6%B5%81.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1552574758/Blog/Other/%E6%96%90%E6%B3%A2%E9%82%A3%E5%A5%91.jpg">
+<meta property="og:updated_time" content="2019-03-14T14:46:27.259Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Jackeyzhe">
+<meta name="twitter:title" content="retainAll函数那点儿事">
+<meta name="twitter:description" content="王小锤是一家电商网站的Java程序员，下午刚打开电脑，公司的运营妹子小美就过来找他：“小锤，你能帮我导一份数据吗？我需要昨天成为SVIP用户，并且之前给过差评的这些账号，不过要把一个叫大宝的账号去掉，他老板亲戚。”对于小美的需求，小锤从来没有拒绝过，这次也不例外。">
+<meta name="twitter:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1552493631/Blog/Other/%E5%B0%8F%E9%94%A4%E5%B7%A5%E4%BD%9C%E6%B5%81.png">
 
 
 
@@ -116,13 +123,13 @@
 
 
 
-  <link rel="canonical" href="https://jackeyzhe.github.io/page/3/"/>
+  <link rel="canonical" href="https://jackeyzhe.github.io/2019/03/13/retainAll函数那点儿事/"/>
 
 
 
 
 
-  <title>Jackeyzhe</title>
+  <title>retainAll函数那点儿事 | Jackeyzhe</title>
   
 
 
@@ -141,8 +148,7 @@
     
   
 
-  <div class="container sidebar-position-right 
-  page-home">
+  <div class="container sidebar-position-right page-post-detail">
     <div class="headband"></div>
     <a href="https://github.com/Jackeyzhe" class="github-corner" aria-label="View source on Github"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
 
@@ -270,9 +276,9 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-  <section id="posts" class="posts-expand">
+
+  <div id="posts" class="posts-expand">
     
-      
 
   
 
@@ -285,7 +291,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2018/09/22/Redis命令详解：Keys/">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2019/03/13/retainAll函数那点儿事/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Jackey Wang">
@@ -302,9 +308,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/09/22/Redis命令详解：Keys/" itemprop="url">Redis命令详解：Keys</a></h1>
+          <h1 class="post-title" itemprop="name headline">retainAll函数那点儿事</h1>
         
 
         <div class="post-meta">
@@ -316,8 +320,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-22T11:22:19+08:00">
-                2018-09-22
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-13T22:55:41+08:00">
+                2019-03-13
               </time>
             
 
@@ -335,6 +339,11 @@
           
           
 
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
           
 
           
@@ -354,16 +363,25 @@
       
 
       
-        
-          <p>介绍完Redis连接相关命令后，再来介绍一下与Key相关的命令，Redis作为一个key-value数据库，对Key进行操作是无法避免的。
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/09/22/Redis命令详解：Keys/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
+        <p>王小锤是一家电商网站的Java程序员，下午刚打开电脑，公司的运营妹子小美就过来找他：“小锤，你能帮我导一份数据吗？我需要昨天成为SVIP用户，并且之前给过差评的这些账号，不过要把一个叫大宝的账号去掉，他老板亲戚。”对于小美的需求，小锤从来没有拒绝过，这次也不例外。<a id="more"></a></p>
+<p>答应小美之后，小锤心想，这么简单的事情，一个SQL就搞定了。小美又要夸我效率高了，想想还有点小激动呢。小锤打开电脑的一瞬间整个人都不好了。原来今天早上下班前，他才刚刚完成微服务的拆分。现在订单和用户已经分成了两个服务，评价表和用户等级表也已经在两个数据库里了。这就尴尬了，本来一个SQL能解决的事情，现在还需要跨服务调接口了。</p>
+<p>不过小锤马上就有思路了：</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1552493631/Blog/Other/%E5%B0%8F%E9%94%A4%E5%B7%A5%E4%BD%9C%E6%B5%81.png" alt="小锤的思路"></p>
+<p>有了思路之后，小锤立刻就开始写代码了。</p>
+<p>两分钟后……新鲜的代码出炉了（这里给个类似的Demo）。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">NoBadReviewSVIP</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        String[] svipArr = <span class="keyword">new</span> String[]&#123;<span class="string">"大宝"</span>,<span class="string">"凉凉"</span>,<span class="string">"Tom"</span>&#125;;</span><br><span class="line">        String[] badReviewUserArr = <span class="keyword">new</span> String[]&#123;<span class="string">"凉凉"</span>,<span class="string">"Tom"</span>,<span class="string">"大宝"</span>,<span class="string">"小锤"</span>&#125;;</span><br><span class="line">        List&lt;String&gt; svips = <span class="keyword">new</span> ArrayList&lt;String&gt;(Arrays.asList(svipArr));<span class="comment">//从用户服务查</span></span><br><span class="line">        svips.remove(<span class="string">"大宝"</span>);</span><br><span class="line">        List&lt;String&gt; badReviewUsers = <span class="keyword">new</span> ArrayList&lt;String&gt;(Arrays.asList(badReviewUserArr));<span class="comment">//从订单服务查</span></span><br><span class="line">        <span class="keyword">if</span> (svips.retainAll(badReviewUsers)) &#123;</span><br><span class="line">            System.out.println(svips);</span><br><span class="line">            System.out.println(<span class="string">"有交集"</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">"没有交集，告诉小美"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>小锤先运行了一下，发现结果是没有交集，于是小锤告诉小美：“没有你要的用户，昨天新的SVIP都没有给过差评。”小美说：“不可能，老板说有一个叫Tom的用户就给了差评，你再好好查查。”</p>
+<p>小锤一查发现Tom真的给了差评，而且昨天刚刚成为SVIP。到底是哪里出了问题呢？小锤对着代码看了一个多小时也没发现问题，于是向身边的大锤请教。大锤只看了一眼，告诉他if的条件不对，让他看retainAll的具体实现。</p>
+<h4 id="retainAll的实现"><a href="#retainAll的实现" class="headerlink" title="retainAll的实现"></a>retainAll的实现</h4><p>于是小锤就开始看retainAll的源码了，发现它调用了一个batchRemove的私有方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">batchRemove</span><span class="params">(Collection&lt;?&gt; c, <span class="keyword">boolean</span> complement)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> Object[] elementData = <span class="keyword">this</span>.elementData;</span><br><span class="line">    <span class="comment">//w表示两个list的公共元素个数</span></span><br><span class="line">    <span class="keyword">int</span> r = <span class="number">0</span>, w = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">boolean</span> modified = <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> (; r &lt; size; r++)</span><br><span class="line">            <span class="comment">//如果有公共元素，存入elementData</span></span><br><span class="line">            <span class="keyword">if</span> (c.contains(elementData[r]) == complement)</span><br><span class="line">                elementData[w++] = elementData[r];</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="comment">// c.contains()抛异常，就把剩余元素复制到elementData</span></span><br><span class="line">        <span class="keyword">if</span> (r != size) &#123;</span><br><span class="line">            System.arraycopy(elementData, r,</span><br><span class="line">                             elementData, w,</span><br><span class="line">                             size - r);</span><br><span class="line">            <span class="comment">//此时w为调用方list的长度</span></span><br><span class="line">            w += size - r;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//如果元素数量改变</span></span><br><span class="line">        <span class="keyword">if</span> (w != size) &#123;</span><br><span class="line">            <span class="comment">// 多余空间教给GC</span></span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = w; i &lt; size; i++)</span><br><span class="line">                elementData[i] = <span class="keyword">null</span>;</span><br><span class="line">            <span class="comment">//记录list修改的次数</span></span><br><span class="line">            modCount += size - w;</span><br><span class="line">            <span class="comment">//重新设置list大小</span></span><br><span class="line">            size = w;</span><br><span class="line">            <span class="comment">//返回true</span></span><br><span class="line">            modified = <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> modified;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这么一看小锤就明白了，对于</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">listA.retainAll(listB)</span><br></pre></td></tr></table></figure>
+<p>listA中保存了listA和listB的交集，如果listA中元素数量改变，那么就返回true；如果listA的元素不变，则返回false。</p>
+<p>也就是说，判断两个list是否有交集，只需要执行上述代码，然后判断listA的size是否大于0就可以了。</p>
+<p>想通了这一点，小锤马上修改了代码，重新运行，得到正确结果，并且把结果告诉了小美。</p>
+<p>万万没想到，小锤最后仍然没有得到小美的夸奖，因为所有的SVIP都给了差评，小美要负责挨个询问原因并且帮助他们解决问题，所以根本没有时间搭理小锤。</p>
+<h4 id="日常自黑"><a href="#日常自黑" class="headerlink" title="日常自黑"></a>日常自黑</h4><p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1552574758/Blog/Other/%E6%96%90%E6%B3%A2%E9%82%A3%E5%A5%91.jpg" alt="斐波那契程序员"></p>
+
       
     </div>
     
@@ -371,281 +389,95 @@
     
 
     
+      <div>
+            
+              
+            
+      </div>
+      <div>
+        <div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+    <img id="wechat_subscriber_qcode" src="/images/wechat-qcode.jpg" alt="Jackey Wang wechat" style="width: 200px; max-width: 100%;"/>
+    <div>欢迎关注我的公众号，一起讨论如何写bug</div>
+</div>
+
+      </div>
+    
 
       <div>
         
+          <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+        
       </div>
 
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>原创不易，感谢支持</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/weixinpay.jpg" alt="Jackey Wang 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpg" alt="Jackey Wang 支付宝"/>
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
     
 
     
 
     <footer class="post-footer">
       
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2018/09/19/Redis命令详解：Connection/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Jackey Wang">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Jackeyzhe">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/09/19/Redis命令详解：Connection/" itemprop="url">Redis命令详解：Connection</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-19T23:00:05+08:00">
-                2018-09-19
-              </time>
-            
-
-            
-
-            
-          </span>
-
+        <div class="post-tags">
           
-
+            <a href="/tags/技术杂记/" rel="tag"><i class="fa fa-tag"></i> 技术杂记</a>
           
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
         </div>
-      </header>
-    
+      
 
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
+      
       
       
 
       
-        
-          <p>最近在学习Redis的相关知识，上一篇我们也介绍了Redis的安装方法和基本数据结构，后面就打算开一个新的系列文章：Redis命令详解。既是对基础的巩固，也是为了以后查询起来更方便。
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/09/19/Redis命令详解：Connection/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/03/10/走近源码：Redis的压缩列表/" rel="next" title="走近源码：Redis的压缩列表">
+                <i class="fa fa-chevron-left"></i> 走近源码：Redis的压缩列表
+              </a>
+            
           </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
 
-    
+          <span class="post-nav-divider"></span>
 
-      <div>
-        
-      </div>
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2018/09/17/Redis基础数据结构/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Jackey Wang">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Jackeyzhe">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/09/17/Redis基础数据结构/" itemprop="url">Redis基础数据结构</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
+          <div class="post-nav-prev post-nav-item">
             
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-17T23:04:19+08:00">
-                2018-09-17
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
+          </div>
         </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
       
 
       
-        
-          <p>Redis是一款完全免费的，高性能的key-value数据库，目前被大多数公司用来做缓存。Redis作为一个内存数据库，它的读写速度非常快：读速度可以达到110000次/s，写的速度是81000次/s 。相比于其他key-value数据库，Redis的另一大特性就是支持多种数据类型。今天我们来一起聊一聊Redis的5种基础数据类型。
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/09/17/Redis基础数据结构/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-      <div>
-        
-      </div>
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
       
     </footer>
   </div>
@@ -655,910 +487,17 @@
   </article>
 
 
-    
+
+    <div class="post-spread">
       
+        <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_inline_share_toolbox">
+  <script type = "text/javascript" src = "//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5b669c42ef338b5b" async = "async" ></script>
+</div>
 
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2018/09/12/送给你的算法敲门砖/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Jackey Wang">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Jackeyzhe">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/09/12/送给你的算法敲门砖/" itemprop="url">送给你的算法敲门砖</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-12T22:58:12+08:00">
-                2018-09-12
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>在学校的时候老师一直跟我们强调算法的重要性，我和大多数同学一样不以为然，觉得学起来又难又枯燥。直到开始找工作以后，被各种算法面试题打击得体无完肤的时候，才算明白算法的重要性。
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/09/12/送给你的算法敲门砖/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
       
     </div>
-    
-    
-    
-
-    
-
-      <div>
-        
-      </div>
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
   </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2018/09/11/使用ModelMapper的一次踩坑经历/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Jackey Wang">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Jackeyzhe">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/09/11/使用ModelMapper的一次踩坑经历/" itemprop="url">使用ModelMapper的一次踩坑经历</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-11T22:08:32+08:00">
-                2018-09-11
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>在实际项目中，我们常常需要把两个相似的对象相互转换，其目的是在对外提供数据时需要将一部分敏感数据（例如：密码、加密token等）隐藏起来。最普通的方法是，新建一个对象，将需要的值逐个set进去。如果有多组需要这样转换的对象，那么就需要做很多只是get/set这样无意义的工作。
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/09/11/使用ModelMapper的一次踩坑经历/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-      <div>
-        
-      </div>
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2018/09/08/代码洁癖系列（八）：迭代的原则/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Jackey Wang">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Jackeyzhe">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/09/08/代码洁癖系列（八）：迭代的原则/" itemprop="url">代码洁癖系列（八）：迭代的原则</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-08T20:21:08+08:00">
-                2018-09-08
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>我们都知道，一个软件的维护成本往往要高于其研发成本。在维护过程中，我们的代码需要不断的进行迭代。迭代的目的有两个：修复bug和增加新特性。但是迭代也会带来一系列新的问题，比如新的bug，或者是破坏代码的整洁性。这里我们从保持代码整洁性的角度来讨论一下迭代的几个原则。
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/09/08/代码洁癖系列（八）：迭代的原则/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-      <div>
-        
-      </div>
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2018/09/07/实用的工具，有趣的人/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Jackey Wang">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Jackeyzhe">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/09/07/实用的工具，有趣的人/" itemprop="url">实用的工具，有趣的人</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-07T23:08:38+08:00">
-                2018-09-07
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>1998年的9月4日，拉里·佩奇和谢尔盖·布林将Google带到这个世界。就在前几天，Google刚刚过了20岁生日。经过20年的发展，Google早已不是当初的小作坊了，而是发展成为被大家公认的全球最大的搜索引擎公司。20年间，Google不仅在搜索技术上表现颇为出色，在大数据、云计算、AI等各个方面都有着巨大的贡献。
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/09/07/实用的工具，有趣的人/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-      <div>
-        
-      </div>
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2018/09/04/代码洁癖系列（七）：单元测试的地位/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Jackey Wang">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Jackeyzhe">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/09/04/代码洁癖系列（七）：单元测试的地位/" itemprop="url">代码洁癖系列（七）：单元测试的地位</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-04T23:51:52+08:00">
-                2018-09-04
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>在许多程序员眼中，单元测试似乎是可有可无的，觉得这应该是测试人员的工作。实际上，测试代码和生成代码同样重要。我们不但需要测试代码，而且需要的是整洁的测试代码。
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/09/04/代码洁癖系列（七）：单元测试的地位/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-      <div>
-        
-      </div>
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2018/09/03/代码洁癖系列（六）：处理错误/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Jackey Wang">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Jackeyzhe">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/09/03/代码洁癖系列（六）：处理错误/" itemprop="url">代码洁癖系列（六）：处理错误</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-03T22:46:38+08:00">
-                2018-09-03
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>程序运行过程中，有些错误是不可避免的，而如何使程序在出现错误时代码仍然正常工作就成了程序员的日常工作之一。那么处理错误和代码整洁有什么关系呢？
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/09/03/代码洁癖系列（六）：处理错误/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-      <div>
-        
-      </div>
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2018/08/31/代码洁癖系列（五）：外在的格式美/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Jackey Wang">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Jackeyzhe">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/08/31/代码洁癖系列（五）：外在的格式美/" itemprop="url">代码洁癖系列（五）：外在的格式美</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-08-31T21:54:15+08:00">
-                2018-08-31
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>我们在阅读一些优秀项目的源码时，一定会感叹他们代码的整洁和一致性。而作为第一印象，代码格式的整齐是让人能够继续阅读下去的动力。今天我们分别从垂直格式和横向格式两个方面来讨论代码的格式。修正格式的方法有：间隔、靠近和调整顺序。
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/08/31/代码洁癖系列（五）：外在的格式美/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-      <div>
-        
-      </div>
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-  </section>
-
-  
-  <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/4/"><i class="fa fa-angle-right"></i></a>
-  </nav>
-
 
 
           </div>
@@ -1566,6 +505,14 @@
 
 
           
+
+  
+    <div id="gitalk-container"></div>
+  
+
+  
+
+
 
         </div>
         
@@ -1586,8 +533,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -1666,6 +622,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#retainAll的实现"><span class="nav-number">1.</span> <span class="nav-text">retainAll的实现</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#日常自黑"><span class="nav-number">2.</span> <span class="nav-text">日常自黑</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -1827,6 +799,10 @@
 
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
 
   
 
@@ -1867,6 +843,22 @@
 
 
 
+
+  <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+  <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+  <script src="/js/src/md5.min.js"></script>
+   <script type="text/javascript">
+    var gitalk = new Gitalk({
+      clientID: '295c1e810999f8d8bf73',
+      clientSecret: '6193e47855339267901507a7e78a2d204ff153bf',
+      repo: 'Jackeyzhe.github.io',
+      owner: 'Jackeyzhe',
+      admin: ['Jackeyzhe'],
+      id: md5(location.pathname),
+      distractionFreeMode: 'true'
+    })
+    gitalk.render('gitalk-container')
+  </script>
 
 
   
