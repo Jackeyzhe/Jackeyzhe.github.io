@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="技术杂记," />
+  <meta name="keywords" content="Redis," />
 
 
 
@@ -79,21 +79,18 @@
 
 
 
-<meta name="description" content="王小锤是一家电商网站的Java程序员，下午刚打开电脑，公司的运营妹子小美就过来找他：“小锤，你能帮我导一份数据吗？我需要昨天成为SVIP用户，并且之前给过差评的这些账号，不过要把一个叫大宝的账号去掉，他老板亲戚。”对于小美的需求，小锤从来没有拒绝过，这次也不例外。">
-<meta name="keywords" content="技术杂记">
+<meta name="description" content="Redis提供了丰富的指令集，但是仍然不能满足所有场景，在一些特定场景下，需要自定义一些指定来完成某些功能。因此，Redis提供了Lua脚本支持，用户可以自己编写脚本来实现想要的功能。 什么是Lua？Lua是一种功能强大的，高效，轻量级，可嵌入的脚本语言。它是动态类型语言，通过使用基于寄存器的虚拟机解释字节码运行，并具有增量垃圾收集的自动内存管理，是配置，脚本和快速原型设计的最佳选择。 Redis">
+<meta name="keywords" content="Redis">
 <meta property="og:type" content="article">
-<meta property="og:title" content="王小锤学Java：retainAll函数那点儿事">
-<meta property="og:url" content="https://jackeyzhe.github.io/2019/03/13/retainAll函数那点儿事/index.html">
+<meta property="og:title" content="Redis Lua脚本小学教程">
+<meta property="og:url" content="https://jackeyzhe.github.io/2019/05/13/Redis-Lua脚本小学教程/index.html">
 <meta property="og:site_name" content="Jackeyzhe">
-<meta property="og:description" content="王小锤是一家电商网站的Java程序员，下午刚打开电脑，公司的运营妹子小美就过来找他：“小锤，你能帮我导一份数据吗？我需要昨天成为SVIP用户，并且之前给过差评的这些账号，不过要把一个叫大宝的账号去掉，他老板亲戚。”对于小美的需求，小锤从来没有拒绝过，这次也不例外。">
+<meta property="og:description" content="Redis提供了丰富的指令集，但是仍然不能满足所有场景，在一些特定场景下，需要自定义一些指定来完成某些功能。因此，Redis提供了Lua脚本支持，用户可以自己编写脚本来实现想要的功能。 什么是Lua？Lua是一种功能强大的，高效，轻量级，可嵌入的脚本语言。它是动态类型语言，通过使用基于寄存器的虚拟机解释字节码运行，并具有增量垃圾收集的自动内存管理，是配置，脚本和快速原型设计的最佳选择。 Redis">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1552493631/Blog/Other/%E5%B0%8F%E9%94%A4%E5%B7%A5%E4%BD%9C%E6%B5%81.png">
-<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1552574758/Blog/Other/%E6%96%90%E6%B3%A2%E9%82%A3%E5%A5%91.jpg">
-<meta property="og:updated_time" content="2019-03-14T14:48:58.196Z">
+<meta property="og:updated_time" content="2019-05-16T14:40:42.058Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="王小锤学Java：retainAll函数那点儿事">
-<meta name="twitter:description" content="王小锤是一家电商网站的Java程序员，下午刚打开电脑，公司的运营妹子小美就过来找他：“小锤，你能帮我导一份数据吗？我需要昨天成为SVIP用户，并且之前给过差评的这些账号，不过要把一个叫大宝的账号去掉，他老板亲戚。”对于小美的需求，小锤从来没有拒绝过，这次也不例外。">
-<meta name="twitter:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1552493631/Blog/Other/%E5%B0%8F%E9%94%A4%E5%B7%A5%E4%BD%9C%E6%B5%81.png">
+<meta name="twitter:title" content="Redis Lua脚本小学教程">
+<meta name="twitter:description" content="Redis提供了丰富的指令集，但是仍然不能满足所有场景，在一些特定场景下，需要自定义一些指定来完成某些功能。因此，Redis提供了Lua脚本支持，用户可以自己编写脚本来实现想要的功能。 什么是Lua？Lua是一种功能强大的，高效，轻量级，可嵌入的脚本语言。它是动态类型语言，通过使用基于寄存器的虚拟机解释字节码运行，并具有增量垃圾收集的自动内存管理，是配置，脚本和快速原型设计的最佳选择。 Redis">
 
 
 
@@ -123,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="https://jackeyzhe.github.io/2019/03/13/retainAll函数那点儿事/"/>
+  <link rel="canonical" href="https://jackeyzhe.github.io/2019/05/13/Redis-Lua脚本小学教程/"/>
 
 
 
 
 
-  <title>王小锤学Java：retainAll函数那点儿事 | Jackeyzhe</title>
+  <title>Redis Lua脚本小学教程 | Jackeyzhe</title>
   
 
 
@@ -291,7 +288,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2019/03/13/retainAll函数那点儿事/">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2019/05/13/Redis-Lua脚本小学教程/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Jackey Wang">
@@ -308,7 +305,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">王小锤学Java：retainAll函数那点儿事</h1>
+          <h1 class="post-title" itemprop="name headline">Redis Lua脚本小学教程</h1>
         
 
         <div class="post-meta">
@@ -320,8 +317,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-13T22:55:41+08:00">
-                2019-03-13
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-13T22:54:01+08:00">
+                2019-05-13
               </time>
             
 
@@ -363,24 +360,38 @@
       
 
       
-        <p>王小锤是一家电商网站的Java程序员，下午刚打开电脑，公司的运营妹子小美就过来找他：“小锤，你能帮我导一份数据吗？我需要昨天成为SVIP用户，并且之前给过差评的这些账号，不过要把一个叫大宝的账号去掉，他老板亲戚。”对于小美的需求，小锤从来没有拒绝过，这次也不例外。<a id="more"></a></p>
-<p>答应小美之后，小锤心想，这么简单的事情，一个SQL就搞定了。小美又要夸我效率高了，想想还有点小激动呢。小锤打开电脑的一瞬间整个人都不好了。原来今天早上下班前，他才刚刚完成微服务的拆分。现在订单和用户已经分成了两个服务，评价表和用户等级表也已经在两个数据库里了。这就尴尬了，本来一个SQL能解决的事情，现在还需要跨服务调接口了。</p>
-<p>不过小锤马上就有思路了：</p>
-<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1552493631/Blog/Other/%E5%B0%8F%E9%94%A4%E5%B7%A5%E4%BD%9C%E6%B5%81.png" alt="小锤的思路"></p>
-<p>有了思路之后，小锤立刻就开始写代码了。</p>
-<p>两分钟后……新鲜的代码出炉了（这里给个类似的Demo）。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">NoBadReviewSVIP</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        String[] svipArr = <span class="keyword">new</span> String[]&#123;<span class="string">"大宝"</span>,<span class="string">"凉凉"</span>,<span class="string">"Tom"</span>&#125;;</span><br><span class="line">        String[] badReviewUserArr = <span class="keyword">new</span> String[]&#123;<span class="string">"凉凉"</span>,<span class="string">"Tom"</span>,<span class="string">"大宝"</span>,<span class="string">"小锤"</span>&#125;;</span><br><span class="line">        List&lt;String&gt; svips = <span class="keyword">new</span> ArrayList&lt;String&gt;(Arrays.asList(svipArr));<span class="comment">//从用户服务查</span></span><br><span class="line">        svips.remove(<span class="string">"大宝"</span>);</span><br><span class="line">        List&lt;String&gt; badReviewUsers = <span class="keyword">new</span> ArrayList&lt;String&gt;(Arrays.asList(badReviewUserArr));<span class="comment">//从订单服务查</span></span><br><span class="line">        <span class="keyword">if</span> (svips.retainAll(badReviewUsers)) &#123;</span><br><span class="line">            System.out.println(svips);</span><br><span class="line">            System.out.println(<span class="string">"有交集"</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">"没有交集，告诉小美"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>小锤先运行了一下，发现结果是没有交集，于是小锤告诉小美：“没有你要的用户，昨天新的SVIP都没有给过差评。”小美说：“不可能，老板说有一个叫Tom的用户就给了差评，你再好好查查。”</p>
-<p>小锤一查发现Tom真的给了差评，而且昨天刚刚成为SVIP。到底是哪里出了问题呢？小锤对着代码看了一个多小时也没发现问题，于是向身边的大锤请教。大锤只看了一眼，告诉他if的条件不对，让他看retainAll的具体实现。</p>
-<h4 id="retainAll的实现"><a href="#retainAll的实现" class="headerlink" title="retainAll的实现"></a>retainAll的实现</h4><p>于是小锤就开始看retainAll的源码了，发现它调用了一个batchRemove的私有方法。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">batchRemove</span><span class="params">(Collection&lt;?&gt; c, <span class="keyword">boolean</span> complement)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> Object[] elementData = <span class="keyword">this</span>.elementData;</span><br><span class="line">    <span class="comment">//w表示两个list的公共元素个数</span></span><br><span class="line">    <span class="keyword">int</span> r = <span class="number">0</span>, w = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">boolean</span> modified = <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> (; r &lt; size; r++)</span><br><span class="line">            <span class="comment">//如果有公共元素，存入elementData</span></span><br><span class="line">            <span class="keyword">if</span> (c.contains(elementData[r]) == complement)</span><br><span class="line">                elementData[w++] = elementData[r];</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="comment">// c.contains()抛异常，就把剩余元素复制到elementData</span></span><br><span class="line">        <span class="keyword">if</span> (r != size) &#123;</span><br><span class="line">            System.arraycopy(elementData, r,</span><br><span class="line">                             elementData, w,</span><br><span class="line">                             size - r);</span><br><span class="line">            <span class="comment">//此时w为调用方list的长度</span></span><br><span class="line">            w += size - r;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//如果元素数量改变</span></span><br><span class="line">        <span class="keyword">if</span> (w != size) &#123;</span><br><span class="line">            <span class="comment">// 多余空间教给GC</span></span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = w; i &lt; size; i++)</span><br><span class="line">                elementData[i] = <span class="keyword">null</span>;</span><br><span class="line">            <span class="comment">//记录list修改的次数</span></span><br><span class="line">            modCount += size - w;</span><br><span class="line">            <span class="comment">//重新设置list大小</span></span><br><span class="line">            size = w;</span><br><span class="line">            <span class="comment">//返回true</span></span><br><span class="line">            modified = <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> modified;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这么一看小锤就明白了，对于</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">listA.retainAll(listB)</span><br></pre></td></tr></table></figure>
-<p>listA中保存了listA和listB的交集，如果listA中元素数量改变，那么就返回true；如果listA的元素不变，则返回false。</p>
-<p>也就是说，判断两个list是否有交集，只需要执行上述代码，然后判断listA的size是否大于0就可以了。</p>
-<p>想通了这一点，小锤马上修改了代码，重新运行，得到正确结果，并且把结果告诉了小美。</p>
-<p>万万没想到，小锤最后仍然没有得到小美的夸奖，因为所有的SVIP都给了差评，小美要负责挨个询问原因并且帮助他们解决问题，所以根本没有时间搭理小锤。</p>
-<h4 id="日常自黑"><a href="#日常自黑" class="headerlink" title="日常自黑"></a>日常自黑</h4><p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1552574758/Blog/Other/%E6%96%90%E6%B3%A2%E9%82%A3%E5%A5%91.jpg" alt="斐波那契程序员"></p>
+        <p>Redis提供了丰富的指令集，但是仍然不能满足所有场景，在一些特定场景下，需要自定义一些指定来完成某些功能。因此，Redis提供了Lua脚本支持，用户可以自己编写脚本来实现想要的功能。</p>
+<h4 id="什么是Lua？"><a href="#什么是Lua？" class="headerlink" title="什么是Lua？"></a>什么是Lua？</h4><p>Lua是一种功能强大的，高效，轻量级，可嵌入的脚本语言。它是动态类型语言，通过使用基于寄存器的虚拟机解释字节码运行，并具有增量垃圾收集的自动内存管理，是配置，脚本和快速原型设计的最佳选择。</p>
+<h4 id="Redis怎么执行Lua脚本"><a href="#Redis怎么执行Lua脚本" class="headerlink" title="Redis怎么执行Lua脚本"></a>Redis怎么执行Lua脚本</h4><h5 id="EVAL命令"><a href="#EVAL命令" class="headerlink" title="EVAL命令"></a>EVAL命令</h5><p>Redis中可以使用EVAL命令执行相应的Lua脚本</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; EVAL <span class="string">'local val="Hello Jackey" return val'</span> 0</span><br><span class="line"><span class="string">"Hello Jackey"</span></span><br></pre></td></tr></table></figure>
+<p>你可以像这样在交互模式下执行Lua脚本，这样更方便处理错误。只是这样还不够，有时候，我们需要给Lua脚本传入一些参数。细心的同学一定注意到了，脚本的后面还有一个数字0，它的意思的不传入参数。</p>
+<p>那怎么传参数呢？</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; EVAL <span class="string">'local val=KEYS[1] return val.." "..ARGV[1]'</span> 1 Hello Redis</span><br><span class="line"><span class="string">"Hello Redis"</span></span><br></pre></td></tr></table></figure>
+<p>其实也很简单，传入的参数都是kv形式的，这个数字代表传入参数的key的数量，再后面就是n个key和n个value。在脚本中，可以理解为从KEYS数组和ARGV数组中获取对应的值，下标是从1开始的。</p>
+<p><em>上面例子中的两个点是Lua脚本中字符串连接的操作符</em></p>
+<p>现在我们已经知道怎么在Redis中执行Lua脚本了，可是这样的脚本和Redis没有关系啊，怎么才能操作Redis中的数据呢？请继续看我表演</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt; get my_name</span><br><span class="line"><span class="string">"Jackeyzhe"</span></span><br><span class="line">&gt; EVAL <span class="string">'local val=ARGV[1].." "..redis.call("get",KEYS[1]) return val'</span> 1 my_name Hello</span><br><span class="line"><span class="string">"Hello Jackeyzhe"</span></span><br></pre></td></tr></table></figure>
+<p>使用redis.call或redis.pcall（以后会提到）就可以操作redis了。</p>
+<p>需要注意的是，如果返回下面的错误，说明要获取的key不存在</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; EVAL <span class="string">'local val=ARGV[1].." "..redis.call("get",KEYS[1]) return val'</span> 1 me Hello</span><br><span class="line">(error) ERR Error running script (call to f_eb11f8ddeeee07cc88d1f3bd103069284b83c5d8): @user_script:1: user_script:1: attempt to concatenate a boolean value</span><br></pre></td></tr></table></figure>
+<p>我们可以使用上面这种方法执行一些简单的Lua脚本，如果要执行更加复杂的Lua脚本，用EVAL命令就会显得臃肿且凌乱。所以Redis又提供了一种方法。</p>
+<h5 id="redis-cli-–eval"><a href="#redis-cli-–eval" class="headerlink" title="redis-cli –eval"></a>redis-cli –eval</h5><p>我们可以先写一个Lua文件，然后使用redis-cli命令来执行。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">local name=redis.call(&quot;get&quot;, KEYS[1])</span><br><span class="line">local greet=ARGV[1]</span><br><span class="line">local result=greet..&quot; &quot;..name</span><br><span class="line">return result</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; redis-cli --<span class="built_in">eval</span> hello.lua my_name , Hello</span><br><span class="line"><span class="string">"Hello Jackey"</span></span><br></pre></td></tr></table></figure>
+<p>这样，我们就可以先写一个.lua文件，然后再使用redis-cli命令来执行了，看起来也不会很凌乱，使用这种方式传入参数时，不需要指定key的数量，而是用逗号分隔key和argv。</p>
+<h5 id="EVALSHA"><a href="#EVALSHA" class="headerlink" title="EVALSHA"></a>EVALSHA</h5><p>你以为到这就结束了吗？那就too naive了。如果我们在Redis交互模式中，想要执行脚本文件怎么办？每次都退出来，执行完再连接一次？这未免太麻烦了。Redis提供了EVALSHA命令，使我们可以在交互模式执行脚本文件。</p>
+<p>首先，需要上传脚本文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ redis-cli SCRIPT LOAD <span class="string">"<span class="variable">$(cat hello.lua)</span>"</span></span><br><span class="line"><span class="string">"463ff2ca9e78e36cd66ee9d37ee0dcd59100bf46"</span></span><br></pre></td></tr></table></figure>
+<p>会得到一串十六进制的数字，这是这个脚本的唯一标识。拿到这个数字后，表示我们已经将脚本上传到服务器了，接下来就可以使用这个标识来执行脚本了。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; EVALSHA 463ff2ca9e78e36cd66ee9d37ee0dcd59100bf46 1 my_name Hello</span><br><span class="line"><span class="string">"Hello Jackeyzhe"</span></span><br></pre></td></tr></table></figure>
+<h4 id="终止脚本"><a href="#终止脚本" class="headerlink" title="终止脚本"></a>终止脚本</h4><p>Redis中Lua脚本到默认执行时长是5秒，一般情况下脚本的执行时间都是毫秒级的，如果执行超时，脚本也不会停止，而是记录错误日志。</p>
+<p>终止脚本执行的方法有两种</p>
+<ol>
+<li>使用KILL SCRIPT命令</li>
+<li>使用SHUTDOWN NOSAVE命令关闭服务器</li>
+</ol>
+<p>不过不建议手动终止脚本</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>本文简要介绍了什么是Lua，以及Redis执行和终止Lua脚本的方法。如果都掌握了，那么恭喜你已经从Lua小学毕业了。在Lua中学你会学到Redis关于Lua命令的更详细介绍。</p>
 
       
     </div>
@@ -450,7 +461,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/技术杂记/" rel="tag"><i class="fa fa-tag"></i> 技术杂记</a>
+            <a href="/tags/Redis/" rel="tag"><i class="fa fa-tag"></i> Redis</a>
           
         </div>
       
@@ -463,8 +474,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/03/10/【译】大O的友好指南/" rel="next" title="【译】大O的友好指南">
-                <i class="fa fa-chevron-left"></i> 【译】大O的友好指南
+              <a href="/2019/04/27/速度不够，管道来凑——Redis管道技术/" rel="next" title="速度不够，管道来凑——Redis管道技术">
+                <i class="fa fa-chevron-left"></i> 速度不够，管道来凑——Redis管道技术
               </a>
             
           </div>
@@ -472,10 +483,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/03/23/走近源码：压缩列表是怎样炼成的/" rel="prev" title="走近源码：压缩列表是怎样炼成的">
-                走近源码：压缩列表是怎样炼成的 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -636,7 +643,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#retainAll的实现"><span class="nav-number">1.</span> <span class="nav-text">retainAll的实现</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#日常自黑"><span class="nav-number">2.</span> <span class="nav-text">日常自黑</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#什么是Lua？"><span class="nav-number">1.</span> <span class="nav-text">什么是Lua？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Redis怎么执行Lua脚本"><span class="nav-number">2.</span> <span class="nav-text">Redis怎么执行Lua脚本</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#EVAL命令"><span class="nav-number">2.1.</span> <span class="nav-text">EVAL命令</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#redis-cli-–eval"><span class="nav-number">2.2.</span> <span class="nav-text">redis-cli –eval</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#EVALSHA"><span class="nav-number">2.3.</span> <span class="nav-text">EVALSHA</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#终止脚本"><span class="nav-number">3.</span> <span class="nav-text">终止脚本</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
             
 
           </div>
