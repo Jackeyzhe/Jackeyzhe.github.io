@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="Redis提供了丰富的指令集，但是仍然不能满足所有场景，在一些特定场景下，需要自定义一些指定来完成某些功能。因此，Redis提供了Lua脚本支持，用户可以自己编写脚本来实现想要的功能。 什么是Lua？Lua是一种功能强大的，高效，轻量级，可嵌入的脚本语言。它是动态类型语言，通过使用基于寄存器的虚拟机解释字节码运行，并具有增量垃圾收集的自动内存管理，是配置，脚本和快速原型设计的最佳选择。 Redis">
+<meta name="description" content="Redis提供了丰富的指令集，但是仍然不能满足所有场景，在一些特定场景下，需要自定义一些指定来完成某些功能。因此，Redis提供了Lua脚本支持，用户可以自己编写脚本来实现想要的功能。">
 <meta name="keywords" content="Redis">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Redis Lua脚本小学教程">
 <meta property="og:url" content="https://jackeyzhe.github.io/2019/05/13/Redis-Lua脚本小学教程/index.html">
 <meta property="og:site_name" content="Jackeyzhe">
-<meta property="og:description" content="Redis提供了丰富的指令集，但是仍然不能满足所有场景，在一些特定场景下，需要自定义一些指定来完成某些功能。因此，Redis提供了Lua脚本支持，用户可以自己编写脚本来实现想要的功能。 什么是Lua？Lua是一种功能强大的，高效，轻量级，可嵌入的脚本语言。它是动态类型语言，通过使用基于寄存器的虚拟机解释字节码运行，并具有增量垃圾收集的自动内存管理，是配置，脚本和快速原型设计的最佳选择。 Redis">
+<meta property="og:description" content="Redis提供了丰富的指令集，但是仍然不能满足所有场景，在一些特定场景下，需要自定义一些指定来完成某些功能。因此，Redis提供了Lua脚本支持，用户可以自己编写脚本来实现想要的功能。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-05-16T14:40:42.058Z">
+<meta property="og:updated_time" content="2019-05-16T14:41:51.162Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Redis Lua脚本小学教程">
-<meta name="twitter:description" content="Redis提供了丰富的指令集，但是仍然不能满足所有场景，在一些特定场景下，需要自定义一些指定来完成某些功能。因此，Redis提供了Lua脚本支持，用户可以自己编写脚本来实现想要的功能。 什么是Lua？Lua是一种功能强大的，高效，轻量级，可嵌入的脚本语言。它是动态类型语言，通过使用基于寄存器的虚拟机解释字节码运行，并具有增量垃圾收集的自动内存管理，是配置，脚本和快速原型设计的最佳选择。 Redis">
+<meta name="twitter:description" content="Redis提供了丰富的指令集，但是仍然不能满足所有场景，在一些特定场景下，需要自定义一些指定来完成某些功能。因此，Redis提供了Lua脚本支持，用户可以自己编写脚本来实现想要的功能。">
 
 
 
@@ -360,7 +360,7 @@
       
 
       
-        <p>Redis提供了丰富的指令集，但是仍然不能满足所有场景，在一些特定场景下，需要自定义一些指定来完成某些功能。因此，Redis提供了Lua脚本支持，用户可以自己编写脚本来实现想要的功能。</p>
+        <p>Redis提供了丰富的指令集，但是仍然不能满足所有场景，在一些特定场景下，需要自定义一些指定来完成某些功能。因此，Redis提供了Lua脚本支持，用户可以自己编写脚本来实现想要的功能。<a id="more"></a></p>
 <h4 id="什么是Lua？"><a href="#什么是Lua？" class="headerlink" title="什么是Lua？"></a>什么是Lua？</h4><p>Lua是一种功能强大的，高效，轻量级，可嵌入的脚本语言。它是动态类型语言，通过使用基于寄存器的虚拟机解释字节码运行，并具有增量垃圾收集的自动内存管理，是配置，脚本和快速原型设计的最佳选择。</p>
 <h4 id="Redis怎么执行Lua脚本"><a href="#Redis怎么执行Lua脚本" class="headerlink" title="Redis怎么执行Lua脚本"></a>Redis怎么执行Lua脚本</h4><h5 id="EVAL命令"><a href="#EVAL命令" class="headerlink" title="EVAL命令"></a>EVAL命令</h5><p>Redis中可以使用EVAL命令执行相应的Lua脚本</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; EVAL <span class="string">'local val="Hello Jackey" return val'</span> 0</span><br><span class="line"><span class="string">"Hello Jackey"</span></span><br></pre></td></tr></table></figure>
