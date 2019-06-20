@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="整洁," />
+  <meta name="keywords" content="Redis," />
 
 
 
@@ -79,20 +79,21 @@
 
 
 
-<meta name="description" content="不知道大家还记不记得《家有儿女》里有这么一段经典台词：“我叫夏雪”，“我叫夏雨”，“我叫夏冰雹”。">
-<meta name="keywords" content="整洁">
+<meta name="description" content="前面我们已经把Redis Lua相关的基础都介绍过了，如果你可以编写一些简单的Lua脚本，恭喜你已经可以从Lua中学毕业了。">
+<meta name="keywords" content="Redis">
 <meta property="og:type" content="article">
-<meta property="og:title" content="代码洁癖系列（二）：命名的艺术">
-<meta property="og:url" content="https://jackeyzhe.github.io/2018/08/27/代码洁癖系列（二）：命名的艺术/index.html">
+<meta property="og:title" content="Redis Lua脚本大学教程">
+<meta property="og:url" content="https://jackeyzhe.github.io/2019/06/17/Redis-Lua脚本大学教程/index.html">
 <meta property="og:site_name" content="Jackeyzhe">
-<meta property="og:description" content="不知道大家还记不记得《家有儿女》里有这么一段经典台词：“我叫夏雪”，“我叫夏雨”，“我叫夏冰雹”。">
+<meta property="og:description" content="前面我们已经把Redis Lua相关的基础都介绍过了，如果你可以编写一些简单的Lua脚本，恭喜你已经可以从Lua中学毕业了。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1535382734/Blog/clean/%E4%B8%8B%E5%86%B0%E9%9B%B9.png">
-<meta property="og:updated_time" content="2018-09-05T14:54:08.754Z">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1561000913/Blog/Redis/Lua/lua_debug_01.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1561004370/Blog/Redis/Lua/lua_debug_04.png">
+<meta property="og:updated_time" content="2019-06-20T15:47:05.366Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="代码洁癖系列（二）：命名的艺术">
-<meta name="twitter:description" content="不知道大家还记不记得《家有儿女》里有这么一段经典台词：“我叫夏雪”，“我叫夏雨”，“我叫夏冰雹”。">
-<meta name="twitter:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1535382734/Blog/clean/%E4%B8%8B%E5%86%B0%E9%9B%B9.png">
+<meta name="twitter:title" content="Redis Lua脚本大学教程">
+<meta name="twitter:description" content="前面我们已经把Redis Lua相关的基础都介绍过了，如果你可以编写一些简单的Lua脚本，恭喜你已经可以从Lua中学毕业了。">
+<meta name="twitter:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1561000913/Blog/Redis/Lua/lua_debug_01.png">
 
 
 
@@ -122,13 +123,13 @@
 
 
 
-  <link rel="canonical" href="https://jackeyzhe.github.io/2018/08/27/代码洁癖系列（二）：命名的艺术/"/>
+  <link rel="canonical" href="https://jackeyzhe.github.io/2019/06/17/Redis-Lua脚本大学教程/"/>
 
 
 
 
 
-  <title>代码洁癖系列（二）：命名的艺术 | Jackeyzhe</title>
+  <title>Redis Lua脚本大学教程 | Jackeyzhe</title>
   
 
 
@@ -290,7 +291,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2018/08/27/代码洁癖系列（二）：命名的艺术/">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2019/06/17/Redis-Lua脚本大学教程/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Jackey Wang">
@@ -307,7 +308,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">代码洁癖系列（二）：命名的艺术</h1>
+          <h1 class="post-title" itemprop="name headline">Redis Lua脚本大学教程</h1>
         
 
         <div class="post-meta">
@@ -319,8 +320,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-08-27T22:58:43+08:00">
-                2018-08-27
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-17T22:12:54+08:00">
+                2019-06-17
               </time>
             
 
@@ -362,43 +363,66 @@
       
 
       
-        <p>不知道大家还记不记得《家有儿女》里有这么一段经典台词：“我叫夏雪”，“我叫夏雨”，“我叫夏冰雹”。</p>
-<a id="more"></a>
-<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1535382734/Blog/clean/%E4%B8%8B%E5%86%B0%E9%9B%B9.png" alt="xiabingbao"></p>
-<p>刘星自己给自己起的名字承包了我所有笑点。但仔细想想这名字取的竟然还挺不错，不但有意义，还和夏雨夏雪的名字相呼应。</p>
-<p>回到主题，在我们的代码里，命名是随处可见的，比如给包命名，给类命名，方法名，参数名，变量名等等。那么什么样的命名才算是好的命名呢。这就是我们今天要讨论的。</p>
-<h4 id="名副其实"><a href="#名副其实" class="headerlink" title="名副其实"></a>名副其实</h4><p>首先还是要强调这一点，我读过的糟糕的代码有一个共同的特点，那就是代码中存在大量随意的，无意义的命名。比如：表示消耗多少小时的变量命名为h，同作用域中还有一个想要表示“小时”相关的变量直接命名为h1，一个List类型的变量就命名为list。读这种代码不会令人开心，同时写这种代码的程序员的人身安全是无法保证的。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> List&lt;String&gt; <span class="title">getThem</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    List&lt;String&gt; list = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    <span class="keyword">for</span> (String key : keys) &#123;</span><br><span class="line">        <span class="keyword">if</span> (theMap.get(key) == <span class="number">1</span>) &#123;</span><br><span class="line">            list.add(key);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> list;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>读一下上面这段代码，能看出有什么问题吗？或者说看完有人明白这段代码要做什么吗？</p>
-<p>我先来说一下我的问题：</p>
-<ol>
-<li>getThem是get什么？</li>
-<li>list里存的是什么</li>
-<li>keys指的是什么，为什么遍历它</li>
-<li>常量”1“的意义是什么</li>
-</ol>
-<p>这几个问题可能只有写这段代码的人才能解释（没错，就是我写的）。所以我来给大家解释一下，不过我不想一一回答上面的问题，我把代码重写一遍，看看还会不会有这样的问题。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> List&lt;String&gt; <span class="title">getPaidOrderIds</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    List&lt;String&gt; paidOrderIds = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    <span class="keyword">for</span> (String orderId : orderIds) &#123;</span><br><span class="line">        <span class="keyword">if</span> (orderStatus.get(orderId) == OrderConstatn.PAID) &#123;</span><br><span class="line">            paidOrderIds.add(orderId);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> paidOrderIds;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>怎么样，上面的问题都清楚了吗，如果不清楚可以私下和我联系，我会给你推荐一个非常好的英语学习软件。</p>
-<p>这就是名副其实的重要性。</p>
-<h4 id="避免误导"><a href="#避免误导" class="headerlink" title="避免误导"></a>避免误导</h4><p>命名过程中要注意的第二点就是要避免名称对别人产生误导，例如上面代码中paidOrderIds这个变量，如果我们命名成paidOrderIdList呢，看起来似乎没什么问题，但是如果这个变量是Set类型或者其他类型呢？命名为xxxList还合适吗，别人读代码的时候会下意识的认为这是个List类型的变量（尽量避免名称中出现类型的名字）。</p>
-<p>另一点容易产生误导的是数字和字母相像的情况，比如，我命名一个变量叫做O1，在编辑器里就很难分辨是O1还是01，如果我写一个这样的表达式 </p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">O0 = l1;</span><br></pre></td></tr></table></figure>
-<p>估计别人会以为我发明了什么新的语言吧。</p>
-<p>第三点是要避免区别较小的两个名称，比如XYZContinentController和XYZCentinentController这样的命名，对于读代码的人来说简直就是灾难，对于写代码的人来说也存在很大的风险。（为什么不是灾难？因为大部分人都是Ctrl+C/Ctrl+V的，这样就减小一些出错的几率。看来善用Ctrl+C/Ctrl+V还是很有必要的）</p>
-<h4 id="做有意义的区分"><a href="#做有意义的区分" class="headerlink" title="做有意义的区分"></a>做有意义的区分</h4><p>编译器要求我们在同一个区域内不能重复命名。那么有的程序员就会写出a1,a2,a3……这样的命名，这看起来很烂，谁也不知道它们有什么区别。再举过来一个栗子，一个包中有两个类，Product和ProductInfo，这时让你查一下商品名称，你知道要去哪个类里找吗？事实证明，这样的命名与a1,a2,a3之流别无二致。</p>
-<p>既然要做区分，为什么不做些有意义的区分呢，一个类叫做Product，表示商品信息，另一个叫做ProductStocks表示商品的库存信息。这样是不是更清晰一点呢，当然，我这里只是举个栗子，实际上可能不需要这样定义。</p>
-<h4 id="别随意使用简写"><a href="#别随意使用简写" class="headerlink" title="别随意使用简写"></a>别随意使用简写</h4><p>不要随意使用简写，除非是大家都知道的简写。比如美国的命名写成US，大家都可以理解，而如果generateCode写成genCode就令人费解了。</p>
-<h4 id="使用可以被搜索的名称"><a href="#使用可以被搜索的名称" class="headerlink" title="使用可以被搜索的名称"></a>使用可以被搜索的名称</h4><p>像我们在一开始的那段代码，为什么要把常量“1”写成OrderConstatn.PAID，不仅是为了可读，也是为了可搜索，试想，如果你要找这段代码，去搜索数字1，会有多少结果？搜索PAID呢？亲自试过之后相信你会回来点赞的。</p>
-<h4 id="类名和方法名"><a href="#类名和方法名" class="headerlink" title="类名和方法名"></a>类名和方法名</h4><p>类名和方法名也要遵循上面的规范，除此之外，它们还有各自的规范：</p>
+        <p>前面我们已经把Redis Lua相关的基础都介绍过了，如果你可以编写一些简单的Lua脚本，恭喜你已经可以从Lua中学毕业了。<a id="more"></a></p>
+<p>在大学课程中，我们主要学习Lua脚本调试和Redis中Lua执行原理两部分内容两部分。</p>
+<h4 id="Lua脚本调试"><a href="#Lua脚本调试" class="headerlink" title="Lua脚本调试"></a>Lua脚本调试</h4><p>Redis从3.2版本开始支持Lua脚本调试，调试器的名字叫做LDB。它有一些重要的特性：</p>
 <ul>
-<li>类名不应该是动词，避免使用Data、Info这样的词汇。</li>
-<li>方法名应该是动词，比如，saveXXX、deleteXXX</li>
+<li>它使用的是服务器-客户端模式，所以是远程调试。Redis服务器就是调试服务器，默认的客户端是redis-cli。也可以开发遵循服务器协议的其他客户端。</li>
+<li>默认情况下，每个debugging session都是一个新的session。也就是说在调试的过程中，服务器不会被阻塞。仍然可以被其他客户端使用或开启新的session。同时也意味着在调试过程中所有的修改在结束时都会回滚。</li>
+<li>如果需要，可以把debugging模式调成同步，这样就可以保留对数据集的更改。在这种模式下，调试时服务器会处于阻塞状态。</li>
+<li>支持步进式执行</li>
+<li>支持静态和动态断点</li>
+<li>支持从脚本中向调试控制台打印调试日志</li>
+<li>检查Lua变量</li>
+<li>追踪Redis命令的执行</li>
+<li>很好的支持打印Redis和Lua的值</li>
+<li>无限循环和长执行检测，模拟断点</li>
 </ul>
-<h4 id="要专一"><a href="#要专一" class="headerlink" title="要专一"></a>要专一</h4><p>假如你在不同的类中，分别定义了方法getXXX、fetchXXX和findXXX，我要调用的时候怎么知道某个类中应该使用哪种方法？所以，为什么不都用getXXX的形式呢？这样无论是对写代码的人还是对调用的人来说都是莫大的喜讯。</p>
-<h4 id="适当添加语境"><a href="#适当添加语境" class="headerlink" title="适当添加语境"></a>适当添加语境</h4><p>当你一些变量：firstName、lastName、street、houseNumber、city、state、zipcode。我们可以很轻易的判断出，他们组合在一起表示一个地址。那么把state单独拿出来呢？你还能知道它是什么意思吗？这时，我们可以把变量命名为addrState、addrFirstName……这样即便单独看某个变量，也会理解它要表达什么。当然更好的方法是定义一个名为Address的类，把这些变量放到类中，事实上我们也都是这样做的。</p>
-<p>当然，有时候也不能添加一些无意义的语境。我们要开发一个“画图”的应用，那在每个类名前加Drawing可不是什么好主意。</p>
-<h4 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h4><p>命名并不能算是什么技术，而是一种写代码的习惯，但这种习惯有可能会决定你作为一名程序员给人的第一印象。所以，养成一个好的命名习惯，也是对自己形象的维护。同时还能让自己的生命安全更有保障（避免被同事……</p>
+<h5 id="Lua脚本调试实战"><a href="#Lua脚本调试实战" class="headerlink" title="Lua脚本调试实战"></a>Lua脚本调试实战</h5><p>在开始调试之前，首先编写一个简单的Lua脚本script.lua：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> src = KEYS[<span class="number">1</span>]</span><br><span class="line"><span class="keyword">local</span> dst = KEYS[<span class="number">2</span>]</span><br><span class="line"><span class="keyword">local</span> count = <span class="built_in">tonumber</span>(ARGV[<span class="number">1</span>])</span><br><span class="line"><span class="keyword">while</span> count &gt; <span class="number">0</span> <span class="keyword">do</span></span><br><span class="line">    <span class="keyword">local</span> item = redis.call(<span class="string">'rpop'</span>,src)</span><br><span class="line">    <span class="keyword">if</span> item ~= <span class="literal">false</span> <span class="keyword">then</span></span><br><span class="line">        redis.call(<span class="string">'lpush'</span>,dst,item)</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    count = count - <span class="number">1</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="keyword">return</span> redis.call(<span class="string">'llen'</span>,dst)</span><br></pre></td></tr></table></figure>
+<p>这个脚本是把src中的元素依次插入到dst元素的头部。</p>
+<p>有了这个脚本之后我们就可以开始调试工作了。</p>
+<p>我们可以使用<figure class="highlight plain"><figcaption><span>—eval ```命令来运行这个脚本，而要调试的话，可以加上—ldb参数，因此我们先执行下面的命令：</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">```bash</span><br><span class="line">redis-cli --ldb --eval script.lua foo bar , 10</span><br></pre></td></tr></table></figure></p>
+<p>页面会出现一些帮助信息，并进入到调试模式</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1561000913/Blog/Redis/Lua/lua_debug_01.png" alt="lua_debug_help"></p>
+<p>可以看到帮助页告诉我们</p>
+<ul>
+<li>执行<strong>quit</strong>可以退出调试模式</li>
+<li>执行<strong>restart</strong>可以重新调试</li>
+<li>执行<strong>help</strong>可以查看更多帮助信息</li>
+</ul>
+<p>这里我们执行help命令，查看一下帮助信息，打印出很多可以在调试模式下执行的命令，中括号”[]”内到内容表示命令的简写。</p>
+<p>其中常用的有：</p>
+<ul>
+<li>step/next：执行一行</li>
+<li>continue：执行到西一个断点</li>
+<li>list：展示源码</li>
+<li>print：打印一些值</li>
+<li>break：打断点</li>
+</ul>
+<p>另外在脚本中还可以使用<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">下面来简单演示一下</span><br><span class="line"></span><br><span class="line">![lua_debug_display](https://res.cloudinary.com/dxydgihag/image/upload/v1561002326/Blog/Redis/Lua/lua_debug_02.gif)</span><br><span class="line"></span><br><span class="line">现在我把代码中```count = count - 1```这一行删除，使程序死循环，再来调试一下</span><br><span class="line"></span><br><span class="line">![lua_debug_dead_loop](https://res.cloudinary.com/dxydgihag/image/upload/v1561002773/Blog/Redis/Lua/lua_debug_03.gif)</span><br><span class="line"></span><br><span class="line">可以看到我们并没有打断点，但是程序仍然会停止，这是因为执行超时，调试器模拟了一个断点使程序停止。从源码中可以看出，这里的超时时间是5s。</span><br><span class="line"></span><br><span class="line">```c</span><br><span class="line">/* Check if a timeout occurred. */</span><br><span class="line">if (ar-&gt;event == LUA_HOOKCOUNT &amp;&amp; ldb.step == 0 &amp;&amp; bp == 0) &#123;</span><br><span class="line">  mstime_t elapsed = mstime() - server.lua_time_start;</span><br><span class="line">  mstime_t timelimit = server.lua_time_limit ?</span><br><span class="line">    server.lua_time_limit : 5000;</span><br><span class="line">  if (elapsed &gt;= timelimit) &#123;</span><br><span class="line">    timeout = 1;</span><br><span class="line">    ldb.step = 1;</span><br><span class="line">  &#125; else &#123;</span><br><span class="line">    return; /* No timeout, ignore the COUNT event. */</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>由于Redis默认的debug模式是异步的，所以在调试结束后不会改变redis中的数据。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1561004370/Blog/Redis/Lua/lua_debug_04.png" alt="lua_debug_asyn"></p>
+<p>当然，你也可以选择以同步模式执行，只需要把执行命令中的<strong>—ldb</strong>参数改成<strong>–ldb-sync-mode</strong>就可以了。</p>
+<h4 id="解读EVAL命令"><a href="#解读EVAL命令" class="headerlink" title="解读EVAL命令"></a>解读EVAL命令</h4><p>前文我们已经详细介绍过EVAL命令了，不了解的同学可以再回顾一下<a href="[https://jackeyzhe.github.io/2019/06/10/Redis-Lua%E8%84%9A%E6%9C%AC%E4%B8%AD%E5%AD%A6%E6%95%99%E7%A8%8B%EF%BC%88%E4%B8%8A%EF%BC%89/](https://jackeyzhe.github.io/2019/06/10/Redis-Lua脚本中学教程（上）/">Redis Lua脚本中学教程（上）</a>)。今天我们结合源码继续探究EVAL命令。</p>
+<p>在server.c文件中，我们知道了eval命令执行的是evalCommand函数。这个函数的实现在scripting.c文件中。</p>
+<p>函数调用栈是</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">evalCommand</span><br><span class="line">	(evalGenericCommandWithDebugging)</span><br><span class="line">    evalGenericCommand</span><br><span class="line">      lua_pcall  <span class="comment">//Lua函数</span></span><br></pre></td></tr></table></figure>
+<p>evalCommand函数很简单，只是简单的判断是否是调试模式，如果是调试模式，调用evalGenericCommandWithDebugging函数，如果不是，直接调用evalGenericCommand函数。</p>
+<p>在evalGenericCommand函数中，先判断了key的数量是否正确</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Get the number of arguments that are keys */</span></span><br><span class="line"><span class="keyword">if</span> (getLongLongFromObjectOrReply(c,c-&gt;argv[<span class="number">2</span>],&amp;numkeys,<span class="literal">NULL</span>) != C_OK)</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line"><span class="keyword">if</span> (numkeys &gt; (c-&gt;argc - <span class="number">3</span>)) &#123;</span><br><span class="line">    addReplyError(c,<span class="string">"Number of keys can't be greater than number of args"</span>);</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125; <span class="keyword">else</span> <span class="keyword">if</span> (numkeys &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    addReplyError(c,<span class="string">"Number of keys can't be negative"</span>);</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接着查看脚本是否已经在缓存中，如果没有，计算脚本的SHA1校验和，如果已经存在，将SHA1校验和转换为小写</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"> <span class="comment">/* We obtain the script SHA1, then check if this function is already</span></span><br><span class="line"><span class="comment">     * defined into the Lua state */</span></span><br><span class="line">funcname[<span class="number">0</span>] = <span class="string">'f'</span>;</span><br><span class="line">funcname[<span class="number">1</span>] = <span class="string">'_'</span>;</span><br><span class="line"><span class="keyword">if</span> (!evalsha) &#123;</span><br><span class="line">    <span class="comment">/* Hash the code if this is an EVAL call */</span></span><br><span class="line">    sha1hex(funcname+<span class="number">2</span>,c-&gt;argv[<span class="number">1</span>]-&gt;ptr,sdslen(c-&gt;argv[<span class="number">1</span>]-&gt;ptr));</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">/* We already have the SHA if it is a EVALSHA */</span></span><br><span class="line">    <span class="keyword">int</span> j;</span><br><span class="line">    <span class="keyword">char</span> *sha = c-&gt;argv[<span class="number">1</span>]-&gt;ptr;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Convert to lowercase. We don't use tolower since the function</span></span><br><span class="line"><span class="comment">         * managed to always show up in the profiler output consuming</span></span><br><span class="line"><span class="comment">         * a non trivial amount of time. */</span></span><br><span class="line">    <span class="keyword">for</span> (j = <span class="number">0</span>; j &lt; <span class="number">40</span>; j++)</span><br><span class="line">        funcname[j+<span class="number">2</span>] = (sha[j] &gt;= <span class="string">'A'</span> &amp;&amp; sha[j] &lt;= <span class="string">'Z'</span>) ?</span><br><span class="line">        sha[j]+(<span class="string">'a'</span>-<span class="string">'A'</span>) : sha[j];</span><br><span class="line">    funcname[<span class="number">42</span>] = <span class="string">'\0'</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里funcname变量存储的是f_ +SHA1校验和，Redis会将脚本定义为一个Lua函数，funcname是函数名。函数体是脚本本身。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">sds <span class="title">luaCreateFunction</span><span class="params">(client *c, lua_State *lua, robj *body)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">char</span> funcname[<span class="number">43</span>];</span><br><span class="line">    dictEntry *de;</span><br><span class="line"></span><br><span class="line">    funcname[<span class="number">0</span>] = <span class="string">'f'</span>;</span><br><span class="line">    funcname[<span class="number">1</span>] = <span class="string">'_'</span>;</span><br><span class="line">    sha1hex(funcname+<span class="number">2</span>,body-&gt;ptr,sdslen(body-&gt;ptr));</span><br><span class="line"></span><br><span class="line">    sds sha = sdsnewlen(funcname+<span class="number">2</span>,<span class="number">40</span>);</span><br><span class="line">    <span class="keyword">if</span> ((de = dictFind(server.lua_scripts,sha)) != <span class="literal">NULL</span>) &#123;</span><br><span class="line">        sdsfree(sha);</span><br><span class="line">        <span class="keyword">return</span> dictGetKey(de);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    sds funcdef = sdsempty();</span><br><span class="line">    funcdef = sdscat(funcdef,<span class="string">"function "</span>);</span><br><span class="line">    funcdef = sdscatlen(funcdef,funcname,<span class="number">42</span>);</span><br><span class="line">    funcdef = sdscatlen(funcdef,<span class="string">"() "</span>,<span class="number">3</span>);</span><br><span class="line">    funcdef = sdscatlen(funcdef,body-&gt;ptr,sdslen(body-&gt;ptr));</span><br><span class="line">    funcdef = sdscatlen(funcdef,<span class="string">"\nend"</span>,<span class="number">4</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (luaL_loadbuffer(lua,funcdef,sdslen(funcdef),<span class="string">"@user_script"</span>)) &#123;</span><br><span class="line">        <span class="keyword">if</span> (c != <span class="literal">NULL</span>) &#123;</span><br><span class="line">            addReplyErrorFormat(c,</span><br><span class="line">                <span class="string">"Error compiling script (new function): %s\n"</span>,</span><br><span class="line">                lua_tostring(lua,<span class="number">-1</span>));</span><br><span class="line">        &#125;</span><br><span class="line">        lua_pop(lua,<span class="number">1</span>);</span><br><span class="line">        sdsfree(sha);</span><br><span class="line">        sdsfree(funcdef);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    sdsfree(funcdef);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (lua_pcall(lua,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>)) &#123;</span><br><span class="line">        <span class="keyword">if</span> (c != <span class="literal">NULL</span>) &#123;</span><br><span class="line">            addReplyErrorFormat(c,<span class="string">"Error running script (new function): %s\n"</span>,</span><br><span class="line">                lua_tostring(lua,<span class="number">-1</span>));</span><br><span class="line">        &#125;</span><br><span class="line">        lua_pop(lua,<span class="number">1</span>);</span><br><span class="line">        sdsfree(sha);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* We also save a SHA1 -&gt; Original script map in a dictionary</span></span><br><span class="line"><span class="comment">     * so that we can replicate / write in the AOF all the</span></span><br><span class="line"><span class="comment">     * EVALSHA commands as EVAL using the original script. */</span></span><br><span class="line">    <span class="keyword">int</span> retval = dictAdd(server.lua_scripts,sha,body);</span><br><span class="line">    serverAssertWithInfo(c ? c : server.lua_client,<span class="literal">NULL</span>,retval == DICT_OK);</span><br><span class="line">    server.lua_scripts_mem += sdsZmallocSize(sha) + getStringObjectSdsUsedMemory(body);</span><br><span class="line">    incrRefCount(body);</span><br><span class="line">    <span class="keyword">return</span> sha;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在执行脚本之前，还要保存传入的参数，选择正确的数据库。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Populate the argv and keys table accordingly to the arguments that</span></span><br><span class="line"><span class="comment"> * EVAL received. */</span></span><br><span class="line">luaSetGlobalArray(lua,<span class="string">"KEYS"</span>,c-&gt;argv+<span class="number">3</span>,numkeys);</span><br><span class="line">luaSetGlobalArray(lua,<span class="string">"ARGV"</span>,c-&gt;argv+<span class="number">3</span>+numkeys,c-&gt;argc<span class="number">-3</span>-numkeys);</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Select the right DB in the context of the Lua client */</span></span><br><span class="line">selectDb(server.lua_client,c-&gt;db-&gt;id);</span><br></pre></td></tr></table></figure>
+<p>然后还需要设置钩子，我们之前提过的脚本执行超时自动打断点以及可以执行SCRPIT KILL命令停止脚本和通过SHUTDOWN命令停止服务器，都是通过钩子来实现的。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Set a hook in order to be able to stop the script execution if it</span></span><br><span class="line"><span class="comment">     * is running for too much time.</span></span><br><span class="line"><span class="comment">     * We set the hook only if the time limit is enabled as the hook will</span></span><br><span class="line"><span class="comment">     * make the Lua script execution slower.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * If we are debugging, we set instead a "line" hook so that the</span></span><br><span class="line"><span class="comment">     * debugger is call-back at every line executed by the script. */</span></span><br><span class="line">server.lua_caller = c;</span><br><span class="line">server.lua_time_start = mstime();</span><br><span class="line">server.lua_kill = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">if</span> (server.lua_time_limit &gt; <span class="number">0</span> &amp;&amp; ldb.active == <span class="number">0</span>) &#123;</span><br><span class="line">    lua_sethook(lua,luaMaskCountHook,LUA_MASKCOUNT,<span class="number">100000</span>);</span><br><span class="line">    delhook = <span class="number">1</span>;</span><br><span class="line">&#125; <span class="keyword">else</span> <span class="keyword">if</span> (ldb.active) &#123;</span><br><span class="line">    lua_sethook(server.lua,luaLdbLineHook,LUA_MASKLINE|LUA_MASKCOUNT,<span class="number">100000</span>);</span><br><span class="line">    delhook = <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>到这里已经万事俱备了，就可以直接调用lua_pcall函数来执行脚本了。执行完之后，还要删除钩子并把结果保存到缓冲中。</p>
+<p>上面就是脚本执行的整个过程，这个过程之后，Redis还会处理一些脚本同步的问题。这个前文我们也介绍过了《<a href="https://jackeyzhe.github.io/2019/06/10/Redis-Lua%E8%84%9A%E6%9C%AC%E4%B8%AD%E5%AD%A6%E6%95%99%E7%A8%8B%EF%BC%88%E4%B8%8A%EF%BC%89/">Redis Lua脚本中学教程（上）</a>》</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>到这里，Redis Lua脚本系列就全部结束了。文章虽然结束了，但是学习还远远没有结束。大家有问题的话欢迎和我一起探讨。共同学习，共同进步~</p>
+<p>对Lua感兴趣的同学可以读一下《Programming in Lua》，有条件的尽量支持正版，想先看看质量的可以在我公众号后台回复<strong>Lua</strong>获取电子书。</p>
 
       
     </div>
@@ -468,7 +492,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/整洁/" rel="tag"><i class="fa fa-tag"></i> 整洁</a>
+            <a href="/tags/Redis/" rel="tag"><i class="fa fa-tag"></i> Redis</a>
           
         </div>
       
@@ -481,8 +505,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/08/26/代码洁癖系列（一）：什么是整洁代码/" rel="next" title="代码洁癖系列（一）：什么是整洁代码">
-                <i class="fa fa-chevron-left"></i> 代码洁癖系列（一）：什么是整洁代码
+              <a href="/2019/06/16/Redis-Lua脚本中学教程（下）/" rel="next" title="Redis Lua脚本中学教程（下）">
+                <i class="fa fa-chevron-left"></i> Redis Lua脚本中学教程（下）
               </a>
             
           </div>
@@ -490,10 +514,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/08/29/代码洁癖系列（三）：整洁的类和函数/" rel="prev" title="代码洁癖系列（三）：整洁的类和函数">
-                代码洁癖系列（三）：整洁的类和函数 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -654,7 +674,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#名副其实"><span class="nav-number">1.</span> <span class="nav-text">名副其实</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#避免误导"><span class="nav-number">2.</span> <span class="nav-text">避免误导</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#做有意义的区分"><span class="nav-number">3.</span> <span class="nav-text">做有意义的区分</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#别随意使用简写"><span class="nav-number">4.</span> <span class="nav-text">别随意使用简写</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用可以被搜索的名称"><span class="nav-number">5.</span> <span class="nav-text">使用可以被搜索的名称</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#类名和方法名"><span class="nav-number">6.</span> <span class="nav-text">类名和方法名</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#要专一"><span class="nav-number">7.</span> <span class="nav-text">要专一</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#适当添加语境"><span class="nav-number">8.</span> <span class="nav-text">适当添加语境</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#结语"><span class="nav-number">9.</span> <span class="nav-text">结语</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#Lua脚本调试"><span class="nav-number">1.</span> <span class="nav-text">Lua脚本调试</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Lua脚本调试实战"><span class="nav-number">1.1.</span> <span class="nav-text">Lua脚本调试实战</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#解读EVAL命令"><span class="nav-number">2.</span> <span class="nav-text">解读EVAL命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
             
 
           </div>
