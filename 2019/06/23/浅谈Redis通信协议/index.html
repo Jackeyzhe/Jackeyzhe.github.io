@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="整洁," />
+  <meta name="keywords" content="Redis," />
 
 
 
@@ -79,20 +79,18 @@
 
 
 
-<meta name="description" content="我们在阅读一些优秀项目的源码时，一定会感叹他们代码的整洁和一致性。而作为第一印象，代码格式的整齐是让人能够继续阅读下去的动力。今天我们分别从垂直格式和横向格式两个方面来讨论代码的格式。修正格式的方法有：间隔、靠近和调整顺序。">
-<meta name="keywords" content="整洁">
+<meta name="description" content="Redis客户端和服务器端使用的通信协议叫做RESP（Redis Serialization Protocol）。它是特意为Redis设计的，同时也可以用于其他软件工程。">
+<meta name="keywords" content="Redis">
 <meta property="og:type" content="article">
-<meta property="og:title" content="代码洁癖系列（五）：外在的格式美">
-<meta property="og:url" content="https://jackeyzhe.github.io/2018/08/31/代码洁癖系列（五）：外在的格式美/index.html">
+<meta property="og:title" content="浅谈Redis通信协议">
+<meta property="og:url" content="https://jackeyzhe.github.io/2019/06/23/浅谈Redis通信协议/index.html">
 <meta property="og:site_name" content="Jackeyzhe">
-<meta property="og:description" content="我们在阅读一些优秀项目的源码时，一定会感叹他们代码的整洁和一致性。而作为第一印象，代码格式的整齐是让人能够继续阅读下去的动力。今天我们分别从垂直格式和横向格式两个方面来讨论代码的格式。修正格式的方法有：间隔、靠近和调整顺序。">
+<meta property="og:description" content="Redis客户端和服务器端使用的通信协议叫做RESP（Redis Serialization Protocol）。它是特意为Redis设计的，同时也可以用于其他软件工程。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1535725759/Blog/clean/timg.jpg">
-<meta property="og:updated_time" content="2018-09-05T14:53:33.172Z">
+<meta property="og:updated_time" content="2019-06-27T15:05:35.782Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="代码洁癖系列（五）：外在的格式美">
-<meta name="twitter:description" content="我们在阅读一些优秀项目的源码时，一定会感叹他们代码的整洁和一致性。而作为第一印象，代码格式的整齐是让人能够继续阅读下去的动力。今天我们分别从垂直格式和横向格式两个方面来讨论代码的格式。修正格式的方法有：间隔、靠近和调整顺序。">
-<meta name="twitter:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1535725759/Blog/clean/timg.jpg">
+<meta name="twitter:title" content="浅谈Redis通信协议">
+<meta name="twitter:description" content="Redis客户端和服务器端使用的通信协议叫做RESP（Redis Serialization Protocol）。它是特意为Redis设计的，同时也可以用于其他软件工程。">
 
 
 
@@ -122,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="https://jackeyzhe.github.io/2018/08/31/代码洁癖系列（五）：外在的格式美/"/>
+  <link rel="canonical" href="https://jackeyzhe.github.io/2019/06/23/浅谈Redis通信协议/"/>
 
 
 
 
 
-  <title>代码洁癖系列（五）：外在的格式美 | Jackeyzhe</title>
+  <title>浅谈Redis通信协议 | Jackeyzhe</title>
   
 
 
@@ -290,7 +288,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2018/08/31/代码洁癖系列（五）：外在的格式美/">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2019/06/23/浅谈Redis通信协议/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Jackey Wang">
@@ -307,7 +305,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">代码洁癖系列（五）：外在的格式美</h1>
+          <h1 class="post-title" itemprop="name headline">浅谈Redis通信协议</h1>
         
 
         <div class="post-meta">
@@ -319,8 +317,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-08-31T21:54:15+08:00">
-                2018-08-31
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-23T19:04:10+08:00">
+                2019-06-23
               </time>
             
 
@@ -362,43 +360,83 @@
       
 
       
-        <p>我们在阅读一些优秀项目的源码时，一定会感叹他们代码的整洁和一致性。而作为第一印象，代码格式的整齐是让人能够继续阅读下去的动力。今天我们分别从垂直格式和横向格式两个方面来讨论代码的格式。修正格式的方法有：间隔、靠近和调整顺序。<a id="more"></a></p>
-<h4 id="垂直格式"><a href="#垂直格式" class="headerlink" title="垂直格式"></a>垂直格式</h4><p>在垂直格式方面，我们要向报纸的排版学习。</p>
-<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1535725759/Blog/clean/timg.jpg" alt="newspaper"></p>
-<p>首先有一个标题告诉你这栏新闻要讲什么，好让你知道是否要继续阅读下去。对应到代码中就是类的名字，我们要力求只通过名字就可以知道这个类要描述什么事情；然后，代码的第一段往往都交代了整个故事的概要，类似于代码中的接口，我们往往通过接口了解类中有哪些函数，每个函数都是干什么的。了解了这些之后，才会去读详细的内容。</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">newspaper</th>
-<th style="text-align:center">code</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">标题</td>
-<td style="text-align:center">类名</td>
-</tr>
-<tr>
-<td style="text-align:center">第一段</td>
-<td style="text-align:center">接口</td>
-</tr>
-<tr>
-<td style="text-align:center">内容</td>
-<td style="text-align:center">方法体</td>
-</tr>
-</tbody>
-</table>
-<p>此外，还需要注意的就是报纸的排版、段落和段落之间用空行做间隔。写代码也可以用同样的方式，例如，我们习惯于在包声明、导入声明和每个函数之间用空白行来分隔。我们直接拿代码来解释。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.thoughtworks.selenium;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.testng.ITestContext;</span><br><span class="line"><span class="keyword">import</span> org.testng.ITestResult;</span><br><span class="line"><span class="keyword">import</span> org.testng.Reporter;</span><br><span class="line"><span class="keyword">import</span> org.testng.internal.IResultListener;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.File;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ScreenshotListener</span> <span class="keyword">implements</span> <span class="title">IResultListener</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  File outputDirectory;</span><br><span class="line">  Selenium selenium;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="title">ScreenshotListener</span><span class="params">(File outputDirectory, Selenium selenium)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.outputDirectory = outputDirectory;</span><br><span class="line">    <span class="keyword">this</span>.selenium = selenium;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onTestFailure</span><span class="params">(ITestResult result)</span> </span>&#123;</span><br><span class="line">    Reporter.setCurrentTestResult(result);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      outputDirectory.mkdirs();</span><br><span class="line">      File outFile = File.createTempFile(<span class="string">"TEST-"</span> + result.getName(), <span class="string">".png"</span>, outputDirectory);</span><br><span class="line">      outFile.delete();</span><br><span class="line">      selenium.captureScreenshot(outFile.getAbsolutePath());</span><br><span class="line">      Reporter.log(<span class="string">"&lt;a href='"</span> +</span><br><span class="line">          outFile.getName() +</span><br><span class="line">          <span class="string">"'&gt;screenshot&lt;/a&gt;"</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">      e.printStackTrace();</span><br><span class="line">      Reporter.log(<span class="string">"Couldn't create screenshot"</span>);</span><br><span class="line">      Reporter.log(e.getMessage());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    Reporter.setCurrentTestResult(<span class="keyword">null</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.thoughtworks.selenium;</span><br><span class="line"><span class="keyword">import</span> org.testng.ITestContext;</span><br><span class="line"><span class="keyword">import</span> org.testng.ITestResult;</span><br><span class="line"><span class="keyword">import</span> org.testng.Reporter;</span><br><span class="line"><span class="keyword">import</span> org.testng.internal.IResultListener;</span><br><span class="line"><span class="keyword">import</span> java.io.File;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ScreenshotListener</span> <span class="keyword">implements</span> <span class="title">IResultListener</span> </span>&#123;</span><br><span class="line">  File outputDirectory;</span><br><span class="line">  Selenium selenium;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="title">ScreenshotListener</span><span class="params">(File outputDirectory, Selenium selenium)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.outputDirectory = outputDirectory;</span><br><span class="line">    <span class="keyword">this</span>.selenium = selenium;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onTestFailure</span><span class="params">(ITestResult result)</span> </span>&#123;</span><br><span class="line">    Reporter.setCurrentTestResult(result);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      outputDirectory.mkdirs();</span><br><span class="line">      File outFile = File.createTempFile(<span class="string">"TEST-"</span> + result.getName(), <span class="string">".png"</span>, outputDirectory);</span><br><span class="line">      outFile.delete();</span><br><span class="line">      selenium.captureScreenshot(outFile.getAbsolutePath());</span><br><span class="line">      Reporter.log(<span class="string">"&lt;a href='"</span> +</span><br><span class="line">          outFile.getName() +</span><br><span class="line">          <span class="string">"'&gt;screenshot&lt;/a&gt;"</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">      e.printStackTrace();</span><br><span class="line">      Reporter.log(<span class="string">"Couldn't create screenshot"</span>);</span><br><span class="line">      Reporter.log(e.getMessage());</span><br><span class="line">    &#125;</span><br><span class="line">    Reporter.setCurrentTestResult(<span class="keyword">null</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>是不是适当增加空白行就提高了代码的可读性呢，这里说的是适当增加空白行，并不代表随意增加。事实上，如果增加一些无意义的空白行反而会使代码的可读性变差。</p>
-<p>我们习惯于使有关联的代码彼此靠近，无明显关联的代码相互分隔。因此我们不但需要使用空白行间隔代码，还要调整代码位置，把有关联的代码放在一起，通常我们把被调用的函数放在调用函数的下面。这样别人在读我们的代码的时候再也不用经历来回“跳跃”的痛苦了。</p>
-<p>最后，我们通常把实体变量定义在类的顶部，这个只是我们Java程序员的习惯操作，如果突然在类的中间位置出现一个变量声明会让人觉得很奇怪。如果你想说，定义在中间是不想让定义位置和调用位置离太远，那么只能说明你的类定义出现了问题。建议你看一下旧文<a href="https://jackeyzhe.github.io/2018/08/29/%E4%BB%A3%E7%A0%81%E6%B4%81%E7%99%96%E7%B3%BB%E5%88%97%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E6%95%B4%E6%B4%81%E7%9A%84%E7%B1%BB%E5%92%8C%E5%87%BD%E6%95%B0/">代码洁癖系列（三）：整洁的类和函数</a>。</p>
-<h4 id="横向格式"><a href="#横向格式" class="headerlink" title="横向格式"></a>横向格式</h4><p>介绍完垂直格式，紧接着自然要来介绍一下它的兄弟，横向格式。或许你会问为什么不叫水平格式，我的回答是：也可以叫水平格式，只要你喜欢。横向格式也是需要间隔和靠近的，这里的间隔主要是为了起到强调的效果。举个例子。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> lineSize = line.length();</span><br></pre></td></tr></table></figure>
-<p>这里等号两边的空格分别是为了强调左右两边的元素。横向格式另一个比较重要的元素就是缩进，Java程序对缩进没有强制性要求，而Python程序对缩进的要求非常严格，稍有不慎，执行的结果就会不同。但是Java程序员也要注意缩进，因为我们的代码是层级关系，而缩进可以帮我们快速理清层级关系。</p>
-<p>最后，横向代码格式对每行代码长度是有要求的，如果代码过长，那么在阅读的时候就需要左右滑动，而这个操作其实是不受人喜欢的。虽然现在代码编辑器可显示的长度变大了，但我们还是习惯每行代码最多100个字符。</p>
-<h4 id="团队的规则"><a href="#团队的规则" class="headerlink" title="团队的规则"></a>团队的规则</h4><p>每一个优秀的团队都已一套属于自己的代码格式要求，有些是特定的，有些是使用公共的。我们team所用的代码规范就是Google的代码规范，阿里的代码规范也是比较被大家认可的。这里给大家一个小福利，在我的公众号后台回复【代码规范】，就可以获得一份阿里的Java开发手册。</p>
+        <p>Redis客户端和服务器端使用的通信协议叫做RESP（Redis Serialization Protocol）。它是特意为Redis设计的，同时也可以用于其他软件工程。<a id="more"></a></p>
+<p>RESP在以下事项之间进行妥协：</p>
+<ul>
+<li>实现简单</li>
+<li>快速解析</li>
+<li>可读性强</li>
+</ul>
+<p>RESP可以序列化多种不同的数据类型，比如：整型、字符串、数组。错误是一种特定的类型。Redis客户端把参数用数组来表示。回复的是一种特殊的数据格式。</p>
+<p>RESP是二进制安全的，它不需要处理从一个进程到另一个进程的批量数据，因为采用的是前缀长度来传输批量数据。</p>
+<p><em>注意：这里的协议只适用用与客户端-服务器通信。Redis集群使用的是不同的协议</em></p>
+<p>一般情况下，RESP是一种简单的请求-响应式协议。二般情况是：</p>
+<ul>
+<li>Redis支持管道，所以有可能一次发送多个命令，然后一起响应</li>
+<li>如果Redis客户端订阅了Pub/Sub频道，那么协议就会变成一种推送协议，当服务器接收到新的数据时会自动推送给客户端</li>
+</ul>
+<p>RESP协议支持的数据类型有：Simple Strings，Errors，Integers，Bulk Strings和Arrays。它的使用方法有：</p>
+<ul>
+<li>客户端以Bulk Strings数组的形式发送命令</li>
+<li>服务器端返回的结果是协议支持的类型之一</li>
+</ul>
+<p>RESP协议中，上述类型是通过首个字节区分的：</p>
+<ul>
+<li><code>+</code>代表简单字符串（Simple Strings）</li>
+<li><code>-</code>代表错误类型（Errors）</li>
+<li><code>:</code>代表整型（Integers）</li>
+<li><code>$</code>代表多行字符串（Bulk Strings）</li>
+<li><code>*</code>代表数组（Arrays）</li>
+</ul>
+<p>此外，每一部分结束时，Redis统一使用“\r\n”表示结束。</p>
+<p>看到这里你是否有疑问呢？为什么没有表示null的方法呢？别着急我们一会就会解释。</p>
+<h5 id="RESP简单字符串"><a href="#RESP简单字符串" class="headerlink" title="RESP简单字符串"></a>RESP简单字符串</h5><p>简单字符串中不允许出现<code>\r</code>或<code>\n</code>，只能有一行。它用于以最小开销传输非二进制安全字符串，例如回复的OK</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"+OK\r\n"</span></span><br></pre></td></tr></table></figure>
+<p>如果要发送二进制安全的字符串，应该使用多行字符串。</p>
+<h5 id="RESP错误"><a href="#RESP错误" class="headerlink" title="RESP错误"></a>RESP错误</h5><p>RESP有特定的错误类型，它与简单字符串类似，只不过是把开头的<code>+</code>换成了<code>-</code>，而两者之间真正的区别是客户端将错误视为异常，而错误中的字符串只是表示错误信息。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"-Error message\r\n"</span></span><br></pre></td></tr></table></figure>
+<p>当客户端收到错误信息时，通常会抛出一个异常。我们来看一些例子：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-ERR unknown <span class="built_in">command</span> <span class="string">'foobar'</span></span><br><span class="line">-WRONGTYPE Operation against a key holding the wrong kind of value</span><br></pre></td></tr></table></figure>
+<p>从第一个字符“-”之后，到第一个空格或新的一行，这之间的字符串表示错误类型。这只是Redis的一种约定，并不是RESP的错误格式。</p>
+<p>例如ERR是普通错误，而WRONGTYPE表示客户端试图对错误的数据类型执行操作。</p>
+<h5 id="RESP整型"><a href="#RESP整型" class="headerlink" title="RESP整型"></a>RESP整型</h5><p>整型只是以<code>\r\n</code>结尾，以<code>:</code>开头的纯整数的字符串。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">:1000\r\n</span><br></pre></td></tr></table></figure>
+<p>很多Redis命令都会返回整型，例如INCR、LLEN和LASTSAVE。</p>
+<p>返回的整数需要在64位有符号整数范围内，同时也可以用于表示真或假。</p>
+<h5 id="RESP多行字符串"><a href="#RESP多行字符串" class="headerlink" title="RESP多行字符串"></a>RESP多行字符串</h5><p>多行字符串是二进制安全的，最大长度是512MB。</p>
+<p>多行字符串的编码方式如下：</p>
+<ul>
+<li>以<code>$</code>+数字开头，以<code>\r\n</code>结束</li>
+<li>数据都是字符串</li>
+<li>结尾是<code>\r\n</code></li>
+</ul>
+<p>所以“foobar”应该编码为</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"<span class="variable">$6</span>\r\nfoobar\r\n"</span></span><br></pre></td></tr></table></figure>
+<p>空字符串表示为：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"<span class="variable">$0</span>\r\n\r\n"</span></span><br></pre></td></tr></table></figure>
+<p>多行字符串也可以用来null</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"$-1\r\n"</span></span><br></pre></td></tr></table></figure>
+<p>当服务器返回Null多行字符串时，正常客户端是不应该返回空字符串的，而是应该返回nil对象。</p>
+<h5 id="RESP数组"><a href="#RESP数组" class="headerlink" title="RESP数组"></a>RESP数组</h5><p>客户端向服务器端发送命令时使用的就是RESP数组。类似的，某些命令返回的元素集合也是RESP数组的类型。</p>
+<p>RESP数组遵循以下规则：</p>
+<ul>
+<li>第一个字符是<code>*</code>，后面跟的十进制数字是数组元素的数量，然后跟着<code>\r\n</code>。</li>
+<li>每个元素都是RESP类型的</li>
+</ul>
+<p>空数组表示为：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"*0\r\n"</span></span><br></pre></td></tr></table></figure>
+<p>数组中的元素可以是不同类型的：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">*5\r\n</span><br><span class="line">:1\r\n</span><br><span class="line">:2\r\n</span><br><span class="line">:3\r\n</span><br><span class="line">:4\r\n</span><br><span class="line"><span class="variable">$6</span>\r\n</span><br><span class="line">foobar\r\n</span><br></pre></td></tr></table></figure>
+<p>第一行的<code>*5\r\n</code>表示数组有5个元素，后面每行是一个元素。</p>
+<p>RESP也有NULL数组的表示方法，这是NULL的另一种表示方法，通常用多行字符串的NULL来表示，不过由于历史原因，就保留了两种形式。</p>
+<p>当BLPOP命令超时时，就会返回NULL数组</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"*-1\r\n"</span></span><br></pre></td></tr></table></figure>
+<p>当服务器返回NULL数组时，客户端应该返回null对象而不是空数组。</p>
+<h5 id="数组中的NULL"><a href="#数组中的NULL" class="headerlink" title="数组中的NULL"></a>数组中的NULL</h5><p>数组中的元素可以是NULL，通常表示数组中某个元素缺失，而不是空字符串：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">*3\r\n</span><br><span class="line"><span class="variable">$3</span>\r\n</span><br><span class="line">foo\r\n</span><br><span class="line">$-1\r\n</span><br><span class="line"><span class="variable">$3</span>\r\n</span><br><span class="line">bar\r\n</span><br></pre></td></tr></table></figure>
+<p>其中第二个元素时NULL，客户端的返回结果应该是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[<span class="string">"foo"</span>,nil,<span class="string">"bar"</span>]</span><br></pre></td></tr></table></figure>
+<h5 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h5><p>到此我们已经了解了RESP协议，RESP中虽然有大量的冗余<code>\r\n</code>，但是仍然有很多开源项目使用。</p>
 
       
     </div>
@@ -468,7 +506,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/整洁/" rel="tag"><i class="fa fa-tag"></i> 整洁</a>
+            <a href="/tags/Redis/" rel="tag"><i class="fa fa-tag"></i> Redis</a>
           
         </div>
       
@@ -481,8 +519,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/08/30/代码洁癖系列（四）：可忽略的注释/" rel="next" title="代码洁癖系列（四）：可忽略的注释">
-                <i class="fa fa-chevron-left"></i> 代码洁癖系列（四）：可忽略的注释
+              <a href="/2019/06/23/【译】微软如何进行代码审查/" rel="next" title="【译】微软如何进行代码审查">
+                <i class="fa fa-chevron-left"></i> 【译】微软如何进行代码审查
               </a>
             
           </div>
@@ -490,10 +528,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/09/03/代码洁癖系列（六）：处理错误/" rel="prev" title="代码洁癖系列（六）：处理错误">
-                代码洁癖系列（六）：处理错误 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -654,7 +688,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#垂直格式"><span class="nav-number">1.</span> <span class="nav-text">垂直格式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#横向格式"><span class="nav-number">2.</span> <span class="nav-text">横向格式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#团队的规则"><span class="nav-number">3.</span> <span class="nav-text">团队的规则</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#RESP简单字符串"><span class="nav-number">1.</span> <span class="nav-text">RESP简单字符串</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#RESP错误"><span class="nav-number">2.</span> <span class="nav-text">RESP错误</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#RESP整型"><span class="nav-number">3.</span> <span class="nav-text">RESP整型</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#RESP多行字符串"><span class="nav-number">4.</span> <span class="nav-text">RESP多行字符串</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#RESP数组"><span class="nav-number">5.</span> <span class="nav-text">RESP数组</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#数组中的NULL"><span class="nav-number">6.</span> <span class="nav-text">数组中的NULL</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#小结"><span class="nav-number">7.</span> <span class="nav-text">小结</span></a></li></ol></div>
             
 
           </div>
