@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="整洁," />
+  <meta name="keywords" content="Redis命令," />
 
 
 
@@ -79,20 +79,18 @@
 
 
 
-<meta name="description" content="不知道大家还记不记得《家有儿女》里有这么一段经典台词：“我叫夏雪”，“我叫夏雨”，“我叫夏冰雹”。">
-<meta name="keywords" content="整洁">
+<meta name="description" content="Redis5.0迎来了一种新的数据结构Streams，没有了解过的同学可以先阅读前文，今天来介绍一下Streams相关的命令。">
+<meta name="keywords" content="Redis命令">
 <meta property="og:type" content="article">
-<meta property="og:title" content="代码洁癖系列（二）：命名的艺术">
-<meta property="og:url" content="https://jackeyzhe.github.io/2018/08/27/代码洁癖系列（二）：命名的艺术/index.html">
+<meta property="og:title" content="Redis命令详解：Streams">
+<meta property="og:url" content="https://jackeyzhe.github.io/2019/07/01/Redis命令详解：Streams/index.html">
 <meta property="og:site_name" content="Jackeyzhe">
-<meta property="og:description" content="不知道大家还记不记得《家有儿女》里有这么一段经典台词：“我叫夏雪”，“我叫夏雨”，“我叫夏冰雹”。">
+<meta property="og:description" content="Redis5.0迎来了一种新的数据结构Streams，没有了解过的同学可以先阅读前文，今天来介绍一下Streams相关的命令。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1535382734/Blog/clean/%E4%B8%8B%E5%86%B0%E9%9B%B9.png">
-<meta property="og:updated_time" content="2018-09-05T14:54:08.754Z">
+<meta property="og:updated_time" content="2019-08-27T16:31:20.631Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="代码洁癖系列（二）：命名的艺术">
-<meta name="twitter:description" content="不知道大家还记不记得《家有儿女》里有这么一段经典台词：“我叫夏雪”，“我叫夏雨”，“我叫夏冰雹”。">
-<meta name="twitter:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1535382734/Blog/clean/%E4%B8%8B%E5%86%B0%E9%9B%B9.png">
+<meta name="twitter:title" content="Redis命令详解：Streams">
+<meta name="twitter:description" content="Redis5.0迎来了一种新的数据结构Streams，没有了解过的同学可以先阅读前文，今天来介绍一下Streams相关的命令。">
 
 
 
@@ -122,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="https://jackeyzhe.github.io/2018/08/27/代码洁癖系列（二）：命名的艺术/"/>
+  <link rel="canonical" href="https://jackeyzhe.github.io/2019/07/01/Redis命令详解：Streams/"/>
 
 
 
 
 
-  <title>代码洁癖系列（二）：命名的艺术 | Jackeyzhe</title>
+  <title>Redis命令详解：Streams | Jackeyzhe</title>
   
 
 
@@ -290,7 +288,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2018/08/27/代码洁癖系列（二）：命名的艺术/">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2019/07/01/Redis命令详解：Streams/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Jackey Wang">
@@ -307,7 +305,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">代码洁癖系列（二）：命名的艺术</h1>
+          <h1 class="post-title" itemprop="name headline">Redis命令详解：Streams</h1>
         
 
         <div class="post-meta">
@@ -319,8 +317,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-08-27T22:58:43+08:00">
-                2018-08-27
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-01T23:13:32+08:00">
+                2019-07-01
               </time>
             
 
@@ -362,43 +360,118 @@
       
 
       
-        <p>不知道大家还记不记得《家有儿女》里有这么一段经典台词：“我叫夏雪”，“我叫夏雨”，“我叫夏冰雹”。</p>
-<a id="more"></a>
-<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1535382734/Blog/clean/%E4%B8%8B%E5%86%B0%E9%9B%B9.png" alt="xiabingbao"></p>
-<p>刘星自己给自己起的名字承包了我所有笑点。但仔细想想这名字取的竟然还挺不错，不但有意义，还和夏雨夏雪的名字相呼应。</p>
-<p>回到主题，在我们的代码里，命名是随处可见的，比如给包命名，给类命名，方法名，参数名，变量名等等。那么什么样的命名才算是好的命名呢。这就是我们今天要讨论的。</p>
-<h4 id="名副其实"><a href="#名副其实" class="headerlink" title="名副其实"></a>名副其实</h4><p>首先还是要强调这一点，我读过的糟糕的代码有一个共同的特点，那就是代码中存在大量随意的，无意义的命名。比如：表示消耗多少小时的变量命名为h，同作用域中还有一个想要表示“小时”相关的变量直接命名为h1，一个List类型的变量就命名为list。读这种代码不会令人开心，同时写这种代码的程序员的人身安全是无法保证的。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> List&lt;String&gt; <span class="title">getThem</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    List&lt;String&gt; list = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    <span class="keyword">for</span> (String key : keys) &#123;</span><br><span class="line">        <span class="keyword">if</span> (theMap.get(key) == <span class="number">1</span>) &#123;</span><br><span class="line">            list.add(key);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> list;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>读一下上面这段代码，能看出有什么问题吗？或者说看完有人明白这段代码要做什么吗？</p>
-<p>我先来说一下我的问题：</p>
+        <p>Redis5.0迎来了一种新的数据结构Streams，没有了解过的同学可以先阅读<a href="https://jackeyzhe.github.io/2019/03/28/%E3%80%90%E8%AF%91%E3%80%91Redis%E5%96%9C%E6%8F%90%E6%96%B0%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%EF%BC%9ARedis-streams/">前文</a>，今天来介绍一下Streams相关的命令。<a id="more"></a></p>
+<h4 id="XACK"><a href="#XACK" class="headerlink" title="XACK"></a>XACK</h4><p>最早可用版本：5.0.0</p>
+<p>时间复杂度：O(1)</p>
+<p>用法：XACK key group ID [ID…]</p>
+<p>这个命令用于删除消费者组的pending entries list中的元素。通常情况下，调用XREADGROUP命令或者消费者调用XCLAIM命令时，会使一个消息阻塞，并存到PEL中，阻塞的消息被发送给消费者时，服务器并不知道消息是否被处理。</p>
+<p>当消费者成功消费消息后，会调用XACK命令，服务器就会将消息从PEL中删除，并释放内存。</p>
+<h4 id="XADD"><a href="#XADD" class="headerlink" title="XADD"></a>XADD</h4><p>最早可用版本：5.0.0</p>
+<p>时间复杂度：O(1)</p>
+<p>向指定的stream添加元素。如果key不存在，就创建一个新的stream。</p>
+<p>entry由一系列field-value对组成，存储顺序由用户添加顺序决定。XADD命令是唯一一个向stream中添加数据的命令。删除数据的命令则有XDEL和XTRIM。</p>
+<p>在stream中，entry ID是唯一标识。XADD命令中ID参数是*时，会自动生成唯一ID。然而在生产环境中并不常用，通常需要我们指定一种格式较好的唯一ID。</p>
+<p>默认的ID生成策略是：“Unix毫秒时间戳-同一毫秒值内的序列号”。</p>
+<p>当用户显式指定ID时，最小值是0-1，且ID必须是递增的。</p>
+<p>用户可以使用MAXLEN指定stream的最大元素数量</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">XADD mystream MAXLEN ~ 1000 * ... entry fields here ..</span><br></pre></td></tr></table></figure>
+<p>上面的波浪线表示不是严格的限制1000个，也可以多出几十个。</p>
+<h4 id="XCLAIM"><a href="#XCLAIM" class="headerlink" title="XCLAIM"></a>XCLAIM</h4><p>最早可用版本：5.0.0</p>
+<p>时间复杂度：O(log N)</p>
+<p>用法：XCLAIM key group consumer min-idle-time ID [ID …][IDLE ms] [TIME ms-unix-time] [RETRYCOUNT count][FORCE] [JUSTID]</p>
+<p>这个命令用于改变pending消息的所有权，新的owner是命令参数中的consumer。</p>
+<p>命令的使用场景是：</p>
 <ol>
-<li>getThem是get什么？</li>
-<li>list里存的是什么</li>
-<li>keys指的是什么，为什么遍历它</li>
-<li>常量”1“的意义是什么</li>
+<li>一个消费者关联了一个stream</li>
+<li>消费者A通过XREADGROUP读取一条消息</li>
+<li>这个消息被加入到PEL中，并发送给指定的消费者，但是没有调用XACK命令来确认</li>
+<li>这时消费者突然挂掉</li>
+<li>其他的消费者就会使用XPENDING命令检查待处理消息列表，为了继续处理这些命令，它们使用XCLAIM命令改变这些消息的所有者。</li>
 </ol>
-<p>这几个问题可能只有写这段代码的人才能解释（没错，就是我写的）。所以我来给大家解释一下，不过我不想一一回答上面的问题，我把代码重写一遍，看看还会不会有这样的问题。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> List&lt;String&gt; <span class="title">getPaidOrderIds</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    List&lt;String&gt; paidOrderIds = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    <span class="keyword">for</span> (String orderId : orderIds) &#123;</span><br><span class="line">        <span class="keyword">if</span> (orderStatus.get(orderId) == OrderConstatn.PAID) &#123;</span><br><span class="line">            paidOrderIds.add(orderId);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> paidOrderIds;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>怎么样，上面的问题都清楚了吗，如果不清楚可以私下和我联系，我会给你推荐一个非常好的英语学习软件。</p>
-<p>这就是名副其实的重要性。</p>
-<h4 id="避免误导"><a href="#避免误导" class="headerlink" title="避免误导"></a>避免误导</h4><p>命名过程中要注意的第二点就是要避免名称对别人产生误导，例如上面代码中paidOrderIds这个变量，如果我们命名成paidOrderIdList呢，看起来似乎没什么问题，但是如果这个变量是Set类型或者其他类型呢？命名为xxxList还合适吗，别人读代码的时候会下意识的认为这是个List类型的变量（尽量避免名称中出现类型的名字）。</p>
-<p>另一点容易产生误导的是数字和字母相像的情况，比如，我命名一个变量叫做O1，在编辑器里就很难分辨是O1还是01，如果我写一个这样的表达式 </p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">O0 = l1;</span><br></pre></td></tr></table></figure>
-<p>估计别人会以为我发明了什么新的语言吧。</p>
-<p>第三点是要避免区别较小的两个名称，比如XYZContinentController和XYZCentinentController这样的命名，对于读代码的人来说简直就是灾难，对于写代码的人来说也存在很大的风险。（为什么不是灾难？因为大部分人都是Ctrl+C/Ctrl+V的，这样就减小一些出错的几率。看来善用Ctrl+C/Ctrl+V还是很有必要的）</p>
-<h4 id="做有意义的区分"><a href="#做有意义的区分" class="headerlink" title="做有意义的区分"></a>做有意义的区分</h4><p>编译器要求我们在同一个区域内不能重复命名。那么有的程序员就会写出a1,a2,a3……这样的命名，这看起来很烂，谁也不知道它们有什么区别。再举过来一个栗子，一个包中有两个类，Product和ProductInfo，这时让你查一下商品名称，你知道要去哪个类里找吗？事实证明，这样的命名与a1,a2,a3之流别无二致。</p>
-<p>既然要做区分，为什么不做些有意义的区分呢，一个类叫做Product，表示商品信息，另一个叫做ProductStocks表示商品的库存信息。这样是不是更清晰一点呢，当然，我这里只是举个栗子，实际上可能不需要这样定义。</p>
-<h4 id="别随意使用简写"><a href="#别随意使用简写" class="headerlink" title="别随意使用简写"></a>别随意使用简写</h4><p>不要随意使用简写，除非是大家都知道的简写。比如美国的命名写成US，大家都可以理解，而如果generateCode写成genCode就令人费解了。</p>
-<h4 id="使用可以被搜索的名称"><a href="#使用可以被搜索的名称" class="headerlink" title="使用可以被搜索的名称"></a>使用可以被搜索的名称</h4><p>像我们在一开始的那段代码，为什么要把常量“1”写成OrderConstatn.PAID，不仅是为了可读，也是为了可搜索，试想，如果你要找这段代码，去搜索数字1，会有多少结果？搜索PAID呢？亲自试过之后相信你会回来点赞的。</p>
-<h4 id="类名和方法名"><a href="#类名和方法名" class="headerlink" title="类名和方法名"></a>类名和方法名</h4><p>类名和方法名也要遵循上面的规范，除此之外，它们还有各自的规范：</p>
+<p>接下来解释一下命令的各个选项：</p>
+<ol>
+<li>IDLE<ms>：设置消息空闲时间，默认是0。消息只有在空闲时间大于IDLE时才会被认领。</ms></li>
+<li>TIME<ms-unix-time>：和IDLE相同，不过它是绝对时间</ms-unix-time></li>
+<li>RETRYCOUNT <count>：设置重试次数，通常XCLAIM不会改变这个值，它通常用于XPENDING命令，用来发现一些长时间未被处理的消息。</count></li>
+<li>FORCE：在PEL中创建待处理消息，即使指定的ID尚未分配给客户端的PEL。</li>
+<li>JUSTID：只返回认领的消息ID数组，不返回实际消息。</li>
+</ol>
+<h4 id="XDEL"><a href="#XDEL" class="headerlink" title="XDEL"></a>XDEL</h4><p>最早可用版本：5.0.0</p>
+<p>时间复杂度：O(1)</p>
+<p>删除stream中的entry并返回删除的数量。</p>
+<h4 id="XGROUP"><a href="#XGROUP" class="headerlink" title="XGROUP"></a>XGROUP</h4><p>最早可用版本：5.0.0</p>
+<p>时间复杂度：每个子命令是O(1)</p>
+<p>该命令用于管理stream相关的消费者组。使用XGROUP命令你可以：</p>
 <ul>
-<li>类名不应该是动词，避免使用Data、Info这样的词汇。</li>
-<li>方法名应该是动词，比如，saveXXX、deleteXXX</li>
+<li>创建与一个stream相关联的消费者组</li>
+<li>销毁一个消费者组</li>
+<li>从消费者组中删除指定的消费者</li>
+<li>设置消费者组的last delivered ID</li>
 </ul>
-<h4 id="要专一"><a href="#要专一" class="headerlink" title="要专一"></a>要专一</h4><p>假如你在不同的类中，分别定义了方法getXXX、fetchXXX和findXXX，我要调用的时候怎么知道某个类中应该使用哪种方法？所以，为什么不都用getXXX的形式呢？这样无论是对写代码的人还是对调用的人来说都是莫大的喜讯。</p>
-<h4 id="适当添加语境"><a href="#适当添加语境" class="headerlink" title="适当添加语境"></a>适当添加语境</h4><p>当你一些变量：firstName、lastName、street、houseNumber、city、state、zipcode。我们可以很轻易的判断出，他们组合在一起表示一个地址。那么把state单独拿出来呢？你还能知道它是什么意思吗？这时，我们可以把变量命名为addrState、addrFirstName……这样即便单独看某个变量，也会理解它要表达什么。当然更好的方法是定义一个名为Address的类，把这些变量放到类中，事实上我们也都是这样做的。</p>
-<p>当然，有时候也不能添加一些无意义的语境。我们要开发一个“画图”的应用，那在每个类名前加Drawing可不是什么好主意。</p>
-<h4 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h4><p>命名并不能算是什么技术，而是一种写代码的习惯，但这种习惯有可能会决定你作为一名程序员给人的第一印象。所以，养成一个好的命名习惯，也是对自己形象的维护。同时还能让自己的生命安全更有保障（避免被同事……</p>
+<p>创建新的消费者组的命令是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">XGROUP CREATE mystream consumer-group-name $</span><br></pre></td></tr></table></figure>
+<p>最后一个参数是stream中已传递的最后一个ID，使用$表示这个消费者组只能获取到新的元素。</p>
+<p>销毁消费者组的命令是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">XGROUP DESTROY mystream some-consumer-group</span><br></pre></td></tr></table></figure>
+<p>即使消费者组存在活跃的消费者和等待消息，它仍然会被删除，所以执行这个命令需要格外谨慎。</p>
+<p>删除指定消费者的命令是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">XGROUP DELCONSUMER mystream consumer-group-name myconsumer123</span><br></pre></td></tr></table></figure>
+<p>当一个新的consumer的名字被提到时，就会自动创建消费者。当消费者不再使用时，我们可以将它删除，上面的命令返回消费者在被删除之前所拥有的待处理消息。</p>
+<p>设置last delivered ID的命令是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">XGROUP SETID mystream my-consumer-group 0</span><br></pre></td></tr></table></figure>
+<p>最后，如果不记得语法，可以使用命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">XGROUP HELP</span><br></pre></td></tr></table></figure>
+<h4 id="XINFO"><a href="#XINFO" class="headerlink" title="XINFO"></a>XINFO</h4><p>最早可用版本：5.0.0</p>
+<p>时间复杂度：O(N)，N是CONSUMERS和GROUPS返回的item数量</p>
+<p>用法：XINFO [CONSUMERS key groupname] [GROUPS key][STREAM key] [HELP]</p>
+<p>这个命令用于返回stream和相关消费者组的不同信息。它有三种形式。</p>
+<ul>
+<li>XINFO STREAM <key>        这个命令返回stream的通用信息</key></li>
+<li>XINFO GROUPS <key>       这个命令用于获得stream相关的消费者组的信息</key></li>
+<li>XINFO CONSUMERS <key>  <group> 这个命令返回指定消费者组的消费者列表</group></key></li>
+</ul>
+<h4 id="XLEN"><a href="#XLEN" class="headerlink" title="XLEN"></a>XLEN</h4><p>最早可用版本：5.0.0</p>
+<p>时间复杂度：O(1)</p>
+<p>返回stream中的entry数量。如果key不存在，则返回0。对于长度为0的stream，Redis不会删除，因为可能存在关联的消费者组。</p>
+<h4 id="XPENDING"><a href="#XPENDING" class="headerlink" title="XPENDING"></a>XPENDING</h4><p>最早可用版本：5.0.0</p>
+<p>时间复杂度：O(N)，N是返回的元素数量</p>
+<p>用法：XPENDING key group [start end count] [consumer]</p>
+<p>通过消费者组捕获数据，但不是确认这些数据。</p>
+<p>XPENDING命令是检查待处理消息列表的接口，用于观察和了解消费者组正在发生的事情：哪些客户端是活跃的，哪些消息等待消费，或者查看是否有空闲的消息。这个命令通常与XCLAIM一起使用，用于处理长时间未被处理的消息。</p>
+<p>这个命令的返回值是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt; XPENDING mystream group55 - + 10</span><br><span class="line">1) 1) 1526984818136-0</span><br><span class="line">   2) <span class="string">"consumer-123"</span></span><br><span class="line">   3) (<span class="built_in">integer</span>) 196415</span><br><span class="line">   4) (<span class="built_in">integer</span>) 1</span><br></pre></td></tr></table></figure>
+<p>其中包括：</p>
+<ol>
+<li>消息ID</li>
+<li>获取并要确认消息的消费者名称</li>
+<li>自上次消息传递给消费者以来经过的毫秒数</li>
+<li>该消息被传递的次数</li>
+</ol>
+<h4 id="XRANGE"><a href="#XRANGE" class="headerlink" title="XRANGE"></a>XRANGE</h4><p>最早可用版本：5.0.0</p>
+<p>时间复杂度：O(N)，N是返回的元素数量</p>
+<p>用法：XRANGE key start end [COUNT count]</p>
+<p>该命令用于返回stream中指定ID范围的数据，可以使用-和+表示最小和最大ID。ID也可以指定为不完全ID，即只指定Unix时间戳，就可以获取指定时间范围内的数据。</p>
+<h4 id="XREAD"><a href="#XREAD" class="headerlink" title="XREAD"></a>XREAD</h4><p>最早可用版本：5.0.0</p>
+<p>时间复杂度：O(N)，N是返回的元素数量</p>
+<p>用法：XREAD [COUNT count] [BLOCK milliseconds] STREAMS key [key …] ID [ID …]</p>
+<p>从一个或多个stream中读取数据，仅返回ID大于调用者报告的最后接收ID的条目。</p>
+<p>BLOCK项用于指定阻塞时长。STREAMS项必须在最后，用于指定stream和ID。</p>
+<h4 id="XREADGROUP"><a href="#XREADGROUP" class="headerlink" title="XREADGROUP"></a>XREADGROUP</h4><p>最早可用版本：5.0.0</p>
+<p>时间复杂度：O(log(N)+M) ，N是返回的元素数量，M是一个常量。</p>
+<p>用法：XREADGROUPGROUP group consumer [COUNT count] [BLOCK milliseconds] STREAMS key [key …] ID [ID …]</p>
+<p>XREADGROUP是XREAD的特殊版本，支持消费者组。</p>
+<h4 id="XREVRANGE"><a href="#XREVRANGE" class="headerlink" title="XREVRANGE"></a>XREVRANGE</h4><p>最早可用版本：5.0.0</p>
+<p>时间复杂度：O(log(N)+M) ，N是返回的元素数量，M是一个常量。</p>
+<p>此命令与XRANGE唯一的区别是顺序相反。</p>
+<h4 id="XTRIM"><a href="#XTRIM" class="headerlink" title="XTRIM"></a>XTRIM</h4><p>最早可用版本：5.0.0</p>
+<p>时间复杂度：O(log(N)+M) ，N是返回的元素数量，M是一个常量。</p>
+<p>用法：XTRIM key MAXLEN [~] count</p>
+<p>该命令用于裁剪流为指定数量的项目。这个命令被设计为接受多种策略，但目前只实现了MAXLEN一种。</p>
+<p>如果要裁剪到stream中最新的1000个项目：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">XTRIM mystream MAXLEN 1000</span><br></pre></td></tr></table></figure>
+<p>可以使用以下形式提高效率：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">XTRIM mystream MAXLEN ~ 1000</span><br></pre></td></tr></table></figure>
+<p>~表示用户不需要精确的1000个项目，可以多出几十个，但是不能少于1000.</p>
 
       
     </div>
@@ -468,7 +541,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/整洁/" rel="tag"><i class="fa fa-tag"></i> 整洁</a>
+            <a href="/tags/Redis命令/" rel="tag"><i class="fa fa-tag"></i> Redis命令</a>
           
         </div>
       
@@ -481,8 +554,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/08/26/代码洁癖系列（一）：什么是整洁代码/" rel="next" title="代码洁癖系列（一）：什么是整洁代码">
-                <i class="fa fa-chevron-left"></i> 代码洁癖系列（一）：什么是整洁代码
+              <a href="/2019/07/01/Redis命令详解：Server/" rel="next" title="Redis命令详解：Server">
+                <i class="fa fa-chevron-left"></i> Redis命令详解：Server
               </a>
             
           </div>
@@ -490,10 +563,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/08/29/代码洁癖系列（三）：整洁的类和函数/" rel="prev" title="代码洁癖系列（三）：整洁的类和函数">
-                代码洁癖系列（三）：整洁的类和函数 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -654,7 +723,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#名副其实"><span class="nav-number">1.</span> <span class="nav-text">名副其实</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#避免误导"><span class="nav-number">2.</span> <span class="nav-text">避免误导</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#做有意义的区分"><span class="nav-number">3.</span> <span class="nav-text">做有意义的区分</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#别随意使用简写"><span class="nav-number">4.</span> <span class="nav-text">别随意使用简写</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用可以被搜索的名称"><span class="nav-number">5.</span> <span class="nav-text">使用可以被搜索的名称</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#类名和方法名"><span class="nav-number">6.</span> <span class="nav-text">类名和方法名</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#要专一"><span class="nav-number">7.</span> <span class="nav-text">要专一</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#适当添加语境"><span class="nav-number">8.</span> <span class="nav-text">适当添加语境</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#结语"><span class="nav-number">9.</span> <span class="nav-text">结语</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#XACK"><span class="nav-number">1.</span> <span class="nav-text">XACK</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#XADD"><span class="nav-number">2.</span> <span class="nav-text">XADD</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#XCLAIM"><span class="nav-number">3.</span> <span class="nav-text">XCLAIM</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#XDEL"><span class="nav-number">4.</span> <span class="nav-text">XDEL</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#XGROUP"><span class="nav-number">5.</span> <span class="nav-text">XGROUP</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#XINFO"><span class="nav-number">6.</span> <span class="nav-text">XINFO</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#XLEN"><span class="nav-number">7.</span> <span class="nav-text">XLEN</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#XPENDING"><span class="nav-number">8.</span> <span class="nav-text">XPENDING</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#XRANGE"><span class="nav-number">9.</span> <span class="nav-text">XRANGE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#XREAD"><span class="nav-number">10.</span> <span class="nav-text">XREAD</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#XREADGROUP"><span class="nav-number">11.</span> <span class="nav-text">XREADGROUP</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#XREVRANGE"><span class="nav-number">12.</span> <span class="nav-text">XREVRANGE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#XTRIM"><span class="nav-number">13.</span> <span class="nav-text">XTRIM</span></a></li></ol></div>
             
 
           </div>
