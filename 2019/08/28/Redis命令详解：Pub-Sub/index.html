@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="瞎扯," />
+  <meta name="keywords" content="Redis命令," />
 
 
 
@@ -79,22 +79,18 @@
 
 
 
-<meta name="description" content="1998年的9月4日，拉里·佩奇和谢尔盖·布林将Google带到这个世界。就在前几天，Google刚刚过了20岁生日。经过20年的发展，Google早已不是当初的小作坊了，而是发展成为被大家公认的全球最大的搜索引擎公司。20年间，Google不仅在搜索技术上表现颇为出色，在大数据、云计算、AI等各个方面都有着巨大的贡献。">
-<meta name="keywords" content="瞎扯">
+<meta name="description" content="Redis发布订阅模式相关命令。 PSUBSCRIBE最早可用版本：2.0.0 时间复杂度：O(N)，N是已订阅的客户端数。 订阅给定规则的客户端，支持的形式包括：  h?llo 订阅hello,hallo和hxllo等 h*llo 订阅hllo和heeeello等 h[ae] 订阅hello和hallo，但不订阅hillo  如果要逐字匹配，要使用\来转义特殊字符。 PUBLISH最早可用版本：">
+<meta name="keywords" content="Redis命令">
 <meta property="og:type" content="article">
-<meta property="og:title" content="实用的工具，有趣的人">
-<meta property="og:url" content="https://jackeyzhe.github.io/2018/09/07/实用的工具，有趣的人/index.html">
+<meta property="og:title" content="Redis命令详解：Pub&#x2F;Sub">
+<meta property="og:url" content="https://jackeyzhe.github.io/2019/08/28/Redis命令详解：Pub-Sub/index.html">
 <meta property="og:site_name" content="Jackeyzhe">
-<meta property="og:description" content="1998年的9月4日，拉里·佩奇和谢尔盖·布林将Google带到这个世界。就在前几天，Google刚刚过了20岁生日。经过20年的发展，Google早已不是当初的小作坊了，而是发展成为被大家公认的全球最大的搜索引擎公司。20年间，Google不仅在搜索技术上表现颇为出色，在大数据、云计算、AI等各个方面都有着巨大的贡献。">
+<meta property="og:description" content="Redis发布订阅模式相关命令。 PSUBSCRIBE最早可用版本：2.0.0 时间复杂度：O(N)，N是已订阅的客户端数。 订阅给定规则的客户端，支持的形式包括：  h?llo 订阅hello,hallo和hxllo等 h*llo 订阅hllo和heeeello等 h[ae] 订阅hello和hallo，但不订阅hillo  如果要逐字匹配，要使用\来转义特殊字符。 PUBLISH最早可用版本：">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1536333511/Blog/datasetSearch/dataset.png">
-<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1536333521/Blog/datasetSearch/linus.png">
-<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1536333529/Blog/datasetSearch/rants.png">
-<meta property="og:updated_time" content="2018-09-07T16:12:36.184Z">
+<meta property="og:updated_time" content="2019-08-27T17:07:04.762Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="实用的工具，有趣的人">
-<meta name="twitter:description" content="1998年的9月4日，拉里·佩奇和谢尔盖·布林将Google带到这个世界。就在前几天，Google刚刚过了20岁生日。经过20年的发展，Google早已不是当初的小作坊了，而是发展成为被大家公认的全球最大的搜索引擎公司。20年间，Google不仅在搜索技术上表现颇为出色，在大数据、云计算、AI等各个方面都有着巨大的贡献。">
-<meta name="twitter:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1536333511/Blog/datasetSearch/dataset.png">
+<meta name="twitter:title" content="Redis命令详解：Pub&#x2F;Sub">
+<meta name="twitter:description" content="Redis发布订阅模式相关命令。 PSUBSCRIBE最早可用版本：2.0.0 时间复杂度：O(N)，N是已订阅的客户端数。 订阅给定规则的客户端，支持的形式包括：  h?llo 订阅hello,hallo和hxllo等 h*llo 订阅hllo和heeeello等 h[ae] 订阅hello和hallo，但不订阅hillo  如果要逐字匹配，要使用\来转义特殊字符。 PUBLISH最早可用版本：">
 
 
 
@@ -124,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="https://jackeyzhe.github.io/2018/09/07/实用的工具，有趣的人/"/>
+  <link rel="canonical" href="https://jackeyzhe.github.io/2019/08/28/Redis命令详解：Pub-Sub/"/>
 
 
 
 
 
-  <title>实用的工具，有趣的人 | Jackeyzhe</title>
+  <title>Redis命令详解：Pub/Sub | Jackeyzhe</title>
   
 
 
@@ -292,7 +288,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2018/09/07/实用的工具，有趣的人/">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2019/08/28/Redis命令详解：Pub-Sub/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Jackey Wang">
@@ -309,7 +305,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">实用的工具，有趣的人</h1>
+          <h1 class="post-title" itemprop="name headline">Redis命令详解：Pub/Sub</h1>
         
 
         <div class="post-meta">
@@ -321,8 +317,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-07T23:08:38+08:00">
-                2018-09-07
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-28T00:37:57+08:00">
+                2019-08-28
               </time>
             
 
@@ -364,23 +360,38 @@
       
 
       
-        <p>1998年的9月4日，拉里·佩奇和谢尔盖·布林将Google带到这个世界。就在前几天，Google刚刚过了20岁生日。经过20年的发展，Google早已不是当初的小作坊了，而是发展成为被大家公认的全球最大的搜索引擎公司。20年间，Google不仅在搜索技术上表现颇为出色，在大数据、云计算、AI等各个方面都有着巨大的贡献。<a id="more"></a></p>
-<p>我们都知道，如今世界已经从互联网时代走向大数据时代。数据几乎已经成为各个互联网公司的命脉，数据分析师这一职位也应运而生（虽然我本人不是数据分析师），但是我对数据分析很感兴趣。刚刚过完20岁生日的Google这次可以算是给数据分析师和数据分析爱好者们送上了一份大礼（果然是大公司，自己过生日还给我们送礼）——一款叫做Google Dataset Search的搜索引擎。它是一款专门用来搜索数据集的搜索引擎，搜索结果中包括了数据集的创建者，发布时间，数据集的收集方式，数据集的使用条款以及对数据集的描述。</p>
-<p>还记得我当初自学大数据知识的时候，每每到了想要亲自动手试一试的时候，总是为找不到合适的数据集而苦恼。最后，我决定自学Python爬虫，想要什么数据都自己动手爬。然而，这种工作还是挺繁琐的，也许对我这种自学的爱好者无所谓，反而还多掌握一门技术。但对于专门从事数据科学工作的人来说可能会觉得很痛苦。</p>
-<p>随着Google Dataset Search的诞生，这种“巧妇难为无米之炊”的尴尬终于一去不复返了。现在你想要什么数据集都可以直接搜索，简直不要太方便。</p>
-<p>这个网站的地址是：</p>
-<p><a href="https://toolbox.google.com/datasetsearch" target="_blank" rel="noopener">https://toolbox.google.com/datasetsearch</a></p>
-<p>可以访问的同学可以上去体验一下，目前还是Beta版，没办法访问的同学，看看这个界面先过过瘾吧。</p>
-<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1536333511/Blog/datasetSearch/dataset.png" alt="datasetSearch"></p>
-<p>以上就是今天要介绍的实用的工具。下面再来介绍一个有趣的人，同样是和DataSet Search有关。</p>
-<p>要介绍的这个人呢，作为程序员一定很熟悉，就是Linux之父Linus Torvalds。怀着对大神的崇敬之情，我今天用Dataset Search搜索了一下Linus。结果果然没有令我失望，先来展示一下搜素结果。</p>
-<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1536333521/Blog/datasetSearch/linus.png" alt="linus"></p>
-<p>第一条是Linus Torvalds Rants，可以理解为Linus的粗话（这是什么鬼？黑人问号脸）。</p>
-<p>我们注意到数据集的描述为Linus2012年到2015年邮件的粗话合集。到这里有些怀疑这个数据集的真实性，不过对大神崇敬之情驱动着我点了进去，看看大神是怎么骂人的，</p>
-<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1536333529/Blog/datasetSearch/rants.png" alt="rants"></p>
-<p>这是数据集的部分截图，链接也都是可以直接访问的。</p>
-<p>总之，Linus大神说话还是挺文明的，这种做法也非常有Linus的风格。（这里顺便提一下，Linus曾经在Linux内核代码中记录了女儿的生日）怎么样，是不是今天才发现原来Linus是如此有趣的人？</p>
-<p>最后，国内某公司CEO说要“再”次击败Google，我觉得他们首先还是要多做些像这样有意义的事吧。</p>
+        <p>Redis发布订阅模式相关命令。</p>
+<h4 id="PSUBSCRIBE"><a href="#PSUBSCRIBE" class="headerlink" title="PSUBSCRIBE"></a>PSUBSCRIBE</h4><p>最早可用版本：2.0.0</p>
+<p>时间复杂度：O(N)，N是已订阅的客户端数。</p>
+<p>订阅给定规则的客户端，支持的形式包括：</p>
+<ul>
+<li>h?llo 订阅hello,hallo和hxllo等</li>
+<li>h*llo 订阅hllo和heeeello等</li>
+<li>h[ae] 订阅hello和hallo，但不订阅hillo</li>
+</ul>
+<p>如果要逐字匹配，要使用\来转义特殊字符。</p>
+<h4 id="PUBLISH"><a href="#PUBLISH" class="headerlink" title="PUBLISH"></a>PUBLISH</h4><p>最早可用版本：2.0.0</p>
+<p>时间复杂度：O(N+M)，N是已订阅的客户端数，M是订阅总数</p>
+<p>发布消息到指定频道。</p>
+<h4 id="PUBSUB"><a href="#PUBSUB" class="headerlink" title="PUBSUB"></a>PUBSUB</h4><p>最早可用版本：2.8.0</p>
+<p>时间复杂度：O(N)，N是活跃的频道数</p>
+<p>该命令用于检查Pub/Sub子系统的状态。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PUBSUB CHANNELS [pattern]</span><br></pre></td></tr></table></figure>
+<p>列出当前活跃的频道（至少有一个订阅者）。不过不指定pattern，则列出全部频道。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PUBSUB NUMSUB [channel-1 ... channel-N]</span><br></pre></td></tr></table></figure>
+<p>返回指定频道的订阅者。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PUBSUB NUMPAT</span><br></pre></td></tr></table></figure>
+<p>返回指定模式的订阅数（使用PSUBSCRIBE命令执行）</p>
+<h4 id="PUNSUBSCRIBE"><a href="#PUNSUBSCRIBE" class="headerlink" title="PUNSUBSCRIBE"></a>PUNSUBSCRIBE</h4><p>最早可用版本：2.0.0</p>
+<p>时间复杂度：O(N+M)，N是匹配规则的客户端已经订阅的数量，M是系统中匹配规则的订阅总数 </p>
+<p>用法：PUNSUBSCRIBE [pattern [pattern …]]</p>
+<p>退订所有匹配规则的频道，如果没有指定规则，则退订所有的频道。</p>
+<h4 id="SUBSCRIBE"><a href="#SUBSCRIBE" class="headerlink" title="SUBSCRIBE"></a>SUBSCRIBE</h4><p>最早可用版本：2.0.0</p>
+<p>时间复杂度：O(N)，N是订阅频道的数量</p>
+<p>给客户端订阅指定的频道。</p>
+<h4 id="UNSUBSCRIBE"><a href="#UNSUBSCRIBE" class="headerlink" title="UNSUBSCRIBE"></a>UNSUBSCRIBE</h4><p>最早可用版本：2.0.0</p>
+<p>时间复杂度：O(N)，N是订阅频道的数量</p>
+<p>给客户端退订指定的频道。如果不指定频道，则退订全部。</p>
 
       
     </div>
@@ -450,7 +461,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/瞎扯/" rel="tag"><i class="fa fa-tag"></i> 瞎扯</a>
+            <a href="/tags/Redis命令/" rel="tag"><i class="fa fa-tag"></i> Redis命令</a>
           
         </div>
       
@@ -463,8 +474,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/09/04/代码洁癖系列（七）：单元测试的地位/" rel="next" title="代码洁癖系列（七）：单元测试的地位">
-                <i class="fa fa-chevron-left"></i> 代码洁癖系列（七）：单元测试的地位
+              <a href="/2019/07/01/Redis命令详解：Streams/" rel="next" title="Redis命令详解：Streams">
+                <i class="fa fa-chevron-left"></i> Redis命令详解：Streams
               </a>
             
           </div>
@@ -472,10 +483,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/09/08/代码洁癖系列（八）：迭代的原则/" rel="prev" title="代码洁癖系列（八）：迭代的原则">
-                代码洁癖系列（八）：迭代的原则 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -537,8 +544,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -617,6 +633,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#PSUBSCRIBE"><span class="nav-number">1.</span> <span class="nav-text">PSUBSCRIBE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#PUBLISH"><span class="nav-number">2.</span> <span class="nav-text">PUBLISH</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#PUBSUB"><span class="nav-number">3.</span> <span class="nav-text">PUBSUB</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#PUNSUBSCRIBE"><span class="nav-number">4.</span> <span class="nav-text">PUNSUBSCRIBE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SUBSCRIBE"><span class="nav-number">5.</span> <span class="nav-text">SUBSCRIBE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#UNSUBSCRIBE"><span class="nav-number">6.</span> <span class="nav-text">UNSUBSCRIBE</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
