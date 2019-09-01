@@ -355,41 +355,14 @@
 
       
         
-          
-            <p>Redis发布订阅模式相关命令。</p>
-<h4 id="PSUBSCRIBE"><a href="#PSUBSCRIBE" class="headerlink" title="PSUBSCRIBE"></a>PSUBSCRIBE</h4><p>最早可用版本：2.0.0</p>
-<p>时间复杂度：O(N)，N是已订阅的客户端数。</p>
-<p>订阅给定规则的客户端，支持的形式包括：</p>
-<ul>
-<li>h?llo 订阅hello,hallo和hxllo等</li>
-<li>h*llo 订阅hllo和heeeello等</li>
-<li>h[ae] 订阅hello和hallo，但不订阅hillo</li>
-</ul>
-<p>如果要逐字匹配，要使用\来转义特殊字符。</p>
-<h4 id="PUBLISH"><a href="#PUBLISH" class="headerlink" title="PUBLISH"></a>PUBLISH</h4><p>最早可用版本：2.0.0</p>
-<p>时间复杂度：O(N+M)，N是已订阅的客户端数，M是订阅总数</p>
-<p>发布消息到指定频道。</p>
-<h4 id="PUBSUB"><a href="#PUBSUB" class="headerlink" title="PUBSUB"></a>PUBSUB</h4><p>最早可用版本：2.8.0</p>
-<p>时间复杂度：O(N)，N是活跃的频道数</p>
-<p>该命令用于检查Pub/Sub子系统的状态。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PUBSUB CHANNELS [pattern]</span><br></pre></td></tr></table></figure>
-<p>列出当前活跃的频道（至少有一个订阅者）。不过不指定pattern，则列出全部频道。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PUBSUB NUMSUB [channel-1 ... channel-N]</span><br></pre></td></tr></table></figure>
-<p>返回指定频道的订阅者。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PUBSUB NUMPAT</span><br></pre></td></tr></table></figure>
-<p>返回指定模式的订阅数（使用PSUBSCRIBE命令执行）</p>
-<h4 id="PUNSUBSCRIBE"><a href="#PUNSUBSCRIBE" class="headerlink" title="PUNSUBSCRIBE"></a>PUNSUBSCRIBE</h4><p>最早可用版本：2.0.0</p>
-<p>时间复杂度：O(N+M)，N是匹配规则的客户端已经订阅的数量，M是系统中匹配规则的订阅总数 </p>
-<p>用法：PUNSUBSCRIBE [pattern [pattern …]]</p>
-<p>退订所有匹配规则的频道，如果没有指定规则，则退订所有的频道。</p>
-<h4 id="SUBSCRIBE"><a href="#SUBSCRIBE" class="headerlink" title="SUBSCRIBE"></a>SUBSCRIBE</h4><p>最早可用版本：2.0.0</p>
-<p>时间复杂度：O(N)，N是订阅频道的数量</p>
-<p>给客户端订阅指定的频道。</p>
-<h4 id="UNSUBSCRIBE"><a href="#UNSUBSCRIBE" class="headerlink" title="UNSUBSCRIBE"></a>UNSUBSCRIBE</h4><p>最早可用版本：2.0.0</p>
-<p>时间复杂度：O(N)，N是订阅频道的数量</p>
-<p>给客户端退订指定的频道。如果不指定频道，则退订全部。</p>
-
-          
+          <p>Redis发布订阅模式相关命令。
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/08/28/Redis命令详解：Pub-Sub/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
