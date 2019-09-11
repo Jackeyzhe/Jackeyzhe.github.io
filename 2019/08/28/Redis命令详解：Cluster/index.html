@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="Jackeyzhe">
 <meta property="og:description" content="前文中我们介绍过了Redis的三种集群方案，没有了解过的同学可以自行前往。今天要介绍的Redis的亲儿子Cluster相关的命令。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-09-05T16:14:29.294Z">
+<meta property="og:updated_time" content="2019-09-07T03:57:29.906Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Redis命令详解：Cluster">
 <meta name="twitter:description" content="前文中我们介绍过了Redis的三种集群方案，没有了解过的同学可以自行前往。今天要介绍的Redis的亲儿子Cluster相关的命令。">
@@ -417,7 +417,7 @@
 <li>旧的master更新配置，解除客户端阻塞，回复重定向信息，以便客户端可以和新的master通信。</li>
 </ol>
 <p>该命令有两个选项：FORCE和TAKEOVER，下面我们来解释一下这两个选项的作用。</p>
-<p>FORCE选项：slave节点不会和master做写上，直接从上述第4步开始进行故障切换</p>
+<p>FORCE选项：slave节点不会和master做协商，直接从上述第4步开始进行故障切换</p>
 <p>TAKEOVER选项：忽略集群一致验证的人工故障切换。有时会出现集群中master节点不够的情况，此时我们就需要使用TAKEOVER选项将slave批量切换为master节点。</p>
 <p>TAKEOVER选项实现了FORCE选项的所有功能，当一个slave节点收到CLUSTER FAILOVER TAKEOVER命令时会有如下操作：</p>
 <ol>
@@ -758,7 +758,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">55</span>
+                  <span class="site-state-item-count">56</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
