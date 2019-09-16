@@ -79,22 +79,22 @@
 
 
 
-<meta name="description" content="代码审查是许多高效团队的工程实践。即使你的软件已经有很多优点了，但团队在做代码审查时仍然会遇到一些陷阱。 这篇文章我讲向你介绍一些需要特别注意的陷阱，以防代码审查工作拖累你的团队。知道可能遇到的问题或陷阱，将会帮助你进行更加高效、有效的的代码审查工作。这是我们调查了900名微软员工后得到的结论。 一个典型的代码审查过程一个典型的使用工具进行的代码审查过程大致是这样的：开发者完成一段代码，她提交代码">
+<meta name="description" content="代码审查是许多高效团队的工程实践。即使你的软件已经有很多优点了，但团队在做代码审查时仍然会遇到一些陷阱。">
 <meta name="keywords" content="Code Review">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【译】别让你的团队掉入Code Review的坑">
 <meta property="og:url" content="https://jackeyzhe.github.io/2019/09/12/【译】别让你的团队掉入Code-Review的坑/index.html">
 <meta property="og:site_name" content="Jackeyzhe">
-<meta property="og:description" content="代码审查是许多高效团队的工程实践。即使你的软件已经有很多优点了，但团队在做代码审查时仍然会遇到一些陷阱。 这篇文章我讲向你介绍一些需要特别注意的陷阱，以防代码审查工作拖累你的团队。知道可能遇到的问题或陷阱，将会帮助你进行更加高效、有效的的代码审查工作。这是我们调查了900名微软员工后得到的结论。 一个典型的代码审查过程一个典型的使用工具进行的代码审查过程大致是这样的：开发者完成一段代码，她提交代码">
+<meta property="og:description" content="代码审查是许多高效团队的工程实践。即使你的软件已经有很多优点了，但团队在做代码审查时仍然会遇到一些陷阱。">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://i1.wp.com/www.michaelagreiler.com/wp-content/uploads/2019/05/E-Book-Preview.jpg?w=860&ssl=1">
 <meta property="og:image" content="https://i1.wp.com/www.michaelagreiler.com/wp-content/uploads/2019/04/Code-Review-value-time.png?w=1024&ssl=1">
 <meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1567928096/Blog/Other/code_review/code-review00.png">
 <meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1568307144/Blog/Other/code_review/code-review-qrcode.jpg">
-<meta property="og:updated_time" content="2019-09-12T16:54:48.787Z">
+<meta property="og:updated_time" content="2019-09-16T11:27:36.879Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【译】别让你的团队掉入Code Review的坑">
-<meta name="twitter:description" content="代码审查是许多高效团队的工程实践。即使你的软件已经有很多优点了，但团队在做代码审查时仍然会遇到一些陷阱。 这篇文章我讲向你介绍一些需要特别注意的陷阱，以防代码审查工作拖累你的团队。知道可能遇到的问题或陷阱，将会帮助你进行更加高效、有效的的代码审查工作。这是我们调查了900名微软员工后得到的结论。 一个典型的代码审查过程一个典型的使用工具进行的代码审查过程大致是这样的：开发者完成一段代码，她提交代码">
+<meta name="twitter:description" content="代码审查是许多高效团队的工程实践。即使你的软件已经有很多优点了，但团队在做代码审查时仍然会遇到一些陷阱。">
 <meta name="twitter:image" content="https://i1.wp.com/www.michaelagreiler.com/wp-content/uploads/2019/05/E-Book-Preview.jpg?w=860&ssl=1">
 
 
@@ -365,7 +365,7 @@
       
 
       
-        <p>代码审查是许多高效团队的工程实践。即使你的软件已经有很多优点了，但团队在做代码审查时仍然会遇到一些陷阱。</p>
+        <p>代码审查是许多高效团队的工程实践。即使你的软件已经有很多优点了，但团队在做代码审查时仍然会遇到一些陷阱。<a id="more"></a></p>
 <p>这篇文章我讲向你介绍一些需要特别注意的陷阱，以防代码审查工作拖累你的团队。知道可能遇到的问题或陷阱，将会帮助你进行更加高效、有效的的代码审查工作。这是我们<a href="https://www.michaelagreiler.com/wp-content/uploads/2019/03/Code-Reviewing-in-the-Trenches-Understanding-Challenges-Best-Practices-and-Tool-Needs.pdf" target="_blank" rel="noopener">调查了900名微软员工后得到的结论</a>。</p>
 <h4 id="一个典型的代码审查过程"><a href="#一个典型的代码审查过程" class="headerlink" title="一个典型的代码审查过程"></a>一个典型的代码审查过程</h4><p>一个典型的使用工具进行的代码审查过程大致是这样的：开发者完成一段代码，她提交代码准备开始让别人review。然后她选择需要审查她的代码的人。审查代码的人开始查看代码并给出一些评论。作者按照这些评论完善代码。当所有人都觉得没问题了以后，代码就可以合并进代码库了。在另一篇中我详细介绍了微软的代码审查的过程。</p>
 <p>我为我的邮件订阅读者们准备了一份代码审查电子书，书中包含了全部的代码审查最佳实践的清单。我还加了一些额外的见解，大家可以<a href="https://www.michaelagreiler.com/code-review-e-book/" target="_blank" rel="noopener">自行申请</a>。</p>
