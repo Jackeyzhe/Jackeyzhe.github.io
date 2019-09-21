@@ -88,7 +88,7 @@
 <meta property="og:description" content="Elasticsearch系列开坑啦，入门总是愉快的，学一学再放弃啊。">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1568360926/Blog/ES/01/%E5%80%92%E6%8E%92%E7%B4%A2%E5%BC%95%E7%BB%93%E6%9E%84.png">
-<meta property="og:updated_time" content="2019-09-18T16:47:31.510Z">
+<meta property="og:updated_time" content="2019-09-19T15:59:37.032Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Elasticsearch从入门到放弃：人生若只如初见">
 <meta name="twitter:description" content="Elasticsearch系列开坑啦，入门总是愉快的，学一学再放弃啊。">
@@ -419,7 +419,7 @@
 <li><strong>类型（type）：</strong>每个文档都有与之对应的类型，同一类型下的文档数据结构通常保持一致，不同文档可以有不同的映射。但是在Elasticsearch7以后已经删除了这个概念</li>
 <li><strong>节点（node）：</strong>集群中每个ES实例都称作一个节点</li>
 <li><strong>集群（cluster）：</strong>在生产环境中，我们的数据量和查询压力可能超过了单机负载，因此需要多个节点协同处理</li>
-<li><strong>分片（shard）：</strong>ES会将数据散落到多个无力Lucene索引上。这些Lucene索引称为分片。ES会自动进行分片处理</li>
+<li><strong>分片（shard）：</strong>ES会将数据散落到多个Lucene索引上。这些Lucene索引称为分片。ES会自动进行分片处理</li>
 <li><strong>副本（replica）：</strong>ES会为每个分片创建冗余的副本，一方面分摊请求压力，另一方面是为了保证数据不会丢失。ES支持在任意时间点添加或移除副本</li>
 </ul>
 <h3 id="Elasticsearch的启动过程"><a href="#Elasticsearch的启动过程" class="headerlink" title="Elasticsearch的启动过程"></a>Elasticsearch的启动过程</h3><p>当Elasticsearch启动时，它使用广播技术来发现同一集群内的其他节点，集群中会有一个节点被选为master节点。master节点负责管理集群状态，并在集群中节点数量变化时做出反应。但从用户角度来看，master节点与其他节点没有什么区别，命令可以发送的任意节点执行。</p>
@@ -524,6 +524,10 @@
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/2019/09/21/Rust入坑指南：坑主驾到/" rel="prev" title="Rust入坑指南：坑主驾到">
+                Rust入坑指南：坑主驾到 <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -609,7 +613,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">58</span>
+                  <span class="site-state-item-count">59</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -622,7 +626,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-count">13</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
