@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="整洁," />
+  <meta name="keywords" content="Code Review," />
 
 
 
@@ -79,18 +79,22 @@
 
 
 
-<meta name="description" content="前面我们讨论了什么样的命名更能够让你赏心悦目，今天来讨论一下面向对象编程过程中最重要的环节，编写类和函数。我们仍然用Java来演示，什么样的类和函数才算是整洁的。">
-<meta name="keywords" content="整洁">
+<meta name="description" content="没错，Code Review系列还在继续，今天我们一起来聊一聊如何提出好的Code Review反馈。">
+<meta name="keywords" content="Code Review">
 <meta property="og:type" content="article">
-<meta property="og:title" content="代码洁癖系列（三）：整洁的类和函数">
-<meta property="og:url" content="https://jackeyzhe.github.io/2018/08/29/代码洁癖系列（三）：整洁的类和函数/index.html">
+<meta property="og:title" content="【译】如何提出好的Code Review反馈">
+<meta property="og:url" content="https://jackeyzhe.github.io/2019/09/22/【译】如何提出好的Code-Review反馈/index.html">
 <meta property="og:site_name" content="Jackeyzhe">
-<meta property="og:description" content="前面我们讨论了什么样的命名更能够让你赏心悦目，今天来讨论一下面向对象编程过程中最重要的环节，编写类和函数。我们仍然用Java来演示，什么样的类和函数才算是整洁的。">
+<meta property="og:description" content="没错，Code Review系列还在继续，今天我们一起来聊一聊如何提出好的Code Review反馈。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-09-05T14:53:56.242Z">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1569258203/Blog/Other/code_review/great-code-review-feedback.jpg">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1569508456/Blog/Other/code_review/code-review-feedback.jpg">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1569515512/Blog/Other/code_review/useful-feedback-density.jpg">
+<meta property="og:updated_time" content="2019-09-28T14:36:51.192Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="代码洁癖系列（三）：整洁的类和函数">
-<meta name="twitter:description" content="前面我们讨论了什么样的命名更能够让你赏心悦目，今天来讨论一下面向对象编程过程中最重要的环节，编写类和函数。我们仍然用Java来演示，什么样的类和函数才算是整洁的。">
+<meta name="twitter:title" content="【译】如何提出好的Code Review反馈">
+<meta name="twitter:description" content="没错，Code Review系列还在继续，今天我们一起来聊一聊如何提出好的Code Review反馈。">
+<meta name="twitter:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1569258203/Blog/Other/code_review/great-code-review-feedback.jpg">
 
 
 
@@ -120,13 +124,13 @@
 
 
 
-  <link rel="canonical" href="https://jackeyzhe.github.io/2018/08/29/代码洁癖系列（三）：整洁的类和函数/"/>
+  <link rel="canonical" href="https://jackeyzhe.github.io/2019/09/22/【译】如何提出好的Code-Review反馈/"/>
 
 
 
 
 
-  <title>代码洁癖系列（三）：整洁的类和函数 | Jackeyzhe</title>
+  <title>【译】如何提出好的Code Review反馈 | Jackeyzhe</title>
   
 
 
@@ -288,7 +292,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2018/08/29/代码洁癖系列（三）：整洁的类和函数/">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2019/09/22/【译】如何提出好的Code-Review反馈/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Jackey Wang">
@@ -305,7 +309,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">代码洁癖系列（三）：整洁的类和函数</h1>
+          <h1 class="post-title" itemprop="name headline">【译】如何提出好的Code Review反馈</h1>
         
 
         <div class="post-meta">
@@ -317,8 +321,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-08-29T22:40:37+08:00">
-                2018-08-29
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-22T15:55:20+08:00">
+                2019-09-22
               </time>
             
 
@@ -360,23 +364,82 @@
       
 
       
-        <p>前面我们讨论了什么样的命名更能够让你赏心悦目，今天来讨论一下面向对象编程过程中最重要的环节，编写类和函数。我们仍然用Java来演示，什么样的类和函数才算是整洁的。<a id="more"></a></p>
-<p>首先讨论函数，函数定义好了，类也就容易了。</p>
-<h4 id="短小"><a href="#短小" class="headerlink" title="短小"></a>短小</h4><p>相信大家在读代码的时候都会遇到过冗长的函数定义。没有的话可以私信我，我把原来写过的一段300+行的函数发给你，不过不要问我这个函数是做什么的，因为我也忘了，而且不想回顾。当然如果你足够耐心研究出来了，请教教我。</p>
-<p>言归正传，为什么函数要短小呢，如何才能是自己的函数更加短小？第一个问题我也无法证明，只能告诉你短小的函数看起来更加清晰，更加容易理解。那怎么才能让函数变得更加短小呢？很简单，抽离方法。将一些代码抽离成另一个函数。什么样的长度才是合适的呢？我认为不必过于追求短。这里的长度我们可以以代码块的层来定义，对于下面这种代码相信任何人看了都会崩溃吧。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doSomething</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span>() &#123;</span><br><span class="line">        ...</span><br><span class="line">        <span class="keyword">while</span>() &#123;</span><br><span class="line">            ...</span><br><span class="line">            <span class="keyword">if</span>() &#123;</span><br><span class="line">                ...</span><br><span class="line">            &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">                ...</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>所以每个函数中有一层或两层为最佳，每层代码块最好不超过3行。这是我认为最佳的函数长度，当然，这个也可以根据个人习惯稍作调整。</p>
-<h4 id="只做一件事"><a href="#只做一件事" class="headerlink" title="只做一件事"></a>只做一件事</h4><p>如果说长度还可以根据个人习惯，那么“只做一件事”的要求应该是大家都应该遵守的公约了。如果一个函数中做了太多的事，那么代码阅读起来的难度将会成倍增加，而且文档书写难度同样增大。还有就是给其他代码调用造成不便。比如我定义了函数A做了1和2两件事，函数B想做2和3，怎么办？这时B只能再写一遍A中做2的代码。而这样就会有大量重复代码出现，不但增加工作量，对日后的维护工作也造成很大的负担。而把1和2分别定义为函数C和函数D的话，只需要在AB中分别调用就可以了。</p>
-<h4 id="命名"><a href="#命名" class="headerlink" title="命名"></a>命名</h4><p>这里不多解释，函数的命名需要具有描述意义，函数越短也就越容易描述。</p>
-<h4 id="函数参数"><a href="#函数参数" class="headerlink" title="函数参数"></a>函数参数</h4><p>参数数量越少越好（这个我目前也没有做到），究其原因，首先是读代码时每次都要搞清楚每个参数的意义，所以自然越少越好。另一方面就是为测试的同事提供方便，如果有多个函数，测试的同学就需要考虑更多的测试用例对其进行覆盖。如果一个函数有3个以上的参数，那测试的同学可能想要打人了。</p>
-<h4 id="使用异常代替返回错误码"><a href="#使用异常代替返回错误码" class="headerlink" title="使用异常代替返回错误码"></a>使用异常代替返回错误码</h4><p>这样就可以将Try/catch代码块抽离出来，因为Try/catch代码块影响了正常程序的流程，看起来很丑陋。</p>
-<p>函数的主要规则就是这些，那么如何才能写出这样的函数呢？其实没有什么特别的技巧，就是记住这些规则，在每次写完代码之后再斟酌一番，对代码进行反复的打磨，修改不合适的命名，抽离冗长的函数。久而久之，你的代码一定会被人称赞的。</p>
-<p>说完函数再来说一下如何写好一个类。</p>
-<h4 id="还是短小"><a href="#还是短小" class="headerlink" title="还是短小"></a>还是短小</h4><p>没错，类也应该短小，不过这里短小的定义和函数短小的定义稍有不同，我们通常以“权责”来衡量。先看下面这个类。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SuperDashboard</span> <span class="keyword">extends</span> <span class="title">JFrame</span> <span class="keyword">implements</span> <span class="title">MetaDataUser</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Component <span class="title">getLastFocusedComponent</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setLastFocused</span><span class="params">(Component lastFocused)</span></span></span><br><span class="line"><span class="function">    <span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getMajorVersionNumber</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    <span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getMinorVersionNumber</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    <span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getBuildNumber</span><span class="params">()</span></span></span><br><span class="line"><span class="function">&#125;</span></span><br></pre></td></tr></table></figure>
-<p>这个类只提供了5个方法，应该不算长，但是我要说，它仍然不满足我们“短小”的条件，原因就是违反了单一权责原则。单一权责指的是一个类只描述一类事。上面这个类有对最后焦点组件的读写方法，还有获取版本号和序列号的方法。只要我们描述一个类时，用到了类似于“还有”这样的字眼时，那么这个类就违反了单一权责原则，就需要对其中的方法进行抽离。</p>
-<h4 id="为了修改而组织"><a href="#为了修改而组织" class="headerlink" title="为了修改而组织"></a>为了修改而组织</h4><p>大多数系统都会进行持续的迭代，而这也意味着我们需要不断对代码进行修改。而修改代码往往伴随着风险。所以，我们需要做的就是，修改一个方法时，不对其他方法造成影响。当我们开始修改时，就要评估好影响，然后将方法进行抽象，拆分。力求做到每次修改都不影响其他类（即降低耦合）。</p>
-<p>对于写好一个类，总结来说就是“高内聚，低耦合”。</p>
+        <p>没错，Code Review系列还在继续，今天我们一起来聊一聊如何提出好的Code Review反馈。<a id="more"></a></p>
+<p>Code Review是保证代码的质量和可维护性，以及向团队成员分享知识的重要手段。但是，随着团队产出代码质量的提升，Code Review所带来的价值反而会下降。本文我将向你说明如何提出好的Code Review反馈。这一调研结果是来自于对微软数百人的高效工程师的访问。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1569258203/Blog/Other/code_review/great-code-review-feedback.jpg" alt="Great Code Review Feedback"></p>
+<h3 id="代码审查检查的是关于代码的问题和质量"><a href="#代码审查检查的是关于代码的问题和质量" class="headerlink" title="代码审查检查的是关于代码的问题和质量"></a>代码审查检查的是关于代码的问题和质量</h3><p>在一次代码审查过程中，由一名工程师做出的修改将由其他工程师来进行检查和讨论。代码审查的主要目标是查出代码的问题，保证代码的质量。即使Code Review还带来了一些其他的像传播和学习知识这样的好处，但我们仍要谨记这两个最重要的目标。</p>
+<p>有些团队担心的，有些团队已经遇到了代码审查的主要缺点：降低编码速度。这意味着团队的生产效率被代码审查拖慢了。</p>
+<p>为什么会这样呢？</p>
+<p><a href="https://jackeyzhe.github.io/2019/09/12/%E3%80%90%E8%AF%91%E3%80%91%E5%88%AB%E8%AE%A9%E4%BD%A0%E7%9A%84%E5%9B%A2%E9%98%9F%E6%8E%89%E5%85%A5Code-Review%E7%9A%84%E5%9D%91/">前文我们已经有过介绍</a>，降低团队效率的原因可能有很多，但通常是反馈的等待时间长和响应慢有关。如果再加上毫无意义的反馈交流，那么代码审查对于所有开发者都将是噩梦般的存在。但团队可以轻松规避这些问题。</p>
+<p>本文我主要向你介绍的是如何提出有价值的反馈。</p>
+<h3 id="微软的代码审查研究"><a href="#微软的代码审查研究" class="headerlink" title="微软的代码审查研究"></a>微软的代码审查研究</h3><p>在微软，我进行了<a href="https://www.michaelagreiler.com/publications/" target="_blank" rel="noopener">一项研究</a>来了解代码审查。在这其中一项，我们分析了超过200万条代码审阅批注，以了解哪些反馈是有价值的，哪些是在浪费时间。但我们要先从代码审查应该看什么来介绍。</p>
+<h3 id="代码审查时应该看些什么"><a href="#代码审查时应该看些什么" class="headerlink" title="代码审查时应该看些什么"></a>代码审查时应该看些什么</h3><p>我们假设你被要求来审查一些代码。代码的作者发给你了几个代码文件，并对代码修改的目的做了简单的描述。那么现在你要开始审查代码了，你应该关注什么？</p>
+<ul>
+<li>功能缺陷</li>
+<li>逻辑问题</li>
+<li>缺少验证（例如边界问题）</li>
+<li>API的用法</li>
+<li>设计模式</li>
+<li>架构问题</li>
+<li>可测性</li>
+<li>可读性</li>
+<li>安全问题</li>
+<li>命名约定</li>
+<li>团队编码规范</li>
+<li>文档</li>
+<li>使用最佳做法</li>
+<li>特定语言的问题</li>
+<li>使用过期方法的问题</li>
+<li>性能（比如复杂度）</li>
+<li>替代解决方案</li>
+</ul>
+<p>真多啊！为了系统的查找这些问题，最好使用代码审查清单，它可以帮助你快速检查这些问题，并确保不会遗漏。我会写一份完整的，更加详细的代码审查清单，记得订阅我，方便第一时间获取。</p>
+<p>现在，你看了所有的问题，你一定会问自己：哪些是最有价值的问题？</p>
+<h3 id="哪个反馈是最有价值的"><a href="#哪个反馈是最有价值的" class="headerlink" title="哪个反馈是最有价值的"></a>哪个反馈是最有价值的</h3><p>让我们来再次想象一下实际工作中你是如何开始一次代码审查的。</p>
+<p>也许你打开审查之后，会先浏览所有文件，然后调整自己。哪里发生了变化？代码的哪部分受到影响？修改的中心在哪？</p>
+<p>当你已经熟悉了这些修改以后，你就会注意一些问题了：注释和变量中的错别字，缺少注释，缩进等代码风格相关的问题，即使这些是要寻找的问题，也不要陷入这些问题中。实际上，这些问题是有价值的，但并不是我们最主要的目标。</p>
+<p>那么，还要看哪些问题呢？</p>
+<h3 id="有关缺陷、验证缺失和最佳实践的反馈是最有价值的"><a href="#有关缺陷、验证缺失和最佳实践的反馈是最有价值的" class="headerlink" title="有关缺陷、验证缺失和最佳实践的反馈是最有价值的"></a>有关缺陷、验证缺失和最佳实践的反馈是最有价值的</h3><p>最有价值的代码审查反馈都是关于代码中实际问题的。所有开发人员都将这种反馈视为最有用的类型。但我们发现，在研究中这种问题只占全部反馈的很小一部分。下图中，你可以看到代码审查过程中开发人员都在讨论哪些问题，以及对于作者而言他们认为哪些是有价值的。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1569508456/Blog/Other/code_review/code-review-feedback.jpg" alt="Types of code review feedback and its usefulness"></p>
+<p>最有价值的代码审查批注解决了以下问题：</p>
+<ul>
+<li><strong>功能缺陷</strong>。这看起来是轻而易举的，评分最高的代码审查反馈是发现系统中的功能缺陷。但代码审查并不是发现功能缺陷的主要手段，事实上只有一小部分批注是关于功能缺陷的。但是，如果找到一个，那么代码审查带来的收益就是巨大的。</li>
+<li><strong>验证缺失和极端案例</strong>。开发人员认为显示了被遗忘的方案、未涵盖的逻辑问题或极端情况的代码审查反馈是非常有价值的。这种反馈围绕寻找当前方案可能失败的情况和备用方案来展开。</li>
+<li><strong>最佳实践和代码约定</strong>。代码审查对于维护一致的、可维护和可理解的代码库非常有用。所以，那些指出代码中包含不符合代码规范和最佳实践的反馈是很有价值的。</li>
+<li><strong>API使用和设计模式</strong>。其他的有价值的反馈主要是关注API或第三方库使用是否正确，或者是缺少或错误的使用了设计模式。</li>
+</ul>
+<h3 id="代码审查反馈是一把双刃剑"><a href="#代码审查反馈是一把双刃剑" class="headerlink" title="代码审查反馈是一把双刃剑"></a>代码审查反馈是一把双刃剑</h3><p>我们讨论的一些问题并不像功能缺陷那样更容易显示价值。这些问题可能很有价值，但也有可能是在浪费所有人的时间。可能你已经猜到了，我们在讨论的是代码风格、代码规范和注释。这类问题通常被称为“挑剔问题”。</p>
+<p><strong>文档、编码风格和编码规范</strong>。处理丢失或过时的文档，突出注释中的错别字，或指出不好的命名是你经常收到的代码审查反馈。但它们真的有价值吗？</p>
+<p>有时代码审查者并不能马上看到反馈的价值。但是找出错别字也不是大的问题不是吗？这些批准真正的价值是随着时间流逝而带来的复合效应。快速解决此类问题可以保证代码库一直保持可维护性和可理解性。</p>
+<p>尽管如此，它们还是会被看作是“挑剔”的行为，并且这个词已经具有负面含义了。所以团队必须保证所有人都能理解这类反馈的价值所在。</p>
+<p>另一方面，避免对代码缩进和代码风格进行冗长而重复的讨论是非常重要的。这无疑会拖慢团队的生产效率。为了让团队保持生产力，让我们先制定一种代码风格，然后继续前进！</p>
+<h3 id="超出代码审查范围的反馈是无用的"><a href="#超出代码审查范围的反馈是无用的" class="headerlink" title="超出代码审查范围的反馈是无用的"></a>超出代码审查范围的反馈是无用的</h3><p>多数被认为是有价值的反馈都是关注当前范围代码审查。但是，代码审查的范围并不是代码更改文件中可见的代码，也不会超出代码修改的目的。因此，提出实施范围之外的问题对于大多数开发人员来说是无用的。</p>
+<ul>
+<li><em>替代解决方案</em>。即使替代解决方案被认为是有价值的，但是对当前代码没有明显价值的实现并不能帮助你的团队提升生产效率。</li>
+<li><em>现有技术债务和重构</em>。类似的，开始突显的旧的技术债务和潜在的重构机会超出了常规的代码审查范围。这些问题应该单独讨论。</li>
+<li><em>计划和未来的工作</em>。另一个没有用的反馈类型就是批注过于关注未来的工作或者不在当前开发周期的工作。如果你看到这些问题，用backlogs或issue tracker这样的工具记录下来，这样做对你的团队是有价值的。之后，在合适的时间可以拿出来讨论。</li>
+<li><em>提出问题只是为了了解实现</em>。即使代码审查是一种学习和分享知识的工具，但提出了解实现的问题并不是代码审查的目的。别忘了，代码审查是作者为了获得同意以便继续工作。</li>
+</ul>
+<h3 id="如果你不理解代码时应该做什么？"><a href="#如果你不理解代码时应该做什么？" class="headerlink" title="如果你不理解代码时应该做什么？"></a>如果你不理解代码时应该做什么？</h3><p>当你不理解代码时应该做什么呢？你怎么才能提出有价值的反馈？</p>
+<p>这是一个好问题，实际上，研究和经验告诉我们，如果你不理解代码，你无法提供有价值的反馈，至少能提供的不多。</p>
+<p>如果是这种情况，你最好先了解一些潜在问题。你为什么不能理解代码？因为你是团队的新成员？因为你缺乏经验？你以前没有使用过代码库？新编写的代码一团糟？</p>
+<p>如果是最后一个原因，那么你所有的问题都是有效的，应该作为代码审查的一部分。但是可能你添加的不仅仅是问题，也许会加一些关于如何改进代码，为什么难以理解代码的反馈等等。</p>
+<h3 id="如果你对代码不熟悉怎么办？"><a href="#如果你对代码不熟悉怎么办？" class="headerlink" title="如果你对代码不熟悉怎么办？"></a>如果你对代码不熟悉怎么办？</h3><p>如果你之前在工作中没有接触过代码库，你可能很难理解代码审查中的内容。一个好的方法是求助同事，请他/她为你解释一遍代码。这里重要的是不要在代码审查过程中随机询问有关代码库的问题。</p>
+<p>没错，学习和传播知识是代码审查的两个重要的好处。不过，这些都是代码审查的附加价值，真正的关注点应该在于检查代码是否正确以及是否高质量。</p>
+<p>除非明确告诉你通过这种方式来教你。否则你应该正常做代码审查，这比你只观察别人怎么做要好。慢慢的，你就能更好的理解代码，了解团队惯例和最佳实践，以及向代码审查添加有用的反馈。</p>
+<h3 id="缺乏经验的开发人员提出有价值的反馈较少"><a href="#缺乏经验的开发人员提出有价值的反馈较少" class="headerlink" title="缺乏经验的开发人员提出有价值的反馈较少"></a>缺乏经验的开发人员提出有价值的反馈较少</h3><p>不只是你，也不是初级开发者的错。这只是一个事实。我们的研究表明经验丰富的开发人员更能提出有价值的反馈。刚开始在组织内部工作的经验较少的开发人员，在前三个月很少能提出有价值的反馈。之后我们可以看到他们提出反馈的价值在一年内如何增加和稳定。</p>
+<h3 id="为了提出有价值的反馈，你必须熟悉代码"><a href="#为了提出有价值的反馈，你必须熟悉代码" class="headerlink" title="为了提出有价值的反馈，你必须熟悉代码"></a>为了提出有价值的反馈，你必须熟悉代码</h3><p>多项代码审查研究表明，有价值的反馈多数来自于曾经参与开发或审查对应代码的开发人员。好消息是，只要之前改过一次就足够了。也就是说在我们的研究中，一次修改代码的开发人员和修改了上百次代码的开发人员在审核时没有显著的区别。如下图所示。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1569515512/Blog/Other/code_review/useful-feedback-density.jpg" alt="Density of useful feedback vs. number of times a reviewer reviewed the file before"></p>
+<h3 id="领域专家可以提高你的代码审查价值"><a href="#领域专家可以提高你的代码审查价值" class="headerlink" title="领域专家可以提高你的代码审查价值"></a>领域专家可以提高你的代码审查价值</h3><p>来自其他团队或者是跨团队的领域专家作为审阅者会对你的代码审查更有价值。你可以选择增加安全专家、大数据专家或可用性专家，即使他们并不像你的团队那样熟悉你们的代码。</p>
+<p>这样做的好处是给代码审查带来了特别的经验和外部的视角。他们进行代码审查的目的也不同。他们可能不会去寻找最佳实践和团队规范，而是检查代码中你需要他们检查的真正存在的问题。</p>
+<h3 id="像对待自己一样对待别人"><a href="#像对待自己一样对待别人" class="headerlink" title="像对待自己一样对待别人"></a>像对待自己一样对待别人</h3><p>代码审查是很社会化的活动，在致力于积极打造反馈文化的团队中，它被高度赞赏和高价值的工程实践。不幸的是，并不是任何地方都是这样。在一些团队中，代码审查被滥用为权利展示甚至权利争斗的工具。这样的代码审查没有任何帮助。</p>
+<p>如果你想要从代码审查中受益，了解如何提出建设性反馈是非常明智的选择。指出一些代码的质量不够高。如果你批判同事的代码，请务必始终以尊重的方式进行，并一直提出改进建议。</p>
+<p>另一方面，也不需要在代码审查过程中加入过多的赞美之词。在微软的代码审查研究中我们发现，作者不太在意对他们代码的称赞。</p>
+<p>为什么会这样？我们要再次提到代码审查的目标。通常每个批注都是一个小的工作项。即使是赞美，有太多也不会增加价值。它只会加剧处理批注的工作量。</p>
+<p>指出良好的工作对于团队合作精神是必不可少的，并且是一个很好的团队合作的动力。但是这最好是在其他场合提出，比如会议上或者是咖啡时间。</p>
+<h3 id="外部情况影响反馈的价值"><a href="#外部情况影响反馈的价值" class="headerlink" title="外部情况影响反馈的价值"></a>外部情况影响反馈的价值</h3><p>还有几件事会影响你在代码审查过程中获得的价值。在研究中我们发现开发人员很难查看非代码的文件，比如配置文件或者编译文件。换句话说，开发人员会针对源码提供更有价值的反馈。</p>
+<p>影响代码反馈质量的另一个因素是审查文件的数量。需要审查的文件数越多，你收到反馈的质量就越低。保持审核的小巧有很多好处，并且是最有价值的代码审查最佳实践之一。</p>
+<p>总而言之，有价值的反馈是针对代码审查目标的反馈：检查当前代码更改是否正确以及是否高质量。不利于实现此目标的讨论应该在代码审查过程之外讨论。因为好的代码审查反馈也是及时提出的反馈，它会帮助作者更快通过审核。</p>
 
       
     </div>
@@ -446,7 +509,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/整洁/" rel="tag"><i class="fa fa-tag"></i> 整洁</a>
+            <a href="/tags/Code-Review/" rel="tag"><i class="fa fa-tag"></i> Code Review</a>
           
         </div>
       
@@ -459,8 +522,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/08/27/代码洁癖系列（二）：命名的艺术/" rel="next" title="代码洁癖系列（二）：命名的艺术">
-                <i class="fa fa-chevron-left"></i> 代码洁癖系列（二）：命名的艺术
+              <a href="/2019/09/21/Rust入坑指南：坑主驾到/" rel="next" title="Rust入坑指南：坑主驾到">
+                <i class="fa fa-chevron-left"></i> Rust入坑指南：坑主驾到
               </a>
             
           </div>
@@ -468,10 +531,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/08/30/代码洁癖系列（四）：可忽略的注释/" rel="prev" title="代码洁癖系列（四）：可忽略的注释">
-                代码洁癖系列（四）：可忽略的注释 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -632,7 +691,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#短小"><span class="nav-number">1.</span> <span class="nav-text">短小</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#只做一件事"><span class="nav-number">2.</span> <span class="nav-text">只做一件事</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#命名"><span class="nav-number">3.</span> <span class="nav-text">命名</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#函数参数"><span class="nav-number">4.</span> <span class="nav-text">函数参数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用异常代替返回错误码"><span class="nav-number">5.</span> <span class="nav-text">使用异常代替返回错误码</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#还是短小"><span class="nav-number">6.</span> <span class="nav-text">还是短小</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#为了修改而组织"><span class="nav-number">7.</span> <span class="nav-text">为了修改而组织</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#代码审查检查的是关于代码的问题和质量"><span class="nav-number">1.</span> <span class="nav-text">代码审查检查的是关于代码的问题和质量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#微软的代码审查研究"><span class="nav-number">2.</span> <span class="nav-text">微软的代码审查研究</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代码审查时应该看些什么"><span class="nav-number">3.</span> <span class="nav-text">代码审查时应该看些什么</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#哪个反馈是最有价值的"><span class="nav-number">4.</span> <span class="nav-text">哪个反馈是最有价值的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#有关缺陷、验证缺失和最佳实践的反馈是最有价值的"><span class="nav-number">5.</span> <span class="nav-text">有关缺陷、验证缺失和最佳实践的反馈是最有价值的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代码审查反馈是一把双刃剑"><span class="nav-number">6.</span> <span class="nav-text">代码审查反馈是一把双刃剑</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#超出代码审查范围的反馈是无用的"><span class="nav-number">7.</span> <span class="nav-text">超出代码审查范围的反馈是无用的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如果你不理解代码时应该做什么？"><span class="nav-number">8.</span> <span class="nav-text">如果你不理解代码时应该做什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如果你对代码不熟悉怎么办？"><span class="nav-number">9.</span> <span class="nav-text">如果你对代码不熟悉怎么办？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#缺乏经验的开发人员提出有价值的反馈较少"><span class="nav-number">10.</span> <span class="nav-text">缺乏经验的开发人员提出有价值的反馈较少</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#为了提出有价值的反馈，你必须熟悉代码"><span class="nav-number">11.</span> <span class="nav-text">为了提出有价值的反馈，你必须熟悉代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#领域专家可以提高你的代码审查价值"><span class="nav-number">12.</span> <span class="nav-text">领域专家可以提高你的代码审查价值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#像对待自己一样对待别人"><span class="nav-number">13.</span> <span class="nav-text">像对待自己一样对待别人</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#外部情况影响反馈的价值"><span class="nav-number">14.</span> <span class="nav-text">外部情况影响反馈的价值</span></a></li></ol></div>
             
 
           </div>
