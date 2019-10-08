@@ -90,7 +90,7 @@
 <meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1569258203/Blog/Other/code_review/great-code-review-feedback.jpg">
 <meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1569508456/Blog/Other/code_review/code-review-feedback.jpg">
 <meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1569515512/Blog/Other/code_review/useful-feedback-density.jpg">
-<meta property="og:updated_time" content="2019-09-28T14:36:51.192Z">
+<meta property="og:updated_time" content="2019-09-28T15:09:47.372Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【译】如何提出好的Code Review反馈">
 <meta name="twitter:description" content="没错，Code Review系列还在继续，今天我们一起来聊一聊如何提出好的Code Review反馈。">
@@ -440,6 +440,7 @@
 <h3 id="外部情况影响反馈的价值"><a href="#外部情况影响反馈的价值" class="headerlink" title="外部情况影响反馈的价值"></a>外部情况影响反馈的价值</h3><p>还有几件事会影响你在代码审查过程中获得的价值。在研究中我们发现开发人员很难查看非代码的文件，比如配置文件或者编译文件。换句话说，开发人员会针对源码提供更有价值的反馈。</p>
 <p>影响代码反馈质量的另一个因素是审查文件的数量。需要审查的文件数越多，你收到反馈的质量就越低。保持审核的小巧有很多好处，并且是最有价值的代码审查最佳实践之一。</p>
 <p>总而言之，有价值的反馈是针对代码审查目标的反馈：检查当前代码更改是否正确以及是否高质量。不利于实现此目标的讨论应该在代码审查过程之外讨论。因为好的代码审查反馈也是及时提出的反馈，它会帮助作者更快通过审核。</p>
+<h3 id="原文链接"><a href="#原文链接" class="headerlink" title="原文链接"></a>原文链接</h3><p><a href="https://www.michaelagreiler.com/great-code-review-feedback/" target="_blank" rel="noopener">https://www.michaelagreiler.com/great-code-review-feedback/</a></p>
 
       
     </div>
@@ -532,6 +533,10 @@
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/2019/10/08/Rust入坑指南：常规套路/" rel="prev" title="Rust入坑指南：常规套路">
+                Rust入坑指南：常规套路 <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -617,7 +622,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">60</span>
+                  <span class="site-state-item-count">61</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -691,7 +696,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#代码审查检查的是关于代码的问题和质量"><span class="nav-number">1.</span> <span class="nav-text">代码审查检查的是关于代码的问题和质量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#微软的代码审查研究"><span class="nav-number">2.</span> <span class="nav-text">微软的代码审查研究</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代码审查时应该看些什么"><span class="nav-number">3.</span> <span class="nav-text">代码审查时应该看些什么</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#哪个反馈是最有价值的"><span class="nav-number">4.</span> <span class="nav-text">哪个反馈是最有价值的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#有关缺陷、验证缺失和最佳实践的反馈是最有价值的"><span class="nav-number">5.</span> <span class="nav-text">有关缺陷、验证缺失和最佳实践的反馈是最有价值的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代码审查反馈是一把双刃剑"><span class="nav-number">6.</span> <span class="nav-text">代码审查反馈是一把双刃剑</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#超出代码审查范围的反馈是无用的"><span class="nav-number">7.</span> <span class="nav-text">超出代码审查范围的反馈是无用的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如果你不理解代码时应该做什么？"><span class="nav-number">8.</span> <span class="nav-text">如果你不理解代码时应该做什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如果你对代码不熟悉怎么办？"><span class="nav-number">9.</span> <span class="nav-text">如果你对代码不熟悉怎么办？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#缺乏经验的开发人员提出有价值的反馈较少"><span class="nav-number">10.</span> <span class="nav-text">缺乏经验的开发人员提出有价值的反馈较少</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#为了提出有价值的反馈，你必须熟悉代码"><span class="nav-number">11.</span> <span class="nav-text">为了提出有价值的反馈，你必须熟悉代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#领域专家可以提高你的代码审查价值"><span class="nav-number">12.</span> <span class="nav-text">领域专家可以提高你的代码审查价值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#像对待自己一样对待别人"><span class="nav-number">13.</span> <span class="nav-text">像对待自己一样对待别人</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#外部情况影响反馈的价值"><span class="nav-number">14.</span> <span class="nav-text">外部情况影响反馈的价值</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#代码审查检查的是关于代码的问题和质量"><span class="nav-number">1.</span> <span class="nav-text">代码审查检查的是关于代码的问题和质量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#微软的代码审查研究"><span class="nav-number">2.</span> <span class="nav-text">微软的代码审查研究</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代码审查时应该看些什么"><span class="nav-number">3.</span> <span class="nav-text">代码审查时应该看些什么</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#哪个反馈是最有价值的"><span class="nav-number">4.</span> <span class="nav-text">哪个反馈是最有价值的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#有关缺陷、验证缺失和最佳实践的反馈是最有价值的"><span class="nav-number">5.</span> <span class="nav-text">有关缺陷、验证缺失和最佳实践的反馈是最有价值的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代码审查反馈是一把双刃剑"><span class="nav-number">6.</span> <span class="nav-text">代码审查反馈是一把双刃剑</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#超出代码审查范围的反馈是无用的"><span class="nav-number">7.</span> <span class="nav-text">超出代码审查范围的反馈是无用的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如果你不理解代码时应该做什么？"><span class="nav-number">8.</span> <span class="nav-text">如果你不理解代码时应该做什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如果你对代码不熟悉怎么办？"><span class="nav-number">9.</span> <span class="nav-text">如果你对代码不熟悉怎么办？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#缺乏经验的开发人员提出有价值的反馈较少"><span class="nav-number">10.</span> <span class="nav-text">缺乏经验的开发人员提出有价值的反馈较少</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#为了提出有价值的反馈，你必须熟悉代码"><span class="nav-number">11.</span> <span class="nav-text">为了提出有价值的反馈，你必须熟悉代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#领域专家可以提高你的代码审查价值"><span class="nav-number">12.</span> <span class="nav-text">领域专家可以提高你的代码审查价值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#像对待自己一样对待别人"><span class="nav-number">13.</span> <span class="nav-text">像对待自己一样对待别人</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#外部情况影响反馈的价值"><span class="nav-number">14.</span> <span class="nav-text">外部情况影响反馈的价值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#原文链接"><span class="nav-number">15.</span> <span class="nav-text">原文链接</span></a></li></ol></div>
             
 
           </div>
