@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Redis命令," />
+  <meta name="keywords" content="Code Review," />
 
 
 
@@ -79,18 +79,21 @@
 
 
 
-<meta name="description" content="Redis的Set结构相当于Java中的HashSet，是无序的元素集合，并且元素都是唯一的。由于Set是通过hash表实现的，所以它的增加、删除、查找操作的时间复杂度都是O(1)。最大成员个数为232-1。">
-<meta name="keywords" content="Redis命令">
+<meta name="description" content="快来领取这份代码审查问题手册！">
+<meta name="keywords" content="Code Review">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Redis命令详解：Sets">
-<meta property="og:url" content="https://jackeyzhe.github.io/2018/12/19/Redis命令详解：Sets/index.html">
+<meta property="og:title" content="【译】送给你的代码审查问题手册">
+<meta property="og:url" content="https://jackeyzhe.github.io/2019/10/15/【译】送给你的代码审查问题手册/index.html">
 <meta property="og:site_name" content="Jackeyzhe">
-<meta property="og:description" content="Redis的Set结构相当于Java中的HashSet，是无序的元素集合，并且元素都是唯一的。由于Set是通过hash表实现的，所以它的增加、删除、查找操作的时间复杂度都是O(1)。最大成员个数为232-1。">
+<meta property="og:description" content="快来领取这份代码审查问题手册！">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-01-06T11:42:42.263Z">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1569859706/Blog/Other/code_review/Code-Review-Checklist.jpg">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1569859715/Blog/Other/code_review/Code_Review_Checklist_Greiler.png">
+<meta property="og:updated_time" content="2019-10-15T14:38:17.774Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Redis命令详解：Sets">
-<meta name="twitter:description" content="Redis的Set结构相当于Java中的HashSet，是无序的元素集合，并且元素都是唯一的。由于Set是通过hash表实现的，所以它的增加、删除、查找操作的时间复杂度都是O(1)。最大成员个数为232-1。">
+<meta name="twitter:title" content="【译】送给你的代码审查问题手册">
+<meta name="twitter:description" content="快来领取这份代码审查问题手册！">
+<meta name="twitter:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1569859706/Blog/Other/code_review/Code-Review-Checklist.jpg">
 
 
 
@@ -120,13 +123,13 @@
 
 
 
-  <link rel="canonical" href="https://jackeyzhe.github.io/2018/12/19/Redis命令详解：Sets/"/>
+  <link rel="canonical" href="https://jackeyzhe.github.io/2019/10/15/【译】送给你的代码审查问题手册/"/>
 
 
 
 
 
-  <title>Redis命令详解：Sets | Jackeyzhe</title>
+  <title>【译】送给你的代码审查问题手册 | Jackeyzhe</title>
   
 
 
@@ -288,7 +291,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2018/12/19/Redis命令详解：Sets/">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2019/10/15/【译】送给你的代码审查问题手册/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Jackey Wang">
@@ -305,7 +308,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Redis命令详解：Sets</h1>
+          <h1 class="post-title" itemprop="name headline">【译】送给你的代码审查问题手册</h1>
         
 
         <div class="post-meta">
@@ -317,8 +320,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-19T23:47:02+08:00">
-                2018-12-19
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-15T22:32:48+08:00">
+                2019-10-15
               </time>
             
 
@@ -360,64 +363,98 @@
       
 
       
-        <p>Redis的Set结构相当于Java中的HashSet，是无序的元素集合，并且元素都是唯一的。由于Set是通过hash表实现的，所以它的增加、删除、查找操作的时间复杂度都是O(1)。最大成员个数为2<sup>32</sup>-1。<a id="more"></a></p>
-<h4 id="SADD"><a href="#SADD" class="headerlink" title="SADD"></a>SADD</h4><p>最早可用版本：1.0.0</p>
-<p>时间复杂度：每个元素的添加的时间复杂度为O(1)，如果要添加N个，时间复杂度就为O(N)</p>
-<p>用法：SADD key member [member…]</p>
-<p>将指定的成员保存到key，如果成员已经存在，则直接忽略。如果key不存在，则先新建一个空set，再将成员添加进去。如果key存储不是一个set，则会报错。该命令执行成功后会返回实际添加成功的元素的个数。</p>
-<p>在2.4版本之后可以支持多个参数，即一个命令添加多个成员。</p>
-<h4 id="SCARD"><a href="#SCARD" class="headerlink" title="SCARD"></a>SCARD</h4><p>最早可用版本：1.0.0</p>
-<p>时间复杂度：O(1)</p>
-<p>返回key存储的set的元素个数。</p>
-<h4 id="SDIFF"><a href="#SDIFF" class="headerlink" title="SDIFF"></a>SDIFF</h4><p>最早可用版本：1.0.0</p>
-<p>时间复杂度：O(N)，N是所给出的元素个数的总和</p>
-<p>返回第一个set与后面元素的差集。不存在的key都被当做空set处理。</p>
-<p>栗子时间：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; SADD key1 a</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SADD key1 b</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SADD key1 c</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SADD key2 b</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SADD key3 c</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SADD key3 d</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SDIFF key1 key2 key3</span><br><span class="line">1) <span class="string">"a"</span></span><br></pre></td></tr></table></figure>
-<h4 id="SDIFFSTORE"><a href="#SDIFFSTORE" class="headerlink" title="SDIFFSTORE"></a>SDIFFSTORE</h4><p>最早可用版本：1.0.0</p>
-<p>时间复杂度：O(N)，N是所给出的元素个数的总和</p>
-<p>用法：SDIFFSTORE destination key [key…]</p>
-<p>这个命令和SDIFF命令的作用相同，但是不同的是，该命令不返回差集，而是将差集存储到destination，如果destination已经存在，就将覆盖旧值。该命令的返回值是差集中元素的个数。</p>
-<h4 id="SINTER"><a href="#SINTER" class="headerlink" title="SINTER"></a>SINTER</h4><p>最早可用版本：1.0.0</p>
-<p>时间复杂度：O(N*M)，N是最小set的元素个数，M是set的个数</p>
-<p>返回给出的所有set的交集。我们沿用刚刚SDIFF命令中使用的三个key，给key2增加一个元素c，此时三个key存储的元素情况为</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">key1=&#123;a,b,c&#125;</span><br><span class="line">key2=&#123;b,c&#125;</span><br><span class="line">key3=&#123;c,d&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; SADD key2 c</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SINTER key1 key2 key3</span><br><span class="line">1) <span class="string">"c"</span></span><br></pre></td></tr></table></figure>
-<h4 id="SINTERSTORE"><a href="#SINTERSTORE" class="headerlink" title="SINTERSTORE"></a>SINTERSTORE</h4><p>最早可用版本：1.0.0</p>
-<p>时间复杂度：O(N*M)，N是最小set的元素个数，M是set的个数</p>
-<p>该命令与SINTER的关系就像SDIFF与SDIFFSTORE的关系一样，因此我们不过多介绍了。</p>
-<h4 id="SISMEMBER"><a href="#SISMEMBER" class="headerlink" title="SISMEMBER"></a>SISMEMBER</h4><p>最早可用版本：1.0.0</p>
-<p>时间复杂度：O(1)</p>
-<p>该命令用于判断某个元素是否属于指定的key，如果属于，返回1；如果不属于或者key不存在，返回0。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; SADD myset <span class="string">"jackeyzhe"</span></span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SISMEMBER myset <span class="string">"jackeyzhe"</span></span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SISMEMBER myset <span class="string">"2018"</span></span><br><span class="line">(<span class="built_in">integer</span>) 0</span><br></pre></td></tr></table></figure>
-<h4 id="SMEMBERS"><a href="#SMEMBERS" class="headerlink" title="SMEMBERS"></a>SMEMBERS</h4><p>最早可用版本：1.0.0</p>
-<p>时间复杂度：O(N)，N是set的元素个数</p>
-<p>返回指定set的全部成员，当SINTER只有一个参数时，作用与该命令相同。</p>
-<h4 id="SMOVE"><a href="#SMOVE" class="headerlink" title="SMOVE"></a>SMOVE</h4><p>最早可用版本：1.0.0</p>
-<p>时间复杂度：O(1)</p>
-<p>将成员从一个set转移到另一个set中，这个操作是原子操作。如果源set不存在，或者不包含要转移的成员，那么就不会有任何操作，直接返回0。如果转移的成员在目标set中已经存在，那么只需要将该成员从源set中删除即可。如果源set或者目标set中的一个不是set结构，那么该命令就会报错。</p>
-<p>如果成员被成功转移，就会返回1，如果没有进行转移操作，就会返回0。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; SADD from_set <span class="string">"a"</span></span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SADD from_set <span class="string">"b"</span></span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SMOVE from_set to_set <span class="string">"a"</span></span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SMEMBERS from_set</span><br><span class="line">1) <span class="string">"b"</span></span><br><span class="line">127.0.0.1:6379&gt; SMEMBERS to_set</span><br><span class="line">1) <span class="string">"a"</span></span><br></pre></td></tr></table></figure>
-<h4 id="SPOP"><a href="#SPOP" class="headerlink" title="SPOP"></a>SPOP</h4><p>最早可用版本：1.0.0</p>
-<p>时间复杂度：O(1)</p>
-<p>用法：SPOP key [count]</p>
-<p>从指定set中删除并返回一个或多个随机元素。3.2版本以后支持count参数，即可以一次返回多个元素。如果key不存在，则返回nil。</p>
-<p>如果count大于set中元素的个数，那么该命令就会返回set中现有的所有元素。</p>
-<h4 id="SRANDMEMBER"><a href="#SRANDMEMBER" class="headerlink" title="SRANDMEMBER"></a>SRANDMEMBER</h4><p>最早可用版本：1.0.0</p>
-<p>时间复杂度：当没有count参数时是O(1)，否则为O(N)，N为count的绝对值</p>
-<p>该命令用于随机返回set中的元素。从2.6版本开始支持count参数，如果count是正数，则返回count个不同元素的数组；如果count是负数，则允许同一个元素多次返回。</p>
-<h4 id="SREM"><a href="#SREM" class="headerlink" title="SREM"></a>SREM</h4><p>最早可用版本：1.0.0</p>
-<p>时间复杂度：O(N)，N为指定member的个数</p>
-<p>该命令用于从set中删除指定元素，如果不包含该元素，那么直接忽略。如果key不存在，则会当做空set处理，直接返回0。从2.4版本开始，该命令支持一次删除多个成员。</p>
-<h4 id="SSCAN"><a href="#SSCAN" class="headerlink" title="SSCAN"></a>SSCAN</h4><p>此命令是SCAN命令的同类，可以通过我的另一篇文章<a href="https://jackeyzhe.github.io/2018/09/26/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Redis%E7%9A%84scan%E5%91%BD%E4%BB%A4/">深入理解Redis的scan命令</a>来进行更深入的了解</p>
-<h4 id="SUNION"><a href="#SUNION" class="headerlink" title="SUNION"></a>SUNION</h4><p>最早可用版本：1.0.0</p>
-<p>时间复杂度：O(N)，N为给出的所有set的元素个数之和</p>
-<p>返回给定set的并集。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; SMEMBERS key2</span><br><span class="line">1) <span class="string">"b"</span></span><br><span class="line">2) <span class="string">"c"</span></span><br><span class="line">127.0.0.1:6379&gt; SMEMBERS key3</span><br><span class="line">1) <span class="string">"d"</span></span><br><span class="line">2) <span class="string">"c"</span></span><br><span class="line">127.0.0.1:6379&gt; SUNION key2 key3</span><br><span class="line">1) <span class="string">"d"</span></span><br><span class="line">2) <span class="string">"b"</span></span><br><span class="line">3) <span class="string">"c"</span></span><br></pre></td></tr></table></figure>
-<h4 id="SUNIONSTORE"><a href="#SUNIONSTORE" class="headerlink" title="SUNIONSTORE"></a>SUNIONSTORE</h4><p>最早可用版本：1.0.0</p>
-<p>时间复杂度：O(N)，N为给出的所有set的元素个数之和</p>
-<p>该命令与SUNION的关系就像SDIFF与SDIFFSTORE的关系一样。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; SUNIONSTORE mykey key2 key3</span><br><span class="line">(<span class="built_in">integer</span>) 3</span><br><span class="line">127.0.0.1:6379&gt; SMEMBERS mykey</span><br><span class="line">1) <span class="string">"d"</span></span><br><span class="line">2) <span class="string">"b"</span></span><br><span class="line">3) <span class="string">"c"</span></span><br></pre></td></tr></table></figure>
+        <p>快来领取这份代码审查问题手册！<a id="more"></a></p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1569859706/Blog/Other/code_review/Code-Review-Checklist.jpg" alt="code review checklist"></p>
+<p>代码审查列表，是代码审查的明确规则和指导手册，它可以使代码审查为你的团队带来更多好处，并且能够显著提升代码审查的速度。</p>
+<p>研究表明，使用代码审查列表的审阅者的表现要优于不使用的审阅者。所以不管你是新手开发者还是经验丰富的开发者，开始考虑使用代码审查列表吧。</p>
+<h3 id="代码作者应该关注的列表"><a href="#代码作者应该关注的列表" class="headerlink" title="代码作者应该关注的列表"></a>代码作者应该关注的列表</h3><p>作为代码的作者，你应该保证：</p>
+<ul>
+<li>代码编译成功并且通过静态检查（没有警告）</li>
+<li>代码通过所有的测试（单元测试、集成测试和系统测试）</li>
+<li>你已经仔细检查了拼写错误，并做了处理（注释、todo等）</li>
+<li>概述代码修改的原因以及修改了哪些地方</li>
+</ul>
+<p>除此之外，作为代码作者，也应该在提交审查之前，按照审查者的列表对自己的代码进行审查。</p>
+<h3 id="代码审查者应该关注的列表"><a href="#代码审查者应该关注的列表" class="headerlink" title="代码审查者应该关注的列表"></a>代码审查者应该关注的列表</h3><p>作为代码审查者，你的任务是寻找最重要的问题。评论会要对代码的结构性或逻辑性问题更有价值，即使有时候会显得挑剔。</p>
+<p>你应该知道什么是<a href="[https://jackeyzhe.github.io/2019/09/22/%E3%80%90%E8%AF%91%E3%80%91%E5%A6%82%E4%BD%95%E6%8F%90%E5%87%BA%E5%A5%BD%E7%9A%84Code-Review%E5%8F%8D%E9%A6%88/](https://jackeyzhe.github.io/2019/09/22/[译]如何提出好的Code-Review反馈/">好的代码反馈</a>)。另外需要注意，最好的代码审查反馈不是点评，而是建议。所以不要说“变量名称应该是removeObject“，最好说”调用变量removeObject怎么样？“。</p>
+<p>下面这份列表足够帮助你提出好的代码审查反馈了。</p>
+<h4 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h4><ul>
+<li>此代码更改会执行它应该做的事情吗？</li>
+<li>这种解决方法是最简单的吗？</li>
+<li>这个更改有引入一些不需要的编译时或运行时的依赖吗？</li>
+<li>是否使用了不应该使用的框架、API、库、服务？</li>
+<li>是否存在可以提升解决方法的未使用的框架、API、库、服务？</li>
+<li>代码是否处于正确的抽象级别？</li>
+<li>代码是否的模块化做的是否足够好？</li>
+<li>你是否有其他的解决方案，该方案在代码可维护性、可读性、性能、安全方面表现更好？</li>
+<li>是否已经存在类似功能的函数？如果有，为什么不复用？</li>
+<li>是否有最佳实践、设计模式或特定语言模式可以优化代码？</li>
+<li>代码是否遵循面向对象的分析和设计原则，例如单一责任原则，开闭原则，里氏替换原则，接口隔离，依赖注入？</li>
+</ul>
+<h4 id="逻辑错误或Bug"><a href="#逻辑错误或Bug" class="headerlink" title="逻辑错误或Bug"></a>逻辑错误或Bug</h4><ul>
+<li>你能想到代码不按预期运行的任何用例吗？</li>
+<li>你能想到任何可能破坏代码的输入或外部事件吗？</li>
+</ul>
+<h4 id="错误处理和日志"><a href="#错误处理和日志" class="headerlink" title="错误处理和日志"></a>错误处理和日志</h4><ul>
+<li>错误都被正确处理了吗？</li>
+<li>是否有需要增加或删除的日志/debug信息？</li>
+<li>错误消息对用户是否友好？</li>
+<li>是否有足够的日志，它们的编写方式是否是易于调试的？</li>
+</ul>
+<h4 id="可用性和可访问性"><a href="#可用性和可访问性" class="headerlink" title="可用性和可访问性"></a>可用性和可访问性</h4><ul>
+<li>从可用性角度出发，所提出的解决方案是否设计合理？</li>
+<li>API文档是否足够好？</li>
+<li>提出的解决方案是否具备可访问性？</li>
+<li>API/UI是否直观易用？</li>
+</ul>
+<h4 id="测试与可测试性"><a href="#测试与可测试性" class="headerlink" title="测试与可测试性"></a>测试与可测试性</h4><ul>
+<li>代码是否达到可测试标准？</li>
+<li>是否有足够的自动化测试（单元测试/集成测试/系统测试）？</li>
+<li>现有测试是否合理覆盖代码变更？</li>
+<li>是否有额外的测试用例、输入或边界用例以供测试？</li>
+</ul>
+<h4 id="依赖"><a href="#依赖" class="headerlink" title="依赖"></a>依赖</h4><ul>
+<li>如果这个修改需要更新代码以外的文件，例如更新文档，配置，readme文件。是否完成了这些更新？</li>
+<li>这个修改是否会对系统其他地方造成影响？是否能后向后兼容？</li>
+</ul>
+<h4 id="安全和隐私数据"><a href="#安全和隐私数据" class="headerlink" title="安全和隐私数据"></a>安全和隐私数据</h4><ul>
+<li>这段代码是否打开软件的安全漏洞？</li>
+<li>权限和身份验证是否被正确处理？</li>
+<li>是否安全处理了敏感数据，例如用户数据、信用卡信息等？是否正确使用加密方法？</li>
+<li>代码更改是否显露了一些私密信息（如迷药，用户名等）？</li>
+<li>如果代码处理用户输入，是否解决了跨站点脚本，SQL注入等安全漏洞，是否进行了输入清洗和验证？</li>
+<li>从外部API或库中获得的数据是否进行了相应的检查？</li>
+</ul>
+<h4 id="性能"><a href="#性能" class="headerlink" title="性能"></a>性能</h4><ul>
+<li>这段代码修改是否会对系统性能产生负面影响？</li>
+<li>是否可以进一步提升代码性能？</li>
+</ul>
+<h4 id="可读性"><a href="#可读性" class="headerlink" title="可读性"></a>可读性</h4><ul>
+<li>代码是否容易理解？</li>
+<li>哪一部分使你困惑，为什么？</li>
+<li>可以通过减小方法来提高代码可读性吗？</li>
+<li>可以通过使用不同的函数/方法或变量名称来提升代码可读性吗？</li>
+<li>代码是否存放在正确的文件/目录/包？</li>
+<li>你是否认为方法应该重构以拥有更直观的控制流程？</li>
+<li>数据流是否可理解？</li>
+<li>是否有多余的注释？</li>
+<li>某些注释是否可以更好的传达信息？</li>
+<li>是否更多的注释会使你的代码更容易理解？</li>
+<li>是否可以移除一些注释，通过提升代码可读性来理解代码？</li>
+<li>是否存在注释掉的代码？</li>
+</ul>
+<h4 id="专家意见"><a href="#专家意见" class="headerlink" title="专家意见"></a>专家意见</h4><ul>
+<li>你是否认为特定专家（如安全专家或可用性专家）应该先检查代码，然后再提交代码？</li>
+<li>这个代码修改会影响其他团队吗？他们也应该发表意见吗？</li>
+</ul>
+<p>好了，以上就是最为紧迫的一些问题列表。</p>
+<h4 id="代码风格和约定"><a href="#代码风格和约定" class="headerlink" title="代码风格和约定"></a>代码风格和约定</h4><p>您的团队或公司必须拥有清晰的编码风格指南，这一点很重要。因为这是在代码库中实施唯一性的唯一方法。并且一致性会使代码审查更快，使人们可以轻松地更改项目，并保持您代码的可读性和可维护性。</p>
+<p>Google是做到这一点的很好的例子，无疑，这使Google可以进行快速的代码审查。</p>
+<p>首先，我建议使用现成的编码样式来支持Google提供的多种语言。设定基本规则很重要，但要确保一劳永逸。不要持续争论。</p>
+<h4 id="尽可能自动化"><a href="#尽可能自动化" class="headerlink" title="尽可能自动化"></a>尽可能自动化</h4><p>确定了代码风格以后，请花一些时间正确安装和配置工具，以便一键格式化代码。</p>
+<p>另外还有很多事情可以做。例如使用静态检查来代替部分人工审核。这是值得为之努力的。</p>
+<h3 id="完整问题列表"><a href="#完整问题列表" class="headerlink" title="完整问题列表"></a>完整问题列表</h3><p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1569859715/Blog/Other/code_review/Code_Review_Checklist_Greiler.png" alt="checklist"></p>
+<h3 id="原文链接"><a href="#原文链接" class="headerlink" title="原文链接"></a>原文链接</h3><p> <a href="https://www.michaelagreiler.com/code-review-checklist/" target="_blank" rel="noopener">https://www.michaelagreiler.com/code-review-checklist/</a> </p>
 
       
     </div>
@@ -487,7 +524,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Redis命令/" rel="tag"><i class="fa fa-tag"></i> Redis命令</a>
+            <a href="/tags/Code-Review/" rel="tag"><i class="fa fa-tag"></i> Code Review</a>
           
         </div>
       
@@ -500,8 +537,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/11/27/玩转Redis集群之Cluster/" rel="next" title="玩转Redis集群之Cluster">
-                <i class="fa fa-chevron-left"></i> 玩转Redis集群之Cluster
+              <a href="/2019/10/13/Elasticsearch从入门到放弃：索引基本使用方法/" rel="next" title="Elasticsearch从入门到放弃：索引基本使用方法">
+                <i class="fa fa-chevron-left"></i> Elasticsearch从入门到放弃：索引基本使用方法
               </a>
             
           </div>
@@ -509,10 +546,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/01/01/2018年终/" rel="prev" title="2018年终">
-                2018年终 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -673,7 +706,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#SADD"><span class="nav-number">1.</span> <span class="nav-text">SADD</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SCARD"><span class="nav-number">2.</span> <span class="nav-text">SCARD</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SDIFF"><span class="nav-number">3.</span> <span class="nav-text">SDIFF</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SDIFFSTORE"><span class="nav-number">4.</span> <span class="nav-text">SDIFFSTORE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SINTER"><span class="nav-number">5.</span> <span class="nav-text">SINTER</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SINTERSTORE"><span class="nav-number">6.</span> <span class="nav-text">SINTERSTORE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SISMEMBER"><span class="nav-number">7.</span> <span class="nav-text">SISMEMBER</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SMEMBERS"><span class="nav-number">8.</span> <span class="nav-text">SMEMBERS</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SMOVE"><span class="nav-number">9.</span> <span class="nav-text">SMOVE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SPOP"><span class="nav-number">10.</span> <span class="nav-text">SPOP</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SRANDMEMBER"><span class="nav-number">11.</span> <span class="nav-text">SRANDMEMBER</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SREM"><span class="nav-number">12.</span> <span class="nav-text">SREM</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SSCAN"><span class="nav-number">13.</span> <span class="nav-text">SSCAN</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SUNION"><span class="nav-number">14.</span> <span class="nav-text">SUNION</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SUNIONSTORE"><span class="nav-number">15.</span> <span class="nav-text">SUNIONSTORE</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#代码作者应该关注的列表"><span class="nav-number">1.</span> <span class="nav-text">代码作者应该关注的列表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代码审查者应该关注的列表"><span class="nav-number">2.</span> <span class="nav-text">代码审查者应该关注的列表</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#实现"><span class="nav-number">2.1.</span> <span class="nav-text">实现</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#逻辑错误或Bug"><span class="nav-number">2.2.</span> <span class="nav-text">逻辑错误或Bug</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#错误处理和日志"><span class="nav-number">2.3.</span> <span class="nav-text">错误处理和日志</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#可用性和可访问性"><span class="nav-number">2.4.</span> <span class="nav-text">可用性和可访问性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#测试与可测试性"><span class="nav-number">2.5.</span> <span class="nav-text">测试与可测试性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#依赖"><span class="nav-number">2.6.</span> <span class="nav-text">依赖</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#安全和隐私数据"><span class="nav-number">2.7.</span> <span class="nav-text">安全和隐私数据</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#性能"><span class="nav-number">2.8.</span> <span class="nav-text">性能</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#可读性"><span class="nav-number">2.9.</span> <span class="nav-text">可读性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#专家意见"><span class="nav-number">2.10.</span> <span class="nav-text">专家意见</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#代码风格和约定"><span class="nav-number">2.11.</span> <span class="nav-text">代码风格和约定</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#尽可能自动化"><span class="nav-number">2.12.</span> <span class="nav-text">尽可能自动化</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#完整问题列表"><span class="nav-number">3.</span> <span class="nav-text">完整问题列表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#原文链接"><span class="nav-number">4.</span> <span class="nav-text">原文链接</span></a></li></ol></div>
             
 
           </div>

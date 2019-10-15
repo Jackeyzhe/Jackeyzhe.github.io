@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Redis命令," />
+  <meta name="keywords" content="Elasticsearch笔记," />
 
 
 
@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="Redis的Set结构相当于Java中的HashSet，是无序的元素集合，并且元素都是唯一的。由于Set是通过hash表实现的，所以它的增加、删除、查找操作的时间复杂度都是O(1)。最大成员个数为232-1。">
-<meta name="keywords" content="Redis命令">
+<meta name="description" content="创建索引1curl -X PUT &quot;localhost:9200/jackey?pretty&quot; ES创建索引使用PUT请求即可，上面是最简单的新建一个索引的方法，除此之外，你还可以指定：  Settings Mappings aliases  索引名称有以下限制：  必须是小写 不能包含：\,/,*, ?, &amp;quot;, &amp;lt;, &amp;gt;, |, (空格),,, # 在ES7.0以前索引名可">
+<meta name="keywords" content="Elasticsearch笔记">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Redis命令详解：Sets">
-<meta property="og:url" content="https://jackeyzhe.github.io/2018/12/19/Redis命令详解：Sets/index.html">
+<meta property="og:title" content="Elasticsearch从入门到放弃：索引基本使用方法">
+<meta property="og:url" content="https://jackeyzhe.github.io/2019/10/13/Elasticsearch从入门到放弃：索引基本使用方法/index.html">
 <meta property="og:site_name" content="Jackeyzhe">
-<meta property="og:description" content="Redis的Set结构相当于Java中的HashSet，是无序的元素集合，并且元素都是唯一的。由于Set是通过hash表实现的，所以它的增加、删除、查找操作的时间复杂度都是O(1)。最大成员个数为232-1。">
+<meta property="og:description" content="创建索引1curl -X PUT &quot;localhost:9200/jackey?pretty&quot; ES创建索引使用PUT请求即可，上面是最简单的新建一个索引的方法，除此之外，你还可以指定：  Settings Mappings aliases  索引名称有以下限制：  必须是小写 不能包含：\,/,*, ?, &amp;quot;, &amp;lt;, &amp;gt;, |, (空格),,, # 在ES7.0以前索引名可">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-01-06T11:42:42.263Z">
+<meta property="og:updated_time" content="2019-10-14T16:51:11.826Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Redis命令详解：Sets">
-<meta name="twitter:description" content="Redis的Set结构相当于Java中的HashSet，是无序的元素集合，并且元素都是唯一的。由于Set是通过hash表实现的，所以它的增加、删除、查找操作的时间复杂度都是O(1)。最大成员个数为232-1。">
+<meta name="twitter:title" content="Elasticsearch从入门到放弃：索引基本使用方法">
+<meta name="twitter:description" content="创建索引1curl -X PUT &quot;localhost:9200/jackey?pretty&quot; ES创建索引使用PUT请求即可，上面是最简单的新建一个索引的方法，除此之外，你还可以指定：  Settings Mappings aliases  索引名称有以下限制：  必须是小写 不能包含：\,/,*, ?, &amp;quot;, &amp;lt;, &amp;gt;, |, (空格),,, # 在ES7.0以前索引名可">
 
 
 
@@ -120,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="https://jackeyzhe.github.io/2018/12/19/Redis命令详解：Sets/"/>
+  <link rel="canonical" href="https://jackeyzhe.github.io/2019/10/13/Elasticsearch从入门到放弃：索引基本使用方法/"/>
 
 
 
 
 
-  <title>Redis命令详解：Sets | Jackeyzhe</title>
+  <title>Elasticsearch从入门到放弃：索引基本使用方法 | Jackeyzhe</title>
   
 
 
@@ -288,7 +288,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2018/12/19/Redis命令详解：Sets/">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2019/10/13/Elasticsearch从入门到放弃：索引基本使用方法/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Jackey Wang">
@@ -305,7 +305,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Redis命令详解：Sets</h1>
+          <h1 class="post-title" itemprop="name headline">Elasticsearch从入门到放弃：索引基本使用方法</h1>
         
 
         <div class="post-meta">
@@ -317,8 +317,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-19T23:47:02+08:00">
-                2018-12-19
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-13T01:07:09+08:00">
+                2019-10-13
               </time>
             
 
@@ -360,64 +360,105 @@
       
 
       
-        <p>Redis的Set结构相当于Java中的HashSet，是无序的元素集合，并且元素都是唯一的。由于Set是通过hash表实现的，所以它的增加、删除、查找操作的时间复杂度都是O(1)。最大成员个数为2<sup>32</sup>-1。<a id="more"></a></p>
-<h4 id="SADD"><a href="#SADD" class="headerlink" title="SADD"></a>SADD</h4><p>最早可用版本：1.0.0</p>
-<p>时间复杂度：每个元素的添加的时间复杂度为O(1)，如果要添加N个，时间复杂度就为O(N)</p>
-<p>用法：SADD key member [member…]</p>
-<p>将指定的成员保存到key，如果成员已经存在，则直接忽略。如果key不存在，则先新建一个空set，再将成员添加进去。如果key存储不是一个set，则会报错。该命令执行成功后会返回实际添加成功的元素的个数。</p>
-<p>在2.4版本之后可以支持多个参数，即一个命令添加多个成员。</p>
-<h4 id="SCARD"><a href="#SCARD" class="headerlink" title="SCARD"></a>SCARD</h4><p>最早可用版本：1.0.0</p>
-<p>时间复杂度：O(1)</p>
-<p>返回key存储的set的元素个数。</p>
-<h4 id="SDIFF"><a href="#SDIFF" class="headerlink" title="SDIFF"></a>SDIFF</h4><p>最早可用版本：1.0.0</p>
-<p>时间复杂度：O(N)，N是所给出的元素个数的总和</p>
-<p>返回第一个set与后面元素的差集。不存在的key都被当做空set处理。</p>
-<p>栗子时间：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; SADD key1 a</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SADD key1 b</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SADD key1 c</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SADD key2 b</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SADD key3 c</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SADD key3 d</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SDIFF key1 key2 key3</span><br><span class="line">1) <span class="string">"a"</span></span><br></pre></td></tr></table></figure>
-<h4 id="SDIFFSTORE"><a href="#SDIFFSTORE" class="headerlink" title="SDIFFSTORE"></a>SDIFFSTORE</h4><p>最早可用版本：1.0.0</p>
-<p>时间复杂度：O(N)，N是所给出的元素个数的总和</p>
-<p>用法：SDIFFSTORE destination key [key…]</p>
-<p>这个命令和SDIFF命令的作用相同，但是不同的是，该命令不返回差集，而是将差集存储到destination，如果destination已经存在，就将覆盖旧值。该命令的返回值是差集中元素的个数。</p>
-<h4 id="SINTER"><a href="#SINTER" class="headerlink" title="SINTER"></a>SINTER</h4><p>最早可用版本：1.0.0</p>
-<p>时间复杂度：O(N*M)，N是最小set的元素个数，M是set的个数</p>
-<p>返回给出的所有set的交集。我们沿用刚刚SDIFF命令中使用的三个key，给key2增加一个元素c，此时三个key存储的元素情况为</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">key1=&#123;a,b,c&#125;</span><br><span class="line">key2=&#123;b,c&#125;</span><br><span class="line">key3=&#123;c,d&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; SADD key2 c</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SINTER key1 key2 key3</span><br><span class="line">1) <span class="string">"c"</span></span><br></pre></td></tr></table></figure>
-<h4 id="SINTERSTORE"><a href="#SINTERSTORE" class="headerlink" title="SINTERSTORE"></a>SINTERSTORE</h4><p>最早可用版本：1.0.0</p>
-<p>时间复杂度：O(N*M)，N是最小set的元素个数，M是set的个数</p>
-<p>该命令与SINTER的关系就像SDIFF与SDIFFSTORE的关系一样，因此我们不过多介绍了。</p>
-<h4 id="SISMEMBER"><a href="#SISMEMBER" class="headerlink" title="SISMEMBER"></a>SISMEMBER</h4><p>最早可用版本：1.0.0</p>
-<p>时间复杂度：O(1)</p>
-<p>该命令用于判断某个元素是否属于指定的key，如果属于，返回1；如果不属于或者key不存在，返回0。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; SADD myset <span class="string">"jackeyzhe"</span></span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SISMEMBER myset <span class="string">"jackeyzhe"</span></span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SISMEMBER myset <span class="string">"2018"</span></span><br><span class="line">(<span class="built_in">integer</span>) 0</span><br></pre></td></tr></table></figure>
-<h4 id="SMEMBERS"><a href="#SMEMBERS" class="headerlink" title="SMEMBERS"></a>SMEMBERS</h4><p>最早可用版本：1.0.0</p>
-<p>时间复杂度：O(N)，N是set的元素个数</p>
-<p>返回指定set的全部成员，当SINTER只有一个参数时，作用与该命令相同。</p>
-<h4 id="SMOVE"><a href="#SMOVE" class="headerlink" title="SMOVE"></a>SMOVE</h4><p>最早可用版本：1.0.0</p>
-<p>时间复杂度：O(1)</p>
-<p>将成员从一个set转移到另一个set中，这个操作是原子操作。如果源set不存在，或者不包含要转移的成员，那么就不会有任何操作，直接返回0。如果转移的成员在目标set中已经存在，那么只需要将该成员从源set中删除即可。如果源set或者目标set中的一个不是set结构，那么该命令就会报错。</p>
-<p>如果成员被成功转移，就会返回1，如果没有进行转移操作，就会返回0。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; SADD from_set <span class="string">"a"</span></span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SADD from_set <span class="string">"b"</span></span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SMOVE from_set to_set <span class="string">"a"</span></span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SMEMBERS from_set</span><br><span class="line">1) <span class="string">"b"</span></span><br><span class="line">127.0.0.1:6379&gt; SMEMBERS to_set</span><br><span class="line">1) <span class="string">"a"</span></span><br></pre></td></tr></table></figure>
-<h4 id="SPOP"><a href="#SPOP" class="headerlink" title="SPOP"></a>SPOP</h4><p>最早可用版本：1.0.0</p>
-<p>时间复杂度：O(1)</p>
-<p>用法：SPOP key [count]</p>
-<p>从指定set中删除并返回一个或多个随机元素。3.2版本以后支持count参数，即可以一次返回多个元素。如果key不存在，则返回nil。</p>
-<p>如果count大于set中元素的个数，那么该命令就会返回set中现有的所有元素。</p>
-<h4 id="SRANDMEMBER"><a href="#SRANDMEMBER" class="headerlink" title="SRANDMEMBER"></a>SRANDMEMBER</h4><p>最早可用版本：1.0.0</p>
-<p>时间复杂度：当没有count参数时是O(1)，否则为O(N)，N为count的绝对值</p>
-<p>该命令用于随机返回set中的元素。从2.6版本开始支持count参数，如果count是正数，则返回count个不同元素的数组；如果count是负数，则允许同一个元素多次返回。</p>
-<h4 id="SREM"><a href="#SREM" class="headerlink" title="SREM"></a>SREM</h4><p>最早可用版本：1.0.0</p>
-<p>时间复杂度：O(N)，N为指定member的个数</p>
-<p>该命令用于从set中删除指定元素，如果不包含该元素，那么直接忽略。如果key不存在，则会当做空set处理，直接返回0。从2.4版本开始，该命令支持一次删除多个成员。</p>
-<h4 id="SSCAN"><a href="#SSCAN" class="headerlink" title="SSCAN"></a>SSCAN</h4><p>此命令是SCAN命令的同类，可以通过我的另一篇文章<a href="https://jackeyzhe.github.io/2018/09/26/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Redis%E7%9A%84scan%E5%91%BD%E4%BB%A4/">深入理解Redis的scan命令</a>来进行更深入的了解</p>
-<h4 id="SUNION"><a href="#SUNION" class="headerlink" title="SUNION"></a>SUNION</h4><p>最早可用版本：1.0.0</p>
-<p>时间复杂度：O(N)，N为给出的所有set的元素个数之和</p>
-<p>返回给定set的并集。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; SMEMBERS key2</span><br><span class="line">1) <span class="string">"b"</span></span><br><span class="line">2) <span class="string">"c"</span></span><br><span class="line">127.0.0.1:6379&gt; SMEMBERS key3</span><br><span class="line">1) <span class="string">"d"</span></span><br><span class="line">2) <span class="string">"c"</span></span><br><span class="line">127.0.0.1:6379&gt; SUNION key2 key3</span><br><span class="line">1) <span class="string">"d"</span></span><br><span class="line">2) <span class="string">"b"</span></span><br><span class="line">3) <span class="string">"c"</span></span><br></pre></td></tr></table></figure>
-<h4 id="SUNIONSTORE"><a href="#SUNIONSTORE" class="headerlink" title="SUNIONSTORE"></a>SUNIONSTORE</h4><p>最早可用版本：1.0.0</p>
-<p>时间复杂度：O(N)，N为给出的所有set的元素个数之和</p>
-<p>该命令与SUNION的关系就像SDIFF与SDIFFSTORE的关系一样。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; SUNIONSTORE mykey key2 key3</span><br><span class="line">(<span class="built_in">integer</span>) 3</span><br><span class="line">127.0.0.1:6379&gt; SMEMBERS mykey</span><br><span class="line">1) <span class="string">"d"</span></span><br><span class="line">2) <span class="string">"b"</span></span><br><span class="line">3) <span class="string">"c"</span></span><br></pre></td></tr></table></figure>
+        <h3 id="创建索引"><a href="#创建索引" class="headerlink" title="创建索引"></a>创建索引</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -X PUT <span class="string">"localhost:9200/jackey?pretty"</span></span><br></pre></td></tr></table></figure>
+<p>ES创建索引使用PUT请求即可，上面是最简单的新建一个索引的方法，除此之外，你还可以指定：</p>
+<ul>
+<li>Settings</li>
+<li>Mappings</li>
+<li>aliases</li>
+</ul>
+<p>索引名称有以下限制：</p>
+<ol>
+<li>必须是小写</li>
+<li>不能包含：<code>\</code>,<code>/</code>,<code>*</code>, <code>?</code>, <code>&quot;</code>, <code>&lt;</code>, <code>&gt;</code>, <code>|</code>, <code></code>(空格),<code>,</code>, <code>#</code></li>
+<li>在ES7.0以前索引名可以包含冒号，但是7.0之后不支持了</li>
+<li>不能以<code>-</code>,<code>_</code>和<code>+</code>开头</li>
+<li>不能是<code>.</code>或<code>..</code></li>
+<li>长度不能超过255字节</li>
+</ol>
+<p>请求支持的一些参数有：</p>
+<ul>
+<li><strong>wait_for_active_shards</strong>：继续操作前，必须处于active状态的分片数，默认是1，也可以设置为all或者不大于总分片数的任意正整数</li>
+<li><strong>timeout</strong>：设置等待响应的超时时间，默认是30秒</li>
+<li><strong>master_timeout</strong>：连接master节点响应的超时时间，默认是30秒</li>
+</ul>
+<p>前面我们提到创建索引时可以指定三种属性，这三种属性都需要放在body中。</p>
+<h4 id="aliases"><a href="#aliases" class="headerlink" title="aliases"></a>aliases</h4><p>索引的别名，一个别名可以赋给多个索引。</p>
+<p>给一个index起别名的方式有两种，一种是创建index时候在body中增加aliases，另一种是通过更新已有索引的方式增加。</p>
+<p>方式一：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">curl -X PUT <span class="string">"localhost:9200/jackey?pretty"</span> -H <span class="string">'Content-Type: application/json'</span> -d<span class="string">'</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">    "aliases" : &#123;</span></span><br><span class="line"><span class="string">        "alias_1" : &#123;&#125;,</span></span><br><span class="line"><span class="string">        "alias_2" : &#123;</span></span><br><span class="line"><span class="string">            "filter" : &#123;</span></span><br><span class="line"><span class="string">                "term" : &#123;"user" : "kimchy" &#125;</span></span><br><span class="line"><span class="string">            &#125;,</span></span><br><span class="line"><span class="string">            "routing" : "kimchy"</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">'</span></span><br></pre></td></tr></table></figure>
+<p>方式二：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST <span class="string">"localhost:9200/_aliases?pretty"</span> -H <span class="string">'Content-Type: application/json'</span> -d<span class="string">'</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">    "actions" : [</span></span><br><span class="line"><span class="string">        &#123; "add" : &#123; "index" : "jackey", "alias" : "alias1" &#125; &#125;</span></span><br><span class="line"><span class="string">    ]</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">'</span></span><br></pre></td></tr></table></figure>
+<p>方式一中，我们还在body中增加了filter和routing。这主要是用于指定使用别名的条件。指定了filter后，通过alias_2，只能访问user为kimchy的document。而routing的值被用来路由，即alias_2只能路由到指定的分片。此外还有index_routing和search_routing，它们和routing类似，这里不做过多解释了。还有一个比较重要的属性是is_write_index，这个属性默认是false，如果设置成true，表示可以通过这个别名来写索引，默认情况下，别名像一个软链接，是不可以修改原索引的。</p>
+<p>此外，还可以使用通配符为多个索引增加相同的别名</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST <span class="string">"localhost:9200/_aliases?pretty"</span> -H <span class="string">'Content-Type: application/json'</span> -d<span class="string">'</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">    "actions" : [</span></span><br><span class="line"><span class="string">        &#123; "add" : &#123; "index" : "test*", "alias" : "all_test_indices" &#125; &#125;</span></span><br><span class="line"><span class="string">    ]</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">'</span></span><br></pre></td></tr></table></figure>
+<p>除了add，还可以使用remove来删除别名</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST <span class="string">"localhost:9200/_aliases?pretty"</span> -H <span class="string">'Content-Type: application/json'</span> -d<span class="string">'</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">    "actions" : [</span></span><br><span class="line"><span class="string">        &#123; "remove" : &#123; "index" : "test1", "alias" : "alias1" &#125; &#125;</span></span><br><span class="line"><span class="string">    ]</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">'</span></span><br></pre></td></tr></table></figure>
+<h4 id="Settings"><a href="#Settings" class="headerlink" title="Settings"></a>Settings</h4><p>先看一个例子：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">curl -X PUT <span class="string">"localhost:9200/twitter?pretty"</span> -H <span class="string">'Content-Type: application/json'</span> -d<span class="string">'</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">    "settings" : &#123;</span></span><br><span class="line"><span class="string">        "index" : &#123;</span></span><br><span class="line"><span class="string">            "number_of_shards" : 3, </span></span><br><span class="line"><span class="string">            "number_of_replicas" : 2 </span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">'</span></span><br></pre></td></tr></table></figure>
+<p>索引的setting分为静态和动态两种。静态的只能在索引创建或关闭时设置；动态的则可以使用update-index-settings API来实时设置。上面的例子中，number_of_shards属于静态设置，number_of_replicas属于动态设置。</p>
+<p>索引可以设置的setting可以在官方文档的<a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.4/index-modules.html" target="_blank" rel="noopener">Index modules</a>查看，下面我会挑几个我认为比较重要的介绍一下。</p>
+<p>先从静态开始：</p>
+<ul>
+<li><strong>index.number_of_shards</strong>：指定索引的分片数，只能在创建索引时设置。默认是1，最大可以设置为1024。这是出于安全考虑的一种保护措施。最大值可以通过设置系统变量来控制export ES_JAVA_OPTS=”-Des.index.max_number_of_shards=128”</li>
+<li><strong>index.routing_partition_size</strong>：可以路由的分片数量，同样只能在创建索引时指定，默认值为1.这个值必须小于number_of_shards（除非number_of_shards的值也是1）</li>
+</ul>
+<p>动态setting：</p>
+<ul>
+<li><strong>index.number_of_replicas</strong>：每个分片的副本数，默认是1</li>
+<li><strong>index.auto_expand_replicas</strong>：基于数据节点可以自动扩展的副本数，默认为为false。可以设置为一个区间，以短线分隔，例如「0-5」，也可以设置成all。需要注意的是，副本的自动扩展并不会考虑其他的分配规则。这有可能导致集群状态变成黄色</li>
+<li><strong>index.search.idle.after</strong>：分片被认为搜索空闲之前没有收到请求或搜索的时间。默认30秒。</li>
+<li><strong>index.refresh_interval</strong>：刷新操作的执行频率，默认是1s。如果设置成-1，表示不会刷新。如果没有显式设置，分片在收到搜索请求前至少index.search.idle.after秒内不会后台刷新</li>
+<li><strong>index.max_result_window</strong>：返回结果的最大数量，默认是10000（一万）。搜索返回结果占用的内存和时间受到这个值的限制</li>
+<li><strong>index.routing.rebalance.enable</strong>：是否允许分片的自平衡。默认是all，允许所有分片重新平衡。还可以设置为primaries，只允许主分片重新平衡。replicas只允许从分片重新平衡。none不允许分片重新平衡。</li>
+</ul>
+<p>除了以上静态setting和动态setting之外，setting中还可以设置一些其他的值，例如分词器等，这些我们以后再做更详细的介绍。</p>
+<h4 id="Mappings"><a href="#Mappings" class="headerlink" title="Mappings"></a>Mappings</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">curl -X PUT <span class="string">"localhost:9200/test?pretty"</span> -H <span class="string">'Content-Type: application/json'</span> -d<span class="string">'</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">    "settings" : &#123;</span></span><br><span class="line"><span class="string">        "number_of_shards" : 1</span></span><br><span class="line"><span class="string">    &#125;,</span></span><br><span class="line"><span class="string">    "mappings" : &#123;</span></span><br><span class="line"><span class="string">        "properties" : &#123;</span></span><br><span class="line"><span class="string">            "field1" : &#123; "type" : "text" &#125;</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">'</span></span><br></pre></td></tr></table></figure>
+<p>Mapping主要用于帮助Elasticsearch理解每个域中数据的类型。7.0.0之前mapping的定义通常包括type名称。Elasticsearch支持的数据类型比较多，其中比较核心的简单数据类型包括：</p>
+<ul>
+<li>字符串: text和keyword</li>
+<li>整数 : byte, short, integer, long</li>
+<li>浮点数: float, double</li>
+<li>布尔型: boolean</li>
+<li>日期: date</li>
+</ul>
+<p>其他的类型，我们以后会做更加详细的介绍。</p>
+<h3 id="删除索引"><a href="#删除索引" class="headerlink" title="删除索引"></a>删除索引</h3><p>删除索引使用的是DELETE请求。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -X DELETE <span class="string">"localhost:9200/jackey?pretty"</span></span><br></pre></td></tr></table></figure>
+<p>你可以在路径中指定具体索引，也可以使用通配符，需要删除多个索引时，可以使用逗号分隔。如果要删除全部索引，可以指定索引为_all或*（不要这么做）。在生产环境，我们通过在elasticsearch.yml文件中将action.destructive_requires_name配置为true来禁止这些危险的操作。</p>
+<p>删除操作支持的参数有以下几种：</p>
+<ul>
+<li><strong>allow_no_indices</strong>：如果设置为true，则通配符或_all匹配不到索引时不会报错</li>
+<li><strong>expand_wildcards</strong>：控制通配符可以扩展到的索引类型。all：可以扩展到所有的索引。open：只能扩展到打开的索引。closed：只能扩展到关闭的索引。none：不接受通配符表达式。默认是open</li>
+<li><strong>ignore_unavailable</strong>：如果设置为true，不存在或关闭的索引不会在返回中。默认是false</li>
+<li><strong>timeout</strong>：指定等待返回响应的最长时间。默认是30秒</li>
+<li><strong>master_timeout</strong>：连接master节点响应的超时时间，默认是30秒</li>
+</ul>
+<h3 id="打开-关闭索引"><a href="#打开-关闭索引" class="headerlink" title="打开/关闭索引"></a>打开/关闭索引</h3><p>前面我们已经提到过了打开/关闭索引。被关闭的索引几乎不能对它进行任何操作，它只是用来保留数据的。而打开或关闭索引通常需要重启分片来使操作生效。具体的操作如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST <span class="string">"localhost:9200/jackey/_open?pretty"</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST <span class="string">"localhost:9200/jackey/_close?pretty"</span></span><br></pre></td></tr></table></figure>
+<p>支持的参数有：</p>
+<ul>
+<li><strong>allow_no_indices</strong></li>
+<li><strong>expand_wildcards</strong></li>
+<li><strong>ignore_unavailable</strong></li>
+<li><strong>wait_for_active_shards</strong></li>
+<li><strong>timeout</strong></li>
+<li><strong>master_timeout</strong></li>
+</ul>
+<p>这些参数在前面都有介绍。这里就不再赘述了。</p>
+<h3 id="拆分索引"><a href="#拆分索引" class="headerlink" title="拆分索引"></a>拆分索引</h3><p>随着数据的越来越多，我们可能会有拆分索引的需求，感谢ES为我们提供了便利。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST <span class="string">"localhost:9200/twitter/_split/split-twitter-index?pretty"</span> -H <span class="string">'Content-Type: application/json'</span> -d<span class="string">'</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">  "settings": &#123;</span></span><br><span class="line"><span class="string">    "index.number_of_shards": 2</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">'</span></span><br></pre></td></tr></table></figure>
+<p>在拆分索引之前，要保证索引是只读状态，并且集群健康状态为green。设置只读的方法是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">curl -X PUT <span class="string">"localhost:9200/my_source_index/_settings?pretty"</span> -H <span class="string">'Content-Type: application/json'</span> -d<span class="string">'</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">  "settings": &#123;</span></span><br><span class="line"><span class="string">    "index.blocks.write": true </span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">'</span></span><br></pre></td></tr></table></figure>
+<p>拆分索引的具体操作是：</p>
+<ol>
+<li>创建一个和源索引相同的目标索引，主分片要大于源索引</li>
+<li>建立从源索引到目标索引的硬连接</li>
+<li>创建低级索引后，再对document做Hash操作。这是为了删除属于不同分片的document</li>
+<li>恢复目标索引，就像重新打开关闭的索引一样</li>
+</ol>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>关于索引的使用就先介绍到这里。还有很多不完善的地方，以后会继续补充。想要了解更多详细信息的同学可以查看<a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.4/indices.html" target="_blank" rel="noopener">官方文档</a>。</p>
 
       
     </div>
@@ -487,7 +528,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Redis命令/" rel="tag"><i class="fa fa-tag"></i> Redis命令</a>
+            <a href="/tags/Elasticsearch笔记/" rel="tag"><i class="fa fa-tag"></i> Elasticsearch笔记</a>
           
         </div>
       
@@ -500,8 +541,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/11/27/玩转Redis集群之Cluster/" rel="next" title="玩转Redis集群之Cluster">
-                <i class="fa fa-chevron-left"></i> 玩转Redis集群之Cluster
+              <a href="/2019/10/13/Rust入坑指南：核心概念/" rel="next" title="Rust入坑指南：核心概念">
+                <i class="fa fa-chevron-left"></i> Rust入坑指南：核心概念
               </a>
             
           </div>
@@ -510,8 +551,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2019/01/01/2018年终/" rel="prev" title="2018年终">
-                2018年终 <i class="fa fa-chevron-right"></i>
+              <a href="/2019/10/15/【译】送给你的代码审查问题手册/" rel="prev" title="【译】送给你的代码审查问题手册">
+                【译】送给你的代码审查问题手册 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -673,7 +714,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#SADD"><span class="nav-number">1.</span> <span class="nav-text">SADD</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SCARD"><span class="nav-number">2.</span> <span class="nav-text">SCARD</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SDIFF"><span class="nav-number">3.</span> <span class="nav-text">SDIFF</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SDIFFSTORE"><span class="nav-number">4.</span> <span class="nav-text">SDIFFSTORE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SINTER"><span class="nav-number">5.</span> <span class="nav-text">SINTER</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SINTERSTORE"><span class="nav-number">6.</span> <span class="nav-text">SINTERSTORE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SISMEMBER"><span class="nav-number">7.</span> <span class="nav-text">SISMEMBER</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SMEMBERS"><span class="nav-number">8.</span> <span class="nav-text">SMEMBERS</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SMOVE"><span class="nav-number">9.</span> <span class="nav-text">SMOVE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SPOP"><span class="nav-number">10.</span> <span class="nav-text">SPOP</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SRANDMEMBER"><span class="nav-number">11.</span> <span class="nav-text">SRANDMEMBER</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SREM"><span class="nav-number">12.</span> <span class="nav-text">SREM</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SSCAN"><span class="nav-number">13.</span> <span class="nav-text">SSCAN</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SUNION"><span class="nav-number">14.</span> <span class="nav-text">SUNION</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SUNIONSTORE"><span class="nav-number">15.</span> <span class="nav-text">SUNIONSTORE</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建索引"><span class="nav-number">1.</span> <span class="nav-text">创建索引</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#aliases"><span class="nav-number">1.1.</span> <span class="nav-text">aliases</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Settings"><span class="nav-number">1.2.</span> <span class="nav-text">Settings</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Mappings"><span class="nav-number">1.3.</span> <span class="nav-text">Mappings</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#删除索引"><span class="nav-number">2.</span> <span class="nav-text">删除索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#打开-关闭索引"><span class="nav-number">3.</span> <span class="nav-text">打开/关闭索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#拆分索引"><span class="nav-number">4.</span> <span class="nav-text">拆分索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
             
 
           </div>
