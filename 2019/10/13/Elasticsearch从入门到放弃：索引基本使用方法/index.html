@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="创建索引1curl -X PUT &quot;localhost:9200/jackey?pretty&quot; ES创建索引使用PUT请求即可，上面是最简单的新建一个索引的方法，除此之外，你还可以指定：  Settings Mappings aliases  索引名称有以下限制：  必须是小写 不能包含：\,/,*, ?, &amp;quot;, &amp;lt;, &amp;gt;, |, (空格),,, # 在ES7.0以前索引名可">
+<meta name="description" content="索引的操作">
 <meta name="keywords" content="Elasticsearch笔记">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Elasticsearch从入门到放弃：索引基本使用方法">
 <meta property="og:url" content="https://jackeyzhe.github.io/2019/10/13/Elasticsearch从入门到放弃：索引基本使用方法/index.html">
 <meta property="og:site_name" content="Jackeyzhe">
-<meta property="og:description" content="创建索引1curl -X PUT &quot;localhost:9200/jackey?pretty&quot; ES创建索引使用PUT请求即可，上面是最简单的新建一个索引的方法，除此之外，你还可以指定：  Settings Mappings aliases  索引名称有以下限制：  必须是小写 不能包含：\,/,*, ?, &amp;quot;, &amp;lt;, &amp;gt;, |, (空格),,, # 在ES7.0以前索引名可">
+<meta property="og:description" content="索引的操作">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-10-14T16:51:11.826Z">
+<meta property="og:updated_time" content="2019-10-16T13:20:48.133Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Elasticsearch从入门到放弃：索引基本使用方法">
-<meta name="twitter:description" content="创建索引1curl -X PUT &quot;localhost:9200/jackey?pretty&quot; ES创建索引使用PUT请求即可，上面是最简单的新建一个索引的方法，除此之外，你还可以指定：  Settings Mappings aliases  索引名称有以下限制：  必须是小写 不能包含：\,/,*, ?, &amp;quot;, &amp;lt;, &amp;gt;, |, (空格),,, # 在ES7.0以前索引名可">
+<meta name="twitter:description" content="索引的操作">
 
 
 
@@ -360,7 +360,9 @@
       
 
       
-        <h3 id="创建索引"><a href="#创建索引" class="headerlink" title="创建索引"></a>创建索引</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -X PUT <span class="string">"localhost:9200/jackey?pretty"</span></span><br></pre></td></tr></table></figure>
+        <p>索引的操作<a id="more"></a></p>
+<p>前文我们提到，Elasticsearch的数据都存储在索引中，也就是说，索引相当于是MySQL中的数据库。是最基础的概念。今天分享的也是关于索引的一些常用的操作。<!-- more --></p>
+<h3 id="创建索引"><a href="#创建索引" class="headerlink" title="创建索引"></a>创建索引</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -X PUT <span class="string">"localhost:9200/jackey?pretty"</span></span><br></pre></td></tr></table></figure>
 <p>ES创建索引使用PUT请求即可，上面是最简单的新建一个索引的方法，除此之外，你还可以指定：</p>
 <ul>
 <li>Settings</li>
