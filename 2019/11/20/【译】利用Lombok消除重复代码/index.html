@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Rust," />
+  <meta name="keywords" content="Java," />
 
 
 
@@ -79,20 +79,18 @@
 
 
 
-<meta name="description" content="欢迎大家和我一起入坑Rust，以后我就是坑主，我主要负责在前面挖坑，各位可以在上面看，有手痒的也可以和我一起挖。这个坑到底有多深？我也不知道，我是抱着有多深就挖多深的心态来的，下面我先跳了，各位请随意。">
-<meta name="keywords" content="Rust">
+<meta name="description" content="当你在写Getter和Setter时，一定无数次的想过，为什么会有POJO这么烂的东西。你不是一个人！（不是骂人…）无数的开发人员花费了大量的时间来写这种样板代码，而他们本来可以利用这些时间做出更有价值的输出。 从我开始写Java以来，已经写了几千行代码了，其中大概50%都是样板代码，在转型之前，我就这么一直毫无怨言的写着。而最近两年，我不再Java了，转而开始写一些Python，Go和JavaS">
+<meta name="keywords" content="Java">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Rust入坑指南：坑主驾到">
-<meta property="og:url" content="https://jackeyzhe.github.io/2019/09/21/Rust入坑指南：坑主驾到/index.html">
+<meta property="og:title" content="【译】利用Lombok消除重复代码">
+<meta property="og:url" content="https://jackeyzhe.github.io/2019/11/20/【译】利用Lombok消除重复代码/index.html">
 <meta property="og:site_name" content="Jackeyzhe">
-<meta property="og:description" content="欢迎大家和我一起入坑Rust，以后我就是坑主，我主要负责在前面挖坑，各位可以在上面看，有手痒的也可以和我一起挖。这个坑到底有多深？我也不知道，我是抱着有多深就挖多深的心态来的，下面我先跳了，各位请随意。">
+<meta property="og:description" content="当你在写Getter和Setter时，一定无数次的想过，为什么会有POJO这么烂的东西。你不是一个人！（不是骂人…）无数的开发人员花费了大量的时间来写这种样板代码，而他们本来可以利用这些时间做出更有价值的输出。 从我开始写Java以来，已经写了几千行代码了，其中大概50%都是样板代码，在转型之前，我就这么一直毫无怨言的写着。而最近两年，我不再Java了，转而开始写一些Python，Go和JavaS">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1569055727/Blog/rust/01/rust01.png">
-<meta property="og:updated_time" content="2019-09-21T13:50:52.216Z">
+<meta property="og:updated_time" content="2019-11-20T13:48:21.502Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Rust入坑指南：坑主驾到">
-<meta name="twitter:description" content="欢迎大家和我一起入坑Rust，以后我就是坑主，我主要负责在前面挖坑，各位可以在上面看，有手痒的也可以和我一起挖。这个坑到底有多深？我也不知道，我是抱着有多深就挖多深的心态来的，下面我先跳了，各位请随意。">
-<meta name="twitter:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1569055727/Blog/rust/01/rust01.png">
+<meta name="twitter:title" content="【译】利用Lombok消除重复代码">
+<meta name="twitter:description" content="当你在写Getter和Setter时，一定无数次的想过，为什么会有POJO这么烂的东西。你不是一个人！（不是骂人…）无数的开发人员花费了大量的时间来写这种样板代码，而他们本来可以利用这些时间做出更有价值的输出。 从我开始写Java以来，已经写了几千行代码了，其中大概50%都是样板代码，在转型之前，我就这么一直毫无怨言的写着。而最近两年，我不再Java了，转而开始写一些Python，Go和JavaS">
 
 
 
@@ -122,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="https://jackeyzhe.github.io/2019/09/21/Rust入坑指南：坑主驾到/"/>
+  <link rel="canonical" href="https://jackeyzhe.github.io/2019/11/20/【译】利用Lombok消除重复代码/"/>
 
 
 
 
 
-  <title>Rust入坑指南：坑主驾到 | Jackeyzhe</title>
+  <title>【译】利用Lombok消除重复代码 | Jackeyzhe</title>
   
 
 
@@ -290,7 +288,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2019/09/21/Rust入坑指南：坑主驾到/">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2019/11/20/【译】利用Lombok消除重复代码/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Jackey Wang">
@@ -307,7 +305,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Rust入坑指南：坑主驾到</h1>
+          <h1 class="post-title" itemprop="name headline">【译】利用Lombok消除重复代码</h1>
         
 
         <div class="post-meta">
@@ -319,8 +317,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-21T21:41:35+08:00">
-                2019-09-21
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-20T21:47:47+08:00">
+                2019-11-20
               </time>
             
 
@@ -362,57 +360,51 @@
       
 
       
-        <p>欢迎大家和我一起入坑Rust，以后我就是坑主，我主要负责在前面挖坑，各位可以在上面看，有手痒的也可以和我一起挖。这个坑到底有多深？我也不知道，我是抱着有多深就挖多深的心态来的，下面我先跳了，各位请随意。<a id="more"></a></p>
-<h3 id="Rust简介"><a href="#Rust简介" class="headerlink" title="Rust简介"></a>Rust简介</h3><p>众所周知，在编程语言中，更易读的高级语言和控制底层资源的低级语言是一对矛盾体。Rust想要挑战这一现状，它尝试为开发者提供更好的体验的同时给予开发者控制底层细节的权限（比如内存使用）。</p>
-<p>低级语言在开发过程中很容易出现各种细微的错误，它们难以发现但是可能影响巨大。其他大部分低级语言只能靠覆盖面更广的测试用例和经验丰富的开发者来解决这些问题。而Rust则依靠严格的编译器来杜绝这些问题。</p>
-<p><em>Ps：以后会见识到Rust编译器的「厉害」</em></p>
-<p>Rust的一些工具：</p>
-<ul>
-<li>Cargo，依赖包的管理和构建工具，可以帮你减轻添加、编译和管理依赖包的痛苦</li>
-<li>Rustfmt，用于保证开发者代码风格的一致性</li>
-<li>Rust语言服务器支持集成IDE（我用的是IDEA）</li>
-</ul>
-<h3 id="安装Rust"><a href="#安装Rust" class="headerlink" title="安装Rust"></a>安装Rust</h3><p>如果你的操作系统是Linux或macOS，在终端执行命令</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ curl https://sh.rustup.rs -sSf | sh</span><br></pre></td></tr></table></figure>
-<p>安装过程中的选项使用默认就好（一路回车），直到出现以下信息时，表示安装成功。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Rust is installed now. Great!</span><br></pre></td></tr></table></figure>
-<p>安装脚本会自动把Rust添加到环境变量PATH中，可以重启终端或者手动执行命令使添加生效。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">source</span> <span class="variable">$HOME</span>/.cargo/env</span><br></pre></td></tr></table></figure>
-<p>当然也可以添加到你的.bash_profile文件中：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">export</span> PATH=<span class="string">"<span class="variable">$HOME</span>/.cargo/bin:<span class="variable">$PATH</span>"</span></span><br></pre></td></tr></table></figure>
-<p>最后，执行以下命令来检查Rust是否安装成功</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ rustc --version</span><br></pre></td></tr></table></figure>
-<p>另外，当你尝试编译Rust代码，但报了linker不可执行的错误时，你需要手动安装一个linker，C编译器通常会包含正确的linker。Rust的一些公共包也会依赖C语言代码和编译器。所以最好现在安装一个。</p>
-<h4 id="IDEA集成Rust"><a href="#IDEA集成Rust" class="headerlink" title="IDEA集成Rust"></a>IDEA集成Rust</h4><p>IDEA中集成Rust也很简单，只需要在Preference-&gt;Plugins中搜索Rust，安装Rust插件后重启IDEA就可以了。</p>
-<h3 id="Hello-World"><a href="#Hello-World" class="headerlink" title="Hello World"></a>Hello World</h3><p>又到了经典的Hello World时间，这次我不想直接一个简单的print就结束了，我们一开始提到了Cargo是Rust依赖包的管理工具，所以我想体验一下Cargo的用法。</p>
-<p>首先新建一个项目，可以直接用在IDEA中new project，也可以使用Cargo命令</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cargo new hello-world</span><br><span class="line"><span class="built_in">cd</span> hello-world</span><br></pre></td></tr></table></figure>
-<p>新建好项目以后，它的结构长这样子</p>
-<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1569055727/Blog/rust/01/rust01.png" alt="rust-new-project"></p>
-<p>其中</p>
-<ul>
-<li>main.rs是我们代码的入口文件</li>
-<li>Cargo.toml是记录Rust元数据的文件，包括依赖。</li>
-<li>Cargo.lock是记录增加依赖log的文件，不能手动修改。</li>
-</ul>
-<p>接着我们在Cargo.toml文件中添加我们需要的依赖</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[dependencies]</span><br><span class="line">ferris-says = <span class="string">"0.1"</span></span><br></pre></td></tr></table></figure>
-<p>这时IDEA会自动安装依赖包，如果没有安装，也可以手动执行命令来安装</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cargo build</span><br></pre></td></tr></table></figure>
-<p>依赖安装好以后，就可以开始写代码了：</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> ferris_says::say;</span><br><span class="line"><span class="keyword">use</span> std::io::&#123;stdout, BufWriter&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> stdout = stdout();</span><br><span class="line">    <span class="keyword">let</span> out = <span class="string">b"Hello World!"</span>;</span><br><span class="line">    <span class="keyword">let</span> width = <span class="number">12</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut</span> writer = BufWriter::new(stdout.lock());</span><br><span class="line">    say(out, width, &amp;<span class="keyword">mut</span> writer).unwrap();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>执行结果</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">----------------</span><br><span class="line">| Hello World! |</span><br><span class="line">----------------</span><br><span class="line">              \</span><br><span class="line">               \</span><br><span class="line">                  _~^~^~_</span><br><span class="line">              \) /  o o  \ (/</span><br><span class="line">                <span class="string">'_   -   _'</span></span><br><span class="line">                / <span class="string">'-----'</span> \</span><br></pre></td></tr></table></figure>
-<p>没错，这是一个小螃蟹，至于它是谁，来看看官方解释</p>
-<blockquote>
-<p>Ferris is the unofficial mascot of the Rust Community. Many Rust programmers call themselves “Rustaceans,” a play on the word “<a href="https://en.wikipedia.org/wiki/Crustacean" target="_blank" rel="noopener">crustacean</a>.” We refer to Ferris with the pronouns “they,” “them,” etc., rather than with gendered pronouns.</p>
-<p>Ferris is a name playing off of the adjective, “ferrous,” meaning of or pertaining to iron. Since Rust often forms on iron, it seemed like a fun origin for our mascot’s name!</p>
-<p>You can find more images of Ferris on <a href="http://rustacean.net/" target="_blank" rel="noopener">http://rustacean.net/</a>.</p>
+        <p>当你在写Getter和Setter时，一定无数次的想过，为什么会有POJO这么烂的东西。你不是一个人！（不是骂人…）无数的开发人员花费了大量的时间来写这种样板代码，而他们本来可以利用这些时间做出更有价值的输出。</p>
+<p>从我开始写Java以来，已经写了几千行代码了，其中大概50%都是样板代码，在转型之前，我就这么一直毫无怨言的写着。而最近两年，我不再Java了，转而开始写一些Python，Go和JavaScript的代码。这时我才感觉到Java中的重复的样板代码是多么令人沮丧。</p>
+<p>值得庆幸的是，现在的IDE为我们提供了自动生成这些代码的功能。但是我仍然需要按快捷键或者点鼠标来操作，这是非常影响我的编码思路的。</p>
+<h3 id="Lombok简介"><a href="#Lombok简介" class="headerlink" title="Lombok简介"></a>Lombok简介</h3><blockquote>
+<p><a href="https://projectlombok.org/" target="_blank" rel="noopener">Project Lombok</a> <em>is a java library that automatically plugs into your editor and build tools, spicing up your java. Never write another getter or equals method again</em></p>
 </blockquote>
-<p>关于toml文件可能有些读者不太熟悉（其实我自己也不太熟），这里简单介绍一下吧，它的全称是「Tom’s Obvious, Minimal Language」，是一种配置文件格式。它的语义是比较明显的，因此易于阅读。同时格式可以明确的映射到hash表，所以也可以被多种语言轻松解析。</p>
-<p>GitHub地址是：<a href="https://github.com/toml-lang/toml" target="_blank" rel="noopener">https://github.com/toml-lang/toml</a></p>
-<p>有兴趣的同学可以做更深入的了解。</p>
-<h3 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h3><p>至此，我确信自己已经跳进来了，有想跟进的朋友记得关注我哦。</p>
+<p>上面这段话摘自Lombok的<a href="https://projectlombok.org/" target="_blank" rel="noopener">首页</a>。这是一个每个人都需要使用的库，简直是一种仙丹！开个玩笑。Java是一门很棒的语言，但是它的冗长经常会令人感到苦恼。</p>
+<p>Lombok到底有多香呢？我总结了以下几点：</p>
+<ol>
+<li>Getter和Setter注解会自动生成getter、setter方法</li>
+<li>NoArgsConstructor和AllArgConstructor可以帮助你快速生成构造函数</li>
+<li>ToString会使POJO打印更加友好的日志</li>
+<li>Data会让你的POJO成为一个完全符合规范的POJO</li>
+<li>SneakyThrows可以偷偷抛出检查异常，而不需要再写throws子句</li>
+</ol>
+<p>想了解更多Lombok特性的话，可以自行前往<a href="https://projectlombok.org/features/all查看。" target="_blank" rel="noopener">https://projectlombok.org/features/all查看。</a></p>
+<h3 id="Lombok是如何工作的？"><a href="#Lombok是如何工作的？" class="headerlink" title="Lombok是如何工作的？"></a>Lombok是如何工作的？</h3><p>Lombok是在Java注解处理器和几个编译时注解的帮助下工作的，它将注入额外的Java字节码来帮助我们处理重复的代码。你可以查看它生成的Java代码，这一过程被幽默的称为“Delombokisation”。</p>
+<h3 id="我应该如何开始使用？"><a href="#我应该如何开始使用？" class="headerlink" title="我应该如何开始使用？"></a>我应该如何开始使用？</h3><p>Lombok引入了一个额外的编译时依赖。</p>
+<p>如果你使用vanilla javac进行编译，你需要指定<a href="https://projectlombok.org/download" target="_blank" rel="noopener">lombok.jar</a>作为注解处理器：<figure class="highlight plain"><figcaption><span>-cp lombok.jar MyCode.java```</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">如果你使用的是maven，那么需要在pom.xml中插入以下代码来保证你的代码可以使用Lombok。</span><br><span class="line"></span><br><span class="line">``` xml</span><br><span class="line">&lt;dependencies&gt;</span><br><span class="line">	&lt;dependency&gt;</span><br><span class="line">		&lt;groupId&gt;org.projectlombok&lt;/groupId&gt;</span><br><span class="line">		&lt;artifactId&gt;lombok&lt;/artifactId&gt;</span><br><span class="line">		&lt;version&gt;1.18.4&lt;/version&gt;</span><br><span class="line">		&lt;scope&gt;provided&lt;/scope&gt;</span><br><span class="line">	&lt;/dependency&gt;</span><br><span class="line">&lt;/dependencies&gt;</span><br></pre></td></tr></table></figure></p>
+<p>如果你使用的是Gradle，那么你需要使用<a href="https://github.com/franzbecker/gradle-lombok" target="_blank" rel="noopener">Gradle Lombok插件</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">plugins &#123;</span><br><span class="line">    id &apos;io.franzbecker.gradle-lombok&apos; version &apos;1.14&apos;</span><br><span class="line">    id &apos;java&apos;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="设置你的IDE"><a href="#设置你的IDE" class="headerlink" title="设置你的IDE"></a>设置你的IDE</h4><p>从你开始使用Java起，你应该就开始使用一个智能的IDE来自动编译或给你的代码提供一些建议。为了将Lombok集成进IDE，你需要告诉Lombok io来安装合适的钩子。</p>
+<p>获取Lombok的jar包后，执行<figure class="highlight java"><figcaption><span>-jar lombok.jar```来完成所有的设置。</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">IntelliJ IDEA和Visual Studio用户需要一个单独的Lombok插件，你可以选择从插件库中安装。</span><br><span class="line"></span><br><span class="line">### 代码拿来！</span><br><span class="line"></span><br><span class="line">talk is cheap, show me your code.程序员就应该拿代码说话。下面我们就来看一个完整的例子。</span><br><span class="line"></span><br><span class="line">#### Getters和Setters</span><br><span class="line"></span><br><span class="line">为被注解的自动生成getXXX和setXXX方法。</span><br><span class="line"></span><br><span class="line">``` java</span><br><span class="line"><span class="keyword">import</span> lombok.Getter;</span><br><span class="line"><span class="keyword">import</span> lombok.Setter;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">UptimeResponse</span> </span>&#123;</span><br><span class="line">    <span class="comment">// GetXXX and SetXXX are automatically generated</span></span><br><span class="line">    <span class="meta">@Getter</span> <span class="meta">@Setter</span> <span class="keyword">private</span> <span class="keyword">long</span> uptime;</span><br><span class="line">    <span class="meta">@Getter</span> <span class="meta">@Setter</span> <span class="keyword">private</span> <span class="keyword">long</span> currentTime;</span><br><span class="line">    <span class="meta">@Getter</span> <span class="meta">@Setter</span> <span class="keyword">private</span> String status;</span><br><span class="line">    UptimeResponse() &#123;</span><br><span class="line">        <span class="keyword">this</span>.uptime = ManagementFactory</span><br><span class="line">                          .getRuntimeMXBean().getUptime();</span><br><span class="line">        <span class="keyword">this</span>.currentTime = System.currentTimeMillis();</span><br><span class="line">        <span class="keyword">this</span>.status = <span class="string">"OK"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// So this works automagically</span></span><br><span class="line">UptimeResponse res = <span class="keyword">new</span> UptimeResponse();</span><br><span class="line">res.setStatus(<span class="string">"FAIL"</span>);</span><br><span class="line">System.out.println(res.getUptime());</span><br></pre></td></tr></table></figure></p>
+<h4 id="Constructors"><a href="#Constructors" class="headerlink" title="Constructors"></a>Constructors</h4><p>可以自动创建默认的POJO构造函数，它将字段初始化为默认值。</p>
+<ol>
+<li>NoArgConstructor创建一个无参构造函数，所有的字段都会初始化为默认值</li>
+<li>AllArgsConstructor创建一个全参数构造函数，每个字段都会初始化为指定值</li>
+<li>RequiredArgsConstructor创建一个构造函数，参数包括所有final字段和标记为NotNull的字段</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> lombok.*</span><br><span class="line"></span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Document</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Getter</span> <span class="meta">@Setter</span> <span class="keyword">private</span> String title;</span><br><span class="line">    <span class="meta">@Getter</span> <span class="meta">@Setter</span> <span class="keyword">private</span> String content;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// This works automagically</span></span><br><span class="line">Document d = <span class="keyword">new</span> Document(<span class="string">"Hello World"</span>, <span class="string">"Message Body"</span>);</span><br><span class="line">d.getTitle();   <span class="comment">// Hello World</span></span><br><span class="line">d.getContent(); <span class="comment">// Message Body</span></span><br></pre></td></tr></table></figure>
+<h4 id="Equals-and-hash-codes"><a href="#Equals-and-hash-codes" class="headerlink" title="Equals and hash codes"></a>Equals and hash codes</h4><p>Lombok可以生成的样板代码是包含局部变量的equals方法和hashcode方法。你可以手动排除一些字段。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> lombok.*;</span><br><span class="line"></span><br><span class="line"><span class="meta">@RequiredArgsConstructor</span></span><br><span class="line"><span class="meta">@EqualsAndHashCode</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Getter</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> String username;</span><br><span class="line">    <span class="meta">@EqualsAndHashCode</span>.Exclude</span><br><span class="line">    <span class="meta">@Getter</span></span><br><span class="line">    <span class="meta">@Setter</span></span><br><span class="line">    <span class="keyword">private</span> String lastAction;  <span class="comment">// not required for equality checks</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// This works automagically</span></span><br><span class="line">User u1 = <span class="keyword">new</span> User(<span class="string">"amitosh"</span>);</span><br><span class="line">u1.setLastAction(<span class="string">"Hello"</span>);</span><br><span class="line">User u2 = <span class="keyword">new</span> User(<span class="string">"amitosh"</span>);</span><br><span class="line">u2.setLastAction(<span class="string">"Compile"</span>);</span><br><span class="line">u1.equals(u2) <span class="comment">// Gives true</span></span><br></pre></td></tr></table></figure>
+<h4 id="To-String"><a href="#To-String" class="headerlink" title="To String"></a>To String</h4><p>Lombok的ToString注解自动生成toString方法，其中包含类封装的全部字段。这是用于生成调试表示的快速方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> lombok.ToString;</span><br><span class="line"><span class="keyword">import</span> lombok.Getter;</span><br><span class="line"><span class="keyword">import</span> lombok.Setter;</span><br><span class="line"></span><br><span class="line"><span class="meta">@ToString</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Entry</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Getter</span> <span class="meta">@Setter</span> <span class="keyword">private</span> String id;</span><br><span class="line">    <span class="meta">@Getter</span> <span class="meta">@Setter</span> <span class="keyword">private</span> String target;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// This works automagically</span></span><br><span class="line">Entry e = <span class="keyword">new</span> Entry();</span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line">System.out.println(e);  <span class="comment">// Nice output with values of id and target</span></span><br></pre></td></tr></table></figure>
+<h4 id="Data-classes"><a href="#Data-classes" class="headerlink" title="Data classes"></a>Data classes</h4><p>这个注解用于生成符合规范的完整POJO。它是ToString、EqualsAndHashCode以及所有非final字段的Getter和Setter的集合体。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> lombok.Data;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Message</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String sender;</span><br><span class="line">    <span class="keyword">private</span> String content;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// This works automagically</span></span><br><span class="line">Message m = <span class="keyword">new</span> Message(<span class="string">"amitosh"</span>, <span class="string">"Hello World"</span>);</span><br><span class="line">m.setSender(<span class="string">"agathver"</span>);</span><br><span class="line">m.getContent();  <span class="comment">// Hello World</span></span><br><span class="line">m.toString();    <span class="comment">// ...</span></span><br></pre></td></tr></table></figure>
+<h4 id="SneakyThrows"><a href="#SneakyThrows" class="headerlink" title="SneakyThrows"></a>SneakyThrows</h4><p>Java是一门静态检查语言，但有时检查会比较多余。例如有时我们不关心异常，或者确定代码中不会出现异常，所以就不想去写捕获和处理异常的代码。这时SneakyThrows注解可以帮助我们一起骗过编译器。</p>
+<p>但要注意不能滥用这个注解。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> lombok.SneakyThrows;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SneakyThrowsExample</span> </span>&#123;</span><br><span class="line">   <span class="meta">@SneakyThrows</span>(UnsupportedEncodingException.class)</span><br><span class="line">   <span class="function"><span class="keyword">public</span> String <span class="title">utf8ToString</span><span class="params">(<span class="keyword">byte</span>[] bytes)</span> </span>&#123;</span><br><span class="line">       <span class="comment">// This exception is never generated as UTF-8 is guaranteed</span></span><br><span class="line">       <span class="comment">// to be supported by the JVM</span></span><br><span class="line">       <span class="keyword">return</span> <span class="keyword">new</span> String(bytes, <span class="string">"UTF-8"</span>);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Delomboking"><a href="#Delomboking" class="headerlink" title="Delomboking"></a>Delomboking</h3><p>不是所有的工具都支持Lombok的，最著名的是JavaDoc工具。你需要有一个中间态的代码来使文档正确表示。此外，有时候你可能会想看看Lombok生成的代码到底是什么样的。幸好Lombok提供了“delomboking”，用来将Lombok转换成Java源代码。</p>
+<p>要转换一个文件夹下的全部代码，可以使用以下命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar lombok.jar delombok src -d src-delomboked</span><br></pre></td></tr></table></figure>
+<p>maven和gradle插件也包含了delomboking任务，在你需要的时候可以使用。</p>
+<p>Lombok是一个提高你的Java生产力的工具。我无法想象没有它时应该怎么写Java程序。真心希望你在读完本文以后能够认识到它的强大！</p>
+<h3 id="原文地址"><a href="#原文地址" class="headerlink" title="原文地址"></a>原文地址</h3><p><a href="https://medium.com/@agathver/banish-repetitive-java-code-with-lombok-f9b97d0d4137" target="_blank" rel="noopener">https://medium.com/@agathver/banish-repetitive-java-code-with-lombok-f9b97d0d4137</a></p>
 
       
     </div>
@@ -482,7 +474,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Rust/" rel="tag"><i class="fa fa-tag"></i> Rust</a>
+            <a href="/tags/Java/" rel="tag"><i class="fa fa-tag"></i> Java</a>
           
         </div>
       
@@ -495,8 +487,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/09/19/Elasticsearch从入门到放弃：人生若只如初见/" rel="next" title="Elasticsearch从入门到放弃：人生若只如初见">
-                <i class="fa fa-chevron-left"></i> Elasticsearch从入门到放弃：人生若只如初见
+              <a href="/2019/11/14/敲开通往架构师的门/" rel="next" title="敲开通往架构师的门">
+                <i class="fa fa-chevron-left"></i> 敲开通往架构师的门
               </a>
             
           </div>
@@ -504,10 +496,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/09/22/【译】如何提出好的Code-Review反馈/" rel="prev" title="【译】如何提出好的Code Review反馈">
-                【译】如何提出好的Code Review反馈 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -668,7 +656,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Rust简介"><span class="nav-number">1.</span> <span class="nav-text">Rust简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#安装Rust"><span class="nav-number">2.</span> <span class="nav-text">安装Rust</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#IDEA集成Rust"><span class="nav-number">2.1.</span> <span class="nav-text">IDEA集成Rust</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Hello-World"><span class="nav-number">3.</span> <span class="nav-text">Hello World</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#后记"><span class="nav-number">4.</span> <span class="nav-text">后记</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Lombok简介"><span class="nav-number">1.</span> <span class="nav-text">Lombok简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Lombok是如何工作的？"><span class="nav-number">2.</span> <span class="nav-text">Lombok是如何工作的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#我应该如何开始使用？"><span class="nav-number">3.</span> <span class="nav-text">我应该如何开始使用？</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#设置你的IDE"><span class="nav-number">3.1.</span> <span class="nav-text">设置你的IDE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Constructors"><span class="nav-number">3.2.</span> <span class="nav-text">Constructors</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Equals-and-hash-codes"><span class="nav-number">3.3.</span> <span class="nav-text">Equals and hash codes</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#To-String"><span class="nav-number">3.4.</span> <span class="nav-text">To String</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Data-classes"><span class="nav-number">3.5.</span> <span class="nav-text">Data classes</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SneakyThrows"><span class="nav-number">3.6.</span> <span class="nav-text">SneakyThrows</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Delomboking"><span class="nav-number">4.</span> <span class="nav-text">Delomboking</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#原文地址"><span class="nav-number">5.</span> <span class="nav-text">原文地址</span></a></li></ol></div>
             
 
           </div>
