@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="当你在写Getter和Setter时，一定无数次的想过，为什么会有POJO这么烂的东西。你不是一个人！（不是骂人…）无数的开发人员花费了大量的时间来写这种样板代码，而他们本来可以利用这些时间做出更有价值的输出。 从我开始写Java以来，已经写了几千行代码了，其中大概50%都是样板代码，在转型之前，我就这么一直毫无怨言的写着。而最近两年，我不再Java了，转而开始写一些Python，Go和JavaS">
+<meta name="description" content="当你在写Getter和Setter时，一定无数次的想过，为什么会有POJO这么烂的东西。你不是一个人！（不是骂人…）无数的开发人员花费了大量的时间来写这种样板代码，而他们本来可以利用这些时间做出更有价值的输出。">
 <meta name="keywords" content="Java">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【译】利用Lombok消除重复代码">
 <meta property="og:url" content="https://jackeyzhe.github.io/2019/11/20/【译】利用Lombok消除重复代码/index.html">
 <meta property="og:site_name" content="Jackeyzhe">
-<meta property="og:description" content="当你在写Getter和Setter时，一定无数次的想过，为什么会有POJO这么烂的东西。你不是一个人！（不是骂人…）无数的开发人员花费了大量的时间来写这种样板代码，而他们本来可以利用这些时间做出更有价值的输出。 从我开始写Java以来，已经写了几千行代码了，其中大概50%都是样板代码，在转型之前，我就这么一直毫无怨言的写着。而最近两年，我不再Java了，转而开始写一些Python，Go和JavaS">
+<meta property="og:description" content="当你在写Getter和Setter时，一定无数次的想过，为什么会有POJO这么烂的东西。你不是一个人！（不是骂人…）无数的开发人员花费了大量的时间来写这种样板代码，而他们本来可以利用这些时间做出更有价值的输出。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-11-20T13:48:21.502Z">
+<meta property="og:updated_time" content="2019-11-20T14:02:46.690Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【译】利用Lombok消除重复代码">
-<meta name="twitter:description" content="当你在写Getter和Setter时，一定无数次的想过，为什么会有POJO这么烂的东西。你不是一个人！（不是骂人…）无数的开发人员花费了大量的时间来写这种样板代码，而他们本来可以利用这些时间做出更有价值的输出。 从我开始写Java以来，已经写了几千行代码了，其中大概50%都是样板代码，在转型之前，我就这么一直毫无怨言的写着。而最近两年，我不再Java了，转而开始写一些Python，Go和JavaS">
+<meta name="twitter:description" content="当你在写Getter和Setter时，一定无数次的想过，为什么会有POJO这么烂的东西。你不是一个人！（不是骂人…）无数的开发人员花费了大量的时间来写这种样板代码，而他们本来可以利用这些时间做出更有价值的输出。">
 
 
 
@@ -360,7 +360,7 @@
       
 
       
-        <p>当你在写Getter和Setter时，一定无数次的想过，为什么会有POJO这么烂的东西。你不是一个人！（不是骂人…）无数的开发人员花费了大量的时间来写这种样板代码，而他们本来可以利用这些时间做出更有价值的输出。</p>
+        <p>当你在写Getter和Setter时，一定无数次的想过，为什么会有POJO这么烂的东西。你不是一个人！（不是骂人…）无数的开发人员花费了大量的时间来写这种样板代码，而他们本来可以利用这些时间做出更有价值的输出。<a id="more"></a></p>
 <p>从我开始写Java以来，已经写了几千行代码了，其中大概50%都是样板代码，在转型之前，我就这么一直毫无怨言的写着。而最近两年，我不再Java了，转而开始写一些Python，Go和JavaScript的代码。这时我才感觉到Java中的重复的样板代码是多么令人沮丧。</p>
 <p>值得庆幸的是，现在的IDE为我们提供了自动生成这些代码的功能。但是我仍然需要按快捷键或者点鼠标来操作，这是非常影响我的编码思路的。</p>
 <h3 id="Lombok简介"><a href="#Lombok简介" class="headerlink" title="Lombok简介"></a>Lombok简介</h3><blockquote>
@@ -405,6 +405,7 @@
 <p>maven和gradle插件也包含了delomboking任务，在你需要的时候可以使用。</p>
 <p>Lombok是一个提高你的Java生产力的工具。我无法想象没有它时应该怎么写Java程序。真心希望你在读完本文以后能够认识到它的强大！</p>
 <h3 id="原文地址"><a href="#原文地址" class="headerlink" title="原文地址"></a>原文地址</h3><p><a href="https://medium.com/@agathver/banish-repetitive-java-code-with-lombok-f9b97d0d4137" target="_blank" rel="noopener">https://medium.com/@agathver/banish-repetitive-java-code-with-lombok-f9b97d0d4137</a></p>
+<h3 id="译者点评"><a href="#译者点评" class="headerlink" title="译者点评"></a>译者点评</h3><p>Lombok是一款非常好用的工具，它可以帮助我们快速构建POJO类。但是如果直接使用@Data注解时，会破坏类的封装特性。这点不符合面向对象编程的思想，但工作中会使用一些序列化工具，这些工具要求所有字段都要有setter方法。为了编码的方便，可能使用@Data方法是一个好的选择。</p>
 
       
     </div>
@@ -656,7 +657,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Lombok简介"><span class="nav-number">1.</span> <span class="nav-text">Lombok简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Lombok是如何工作的？"><span class="nav-number">2.</span> <span class="nav-text">Lombok是如何工作的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#我应该如何开始使用？"><span class="nav-number">3.</span> <span class="nav-text">我应该如何开始使用？</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#设置你的IDE"><span class="nav-number">3.1.</span> <span class="nav-text">设置你的IDE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Constructors"><span class="nav-number">3.2.</span> <span class="nav-text">Constructors</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Equals-and-hash-codes"><span class="nav-number">3.3.</span> <span class="nav-text">Equals and hash codes</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#To-String"><span class="nav-number">3.4.</span> <span class="nav-text">To String</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Data-classes"><span class="nav-number">3.5.</span> <span class="nav-text">Data classes</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SneakyThrows"><span class="nav-number">3.6.</span> <span class="nav-text">SneakyThrows</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Delomboking"><span class="nav-number">4.</span> <span class="nav-text">Delomboking</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#原文地址"><span class="nav-number">5.</span> <span class="nav-text">原文地址</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Lombok简介"><span class="nav-number">1.</span> <span class="nav-text">Lombok简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Lombok是如何工作的？"><span class="nav-number">2.</span> <span class="nav-text">Lombok是如何工作的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#我应该如何开始使用？"><span class="nav-number">3.</span> <span class="nav-text">我应该如何开始使用？</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#设置你的IDE"><span class="nav-number">3.1.</span> <span class="nav-text">设置你的IDE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Constructors"><span class="nav-number">3.2.</span> <span class="nav-text">Constructors</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Equals-and-hash-codes"><span class="nav-number">3.3.</span> <span class="nav-text">Equals and hash codes</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#To-String"><span class="nav-number">3.4.</span> <span class="nav-text">To String</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Data-classes"><span class="nav-number">3.5.</span> <span class="nav-text">Data classes</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SneakyThrows"><span class="nav-number">3.6.</span> <span class="nav-text">SneakyThrows</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Delomboking"><span class="nav-number">4.</span> <span class="nav-text">Delomboking</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#原文地址"><span class="nav-number">5.</span> <span class="nav-text">原文地址</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#译者点评"><span class="nav-number">6.</span> <span class="nav-text">译者点评</span></a></li></ol></div>
             
 
           </div>
