@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Java," />
+  <meta name="keywords" content="技术杂谈," />
 
 
 
@@ -79,21 +79,18 @@
 
 
 
-<meta name="description" content="在实际项目中，我们常常需要把两个相似的对象相互转换，其目的是在对外提供数据时需要将一部分敏感数据（例如：密码、加密token等）隐藏起来。最普通的方法是，新建一个对象，将需要的值逐个set进去。如果有多组需要这样转换的对象，那么就需要做很多只是get/set这样无意义的工作。">
-<meta name="keywords" content="Java">
+<meta name="description" content="究竟什么是优秀的代码？Robert Martin的一句话可以完美诠释。">
+<meta name="keywords" content="技术杂谈">
 <meta property="og:type" content="article">
-<meta property="og:title" content="使用ModelMapper的一次踩坑经历">
-<meta property="og:url" content="https://jackeyzhe.github.io/2018/09/11/使用ModelMapper的一次踩坑经历/index.html">
+<meta property="og:title" content="【译】什么才是优秀的代码">
+<meta property="og:url" content="https://jackeyzhe.github.io/2019/11/27/【译】什么才是优秀的代码/index.html">
 <meta property="og:site_name" content="Jackeyzhe">
-<meta property="og:description" content="在实际项目中，我们常常需要把两个相似的对象相互转换，其目的是在对外提供数据时需要将一部分敏感数据（例如：密码、加密token等）隐藏起来。最普通的方法是，新建一个对象，将需要的值逐个set进去。如果有多组需要这样转换的对象，那么就需要做很多只是get/set这样无意义的工作。">
+<meta property="og:description" content="究竟什么是优秀的代码？Robert Martin的一句话可以完美诠释。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1536677296/Blog/ModelMapper/ModelMapper1.png">
-<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1536678691/Blog/ModelMapper/ModelMapper2.png">
-<meta property="og:updated_time" content="2018-09-11T16:12:26.473Z">
+<meta property="og:updated_time" content="2019-11-27T15:02:48.480Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="使用ModelMapper的一次踩坑经历">
-<meta name="twitter:description" content="在实际项目中，我们常常需要把两个相似的对象相互转换，其目的是在对外提供数据时需要将一部分敏感数据（例如：密码、加密token等）隐藏起来。最普通的方法是，新建一个对象，将需要的值逐个set进去。如果有多组需要这样转换的对象，那么就需要做很多只是get/set这样无意义的工作。">
-<meta name="twitter:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1536677296/Blog/ModelMapper/ModelMapper1.png">
+<meta name="twitter:title" content="【译】什么才是优秀的代码">
+<meta name="twitter:description" content="究竟什么是优秀的代码？Robert Martin的一句话可以完美诠释。">
 
 
 
@@ -123,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="https://jackeyzhe.github.io/2018/09/11/使用ModelMapper的一次踩坑经历/"/>
+  <link rel="canonical" href="https://jackeyzhe.github.io/2019/11/27/【译】什么才是优秀的代码/"/>
 
 
 
 
 
-  <title>使用ModelMapper的一次踩坑经历 | Jackeyzhe</title>
+  <title>【译】什么才是优秀的代码 | Jackeyzhe</title>
   
 
 
@@ -291,7 +288,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2018/09/11/使用ModelMapper的一次踩坑经历/">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2019/11/27/【译】什么才是优秀的代码/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Jackey Wang">
@@ -308,7 +305,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">使用ModelMapper的一次踩坑经历</h1>
+          <h1 class="post-title" itemprop="name headline">【译】什么才是优秀的代码</h1>
         
 
         <div class="post-meta">
@@ -320,8 +317,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-11T22:08:32+08:00">
-                2018-09-11
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-27T22:58:32+08:00">
+                2019-11-27
               </time>
             
 
@@ -363,38 +360,95 @@
       
 
       
-        <p>在实际项目中，我们常常需要把两个相似的对象相互转换，其目的是在对外提供数据时需要将一部分敏感数据（例如：密码、加密token等）隐藏起来。最普通的方法是，新建一个对象，将需要的值逐个set进去。如果有多组需要这样转换的对象，那么就需要做很多只是get/set这样无意义的工作。<a id="more"></a></p>
-<p>在这样的背景下，ModelMapper诞生了，它是一个简单、高效、智能的对象映射工具。它的使用非常简单，首先添加maven依赖</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">  &lt;groupId&gt;org.modelmapper&lt;/groupId&gt;</span><br><span class="line">  &lt;artifactId&gt;modelmapper&lt;/artifactId&gt;</span><br><span class="line">  &lt;version&gt;2.1.1&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
-<p>然后就可以直接new出一个ModelMapper对象，并且调用其map方法将指定对象的值映射到另一个对象上了。</p>
-<p>使用方法今天不做过多介绍，大家可以自行Google，找到ModelMapper的相关文档进行学习。今天要分享的时前几天无意间踩到的一个坑。我有两个类，PostDO和PostVO（这里只截取了部分字段，因此两个类的含义也不做解释了）：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PostDO</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Long id;</span><br><span class="line">    <span class="keyword">private</span> String commentId;</span><br><span class="line">    <span class="keyword">private</span> Long postId;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> likeNum;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PostVO</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Long id;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">boolean</span> like;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> likeNum;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>在一个方法中，我试图将PostDO的一个对象映射到PostVO，因此我进行如下操作：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Application</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        ModelMapper modelMapper = <span class="keyword">new</span> ModelMapper();</span><br><span class="line">        PostDO postDO = PostDO.builder().id(<span class="number">3L</span>).likeNum(<span class="number">0</span>).build();</span><br><span class="line">        PostVO postVO = modelMapper.map(postDO, PostVO.class);</span><br><span class="line">        System.out.println(postVO);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>执行结果是这样的：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PostVO(id=<span class="number">3</span>, like=<span class="keyword">false</span>, likeNum=<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
-<p>无异常，项目中likeNum字段的值是随着项目的进行递增的。当likeNum增加到2时，异常出现了：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">Exception in thread <span class="string">"main"</span> org.modelmapper.MappingException: ModelMapper mapping errors:</span><br><span class="line"></span><br><span class="line"><span class="number">1</span>) Converter org.modelmapper.internal.converter.BooleanConverter@<span class="number">497470</span>ed failed to convert <span class="keyword">int</span> to <span class="keyword">boolean</span>.</span><br><span class="line"></span><br><span class="line"><span class="number">1</span> error</span><br><span class="line">	at org.modelmapper.internal.Errors.throwMappingExceptionIfErrorsExist(Errors.java:<span class="number">380</span>)</span><br><span class="line">	at org.modelmapper.internal.MappingEngineImpl.map(MappingEngineImpl.java:<span class="number">79</span>)</span><br><span class="line">	at org.modelmapper.ModelMapper.mapInternal(ModelMapper.java:<span class="number">554</span>)</span><br><span class="line">	at org.modelmapper.ModelMapper.map(ModelMapper.java:<span class="number">387</span>)</span><br><span class="line">	at Application.main(Application.java:<span class="number">7</span>)</span><br><span class="line">Caused by: org.modelmapper.MappingException: ModelMapper mapping errors:</span><br><span class="line"></span><br><span class="line"><span class="number">1</span>) Error mapping <span class="number">2</span> to <span class="keyword">boolean</span></span><br><span class="line"></span><br><span class="line"><span class="number">1</span> error</span><br><span class="line">	at org.modelmapper.internal.Errors.toMappingException(Errors.java:<span class="number">258</span>)</span><br><span class="line">	at org.modelmapper.internal.converter.BooleanConverter.convert(BooleanConverter.java:<span class="number">49</span>)</span><br><span class="line">	at org.modelmapper.internal.converter.BooleanConverter.convert(BooleanConverter.java:<span class="number">27</span>)</span><br><span class="line">	at org.modelmapper.internal.MappingEngineImpl.convert(MappingEngineImpl.java:<span class="number">298</span>)</span><br><span class="line">	at org.modelmapper.internal.MappingEngineImpl.map(MappingEngineImpl.java:<span class="number">108</span>)</span><br><span class="line">	at org.modelmapper.internal.MappingEngineImpl.setDestinationValue(MappingEngineImpl.java:<span class="number">238</span>)</span><br><span class="line">	at org.modelmapper.internal.MappingEngineImpl.propertyMap(MappingEngineImpl.java:<span class="number">184</span>)</span><br><span class="line">	at org.modelmapper.internal.MappingEngineImpl.typeMap(MappingEngineImpl.java:<span class="number">148</span>)</span><br><span class="line">	at org.modelmapper.internal.MappingEngineImpl.map(MappingEngineImpl.java:<span class="number">113</span>)</span><br><span class="line">	at org.modelmapper.internal.MappingEngineImpl.map(MappingEngineImpl.java:<span class="number">70</span>)</span><br><span class="line">	... <span class="number">3</span> more</span><br></pre></td></tr></table></figure>
-<p>提示int类型不能转换成boolean型，很明显。ModelMapper是将like字段映射到likeNum了。那么ModelMapper究竟是怎样进行映射的呢，我们一起来看一下ModelMapper的源码。</p>
-<p>ModelMapper利用反射机制，获取到目标类的字段，并生成期望匹配的键值对，类似于这样。</p>
-<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1536677296/Blog/ModelMapper/ModelMapper1.png" alt="键值对"></p>
-<p>接着对这些键值对进行遍历，逐个寻找源类中可以匹配的字段。首先会根据目标字段判断是否存在对应的映射，</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Mapping existingMapping = <span class="keyword">this</span>.typeMap.mappingFor(destPath);</span><br><span class="line"><span class="keyword">if</span> (existingMapping == <span class="keyword">null</span>) &#123;</span><br><span class="line">    <span class="keyword">this</span>.matchSource(<span class="keyword">this</span>.sourceTypeInfo, mutator);</span><br><span class="line">    <span class="keyword">this</span>.propertyNameInfo.clearSource();</span><br><span class="line">    <span class="keyword">this</span>.sourceTypes.clear();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>如果不存在，就调用matchSource方法，在源类中根据匹配规则寻找可以匹配的字段。匹配过程中，首先会判断目标字段的类型是否在类型列表中存在，如果存在，则可以根据名称，加入匹配的mappings中。如果不存在，则需要判断converterStore中是否存在能够应用于该字段的转换器。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="keyword">this</span>.destinationTypes.contains(destinationMutator.getType())) &#123;</span><br><span class="line">    <span class="keyword">this</span>.mappings.add(<span class="keyword">new</span> PropertyMappingImpl(<span class="keyword">this</span>.propertyNameInfo.getSourceProperties(), <span class="keyword">this</span>.propertyNameInfo.getDestinationProperties(), <span class="keyword">true</span>));</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    TypeMap&lt;?, ?&gt; propertyTypeMap = <span class="keyword">this</span>.typeMapStore.get(accessor.getType(), destinationMutator.getType(), (String)<span class="keyword">null</span>);</span><br><span class="line">    PropertyMappingImpl mapping = <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">if</span> (propertyTypeMap != <span class="keyword">null</span>) &#123;</span><br><span class="line">        Converter&lt;?, ?&gt; propertyConverter = propertyTypeMap.getConverter();</span><br><span class="line">        <span class="keyword">if</span> (propertyConverter == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">this</span>.mergeMappings(propertyTypeMap);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">this</span>.mappings.add(<span class="keyword">new</span> PropertyMappingImpl(<span class="keyword">this</span>.propertyNameInfo.getSourceProperties(), <span class="keyword">this</span>.propertyNameInfo.getDestinationProperties(), propertyTypeMap.getProvider(), propertyConverter));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        doneMatching = <span class="keyword">this</span>.matchingStrategy.isExact();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        Iterator var9 = <span class="keyword">this</span>.converterStore.getConverters().iterator();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span>(var9.hasNext()) &#123;</span><br><span class="line">            ConditionalConverter&lt;?, ?&gt; converter = (ConditionalConverter)var9.next();</span><br><span class="line">            MatchResult matchResult = converter.match(accessor.getType(), destinationMutator.getType());</span><br><span class="line">            <span class="keyword">if</span> (!MatchResult.NONE.equals(matchResult)) &#123;</span><br><span class="line">                mapping = <span class="keyword">new</span> PropertyMappingImpl(<span class="keyword">this</span>.propertyNameInfo.getSourceProperties(), <span class="keyword">this</span>.propertyNameInfo.getDestinationProperties(), <span class="keyword">false</span>);</span><br><span class="line">                <span class="keyword">if</span> (MatchResult.FULL.equals(matchResult)) &#123;</span><br><span class="line">                    <span class="keyword">this</span>.mappings.add(mapping);</span><br><span class="line">                    doneMatching = <span class="keyword">this</span>.matchingStrategy.isExact();</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (!<span class="keyword">this</span>.configuration.isFullTypeMatchingRequired()) &#123;</span><br><span class="line">                    <span class="keyword">this</span>.partiallyMatchedMappings.add(mapping);</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (mapping == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">this</span>.intermediateMappings.put(accessor, <span class="keyword">new</span> PropertyMappingImpl(<span class="keyword">this</span>.propertyNameInfo.getSourceProperties(), <span class="keyword">this</span>.propertyNameInfo.getDestinationProperties(), <span class="keyword">false</span>));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>默认的转换器有11中：</p>
-<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1536678691/Blog/ModelMapper/ModelMapper2.png" alt="转换器"></p>
-<p>找到对应的converter后，converter的map方法返回一个MatchResult，MatchResult有三种结果：FULL、PARTIAL和NONE（即全部匹配，部分匹配和不匹配）。注意，这里有一个部分匹配，也就是我所踩到的坑，在对like进行匹配是，likeNum就被定义为部分匹配。因此，当likeNum大于2时，就不能被转换成boolean类型。</p>
-<p>这里解决方法有两种，一种是在设置中，规定必须字段名完全匹配；另一种就是将匹配策略定义为严格。</p>
-<p>设置方法如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">modelMapper.getConfiguration().setFullTypeMatchingRequired(<span class="keyword">true</span>);</span><br><span class="line">modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);</span><br></pre></td></tr></table></figure>
-<p>到这里，ModelMapper会选出较为合适的源字段，但是如果匹配要求不高的话，ModelMapper可能会筛选出多个符合条件的字段，因此，还需要进一步过滤。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">PropertyMappingImpl mapping;</span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">this</span>.mappings.size() == <span class="number">1</span>) &#123;</span><br><span class="line">    mapping = (PropertyMappingImpl)<span class="keyword">this</span>.mappings.get(<span class="number">0</span>);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    mapping = <span class="keyword">this</span>.disambiguateMappings();</span><br><span class="line">    <span class="keyword">if</span> (mapping == <span class="keyword">null</span> &amp;&amp; !<span class="keyword">this</span>.configuration.isAmbiguityIgnored()) &#123;</span><br><span class="line">        <span class="keyword">this</span>.errors.ambiguousDestination(<span class="keyword">this</span>.mappings);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这里我们看到，如果匹配到的结果只有1个，那么就返回这个结果；如果有多个，则会调用disambiguateMappings方法，去掉有歧义的结果。我们来看一下这个方法。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> PropertyMappingImpl <span class="title">disambiguateMappings</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    List&lt;ImplicitMappingBuilder.WeightPropertyMappingImpl&gt; weightMappings = <span class="keyword">new</span> ArrayList(<span class="keyword">this</span>.mappings.size());</span><br><span class="line">    Iterator var2 = <span class="keyword">this</span>.mappings.iterator();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(var2.hasNext()) &#123;</span><br><span class="line">        PropertyMappingImpl mapping = (PropertyMappingImpl)var2.next();</span><br><span class="line">        ImplicitMappingBuilder.SourceTokensMatcher matcher = <span class="keyword">this</span>.createSourceTokensMatcher(mapping);</span><br><span class="line">        ImplicitMappingBuilder.DestTokenIterator destTokenIterator = <span class="keyword">new</span> ImplicitMappingBuilder.DestTokenIterator(mapping);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span>(destTokenIterator.hasNext()) &#123;</span><br><span class="line">            matcher.match(destTokenIterator.next());</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">double</span> matchRatio = (<span class="keyword">double</span>)matcher.matches() / ((<span class="keyword">double</span>)matcher.total() + (<span class="keyword">double</span>)destTokenIterator.total());</span><br><span class="line">        weightMappings.add(<span class="keyword">new</span> ImplicitMappingBuilder.WeightPropertyMappingImpl(mapping, matchRatio));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    Collections.sort(weightMappings);</span><br><span class="line">    <span class="keyword">if</span> (((ImplicitMappingBuilder.WeightPropertyMappingImpl)weightMappings.get(<span class="number">0</span>)).ratio == ((ImplicitMappingBuilder.WeightPropertyMappingImpl)weightMappings.get(<span class="number">1</span>)).ratio) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> ((ImplicitMappingBuilder.WeightPropertyMappingImpl)weightMappings.get(<span class="number">0</span>)).mapping;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>ModelMapper定义了一个权重，来判断源字段是否有歧义，这里根据驼峰式的规则（也可以设置为下划线），将源和目标字段名称进行拆分，根据 匹配数量/源token数+目标token数，得到一个匹配的比率，比率越大，说明匹配度越高。最终取得匹配权重最大的那个字段。其他字段被认为是有歧义的。</p>
-<p>截至目前，默认的ModelMapper的map方法的工作原理已经介绍完了，中间可能有些遗漏的细节，或者哪里有说的不明白的地方，欢迎大家和我一起讨论。大家在用到ModelMapper时一定要注意字段名，如果有相近的字段名，必须认真核对匹配是否正确，必要时就采用严格匹配策略。</p>
+        <p>究竟什么是优秀的代码？Robert Martin的一句话可以完美诠释。<a id="more"></a></p>
+<blockquote>
+<p>代码质量的唯一衡量标准是每分钟说多少次WTF</p>
+</blockquote>
+<p>我来解释一下这句话。当我在做code review时，通常会有三种不同的感受：</p>
+<ul>
+<li>What-the-F**k (厌恶脸) — <strong>这段代码并不是必要的</strong></li>
+<li>What-the-F**k (一脸钦佩) — <strong>这家伙真聪明啊</strong></li>
+<li>What-the-F**k (愤怒值爆表) — <strong>这什么垃圾玩意</strong></li>
+</ul>
+<p>所以当我们看代码时影响我们的第一印象的因素是什么呢？</p>
+<blockquote>
+<p>这是一段整洁又漂亮的代码。</p>
+<p>能够写出整洁又漂亮的代码是一个优秀工程师的标志。</p>
+<p><strong>It is Clean and Beautifully written code.</strong></p>
+<p><strong>And writing clean and beautiful code is the mark of a GREAT softwarecraftsman.</strong></p>
+</blockquote>
+<p>要学会这项伟大的事业有两个关键点：<strong>知识和工作</strong>。</p>
+<p>知识会教给你如何在变得更加专业的模式、原则、实践和启发式的方法。但这些知识需要你通过大量的读写、不断的实践和努力才能获得。</p>
+<p>简而言之，学会如何写整洁的代码并非一件简单的事。你必须要为之付出努力，必须一次又一次的练习、发现问题、经历失败，直到正确处理为止。这一过程没有任何捷径。</p>
+<p>下面我将向你介绍一些如何写出整洁且漂亮的代码的技巧。</p>
+<h3 id="“What-is-in-a-NAME”"><a href="#“What-is-in-a-NAME”" class="headerlink" title="“What is in a NAME”"></a>“What is in a NAME”</h3><p>Kendrick Lamar说过：</p>
+<blockquote>
+<p>如果我要讲一个真实的故事，那么一定是从故事的命名开始。</p>
+<p>If I’m gonna tell a real story, I’m gonna start with my name</p>
+</blockquote>
+<p>命名会遍布代码的每一个角落，我们会为函数、类、参数、包等命名，还会为源文件、目录命名。总之，在写代码的过程中，好的命名可能是使代码变整洁的最重要的因素。</p>
+<p>你的命名应该显示出你的意图。选择一个好的名称会耗费你的一些时间，但是如果随意命名，以后你会浪费更多的时间来理解它。所以请尽可能使你的命名更加合理，读你的代码的人也会因此感谢你。</p>
+<p>你要谨记的是，变量、函数和类的命名应该能回答三个问题：它为什么存在、它是做什么的、它用在哪里。</p>
+<p><strong>这不仅需要良好的描述能力，还需要了解跨国界的文化背景。要教会你这些，没有人能比你自己更合适了。</strong></p>
+<h3 id="“Functions-should-DO-ONLY-ONE-THING-”"><a href="#“Functions-should-DO-ONLY-ONE-THING-”" class="headerlink" title="“Functions should DO ONLY ONE THING.”"></a>“Functions should DO ONLY ONE THING.”</h3><p>我们所说的「单一责任」原则。</p>
+<p>Louis Sullivan对此有过完美的描述</p>
+<blockquote>
+<p>形式跟随函数</p>
+<p>Form follows function.</p>
+</blockquote>
+<p>每个系统都是由特定的编程语言构建而成。函数通常是动词，而类通常是名词。函数任何编程语言中通常都是出现在第一行，写出整洁代码的本质其实就是写出整洁的函数。</p>
+<p>要想写出整洁的函数，首先应该遵循两条黄金法则：</p>
+<ul>
+<li>函数应该尽可能短小</li>
+<li>函数应该只做一件事</li>
+</ul>
+<p>这意味着你的函数不应该出现嵌套的结构。所以函数的缩进级别不应该大于一个或两个，这会让你的代码更容易阅读、理解和消化。除此之外，我们还需要确保函数中的语句都处于同一抽象级别。</p>
+<p>在一个函数中如果混有不同的抽象级别通常会使代码变得十分混乱，并且难以管理。优秀的工程师会把函数当作给别人讲的一段故事，而不只是编码。</p>
+<p><strong>他们通常使用所选编程语言的功能来构建更加丰富、更具表现力和更加简洁的代码块。这使他们成为更好的“故事讲述者”。</strong></p>
+<h3 id="“Comments-do-not-make-up-for-bad-code”"><a href="#“Comments-do-not-make-up-for-bad-code”" class="headerlink" title="“Comments do not make up for bad code”"></a>“Comments do not make up for bad code”</h3><p>Venus Williams为我们敲响警钟：</p>
+<blockquote>
+<p>每个人都有自己的注释，这是谣言的开始。</p>
+<p>Everyone makes their own comments. That’s how rumors get started.</p>
+</blockquote>
+<p>注释是一把双刃剑，在正确的位置添加注释可以为他人提供最有用的帮助。另一方面，浪费空间来添加无用的注释会使代码更加的混乱。如果注释提供了错误的信息，那对代码来说可以说是一种灾难了。</p>
+<p>总之，注释是一种不可缺少的恶魔。为什么呢？通常，代码的注释越旧，维护起来就越困难。很多程序员因为修改代码时不维护注释而臭名昭著。</p>
+<p>随着代码的发展，代码做出了许多改动，但注释并没有随之修改，这是一个很大的问题。</p>
+<p><strong>请铭记，带有少量注释的简洁代码远胜于带有大量注释的混乱代码。不要浪费时间来解释你制造的混乱，而是要花些时间来清理这些混乱。</strong></p>
+<h3 id="“Formatting-Code-is-always-a-priority”"><a href="#“Formatting-Code-is-always-a-priority”" class="headerlink" title="“Formatting Code is always a priority”"></a>“Formatting Code is always a priority”</h3><p>Robert C. Martin说过</p>
+<blockquote>
+<p>代码格式与沟通有关，而沟通是专业开发人员的首要任务。</p>
+<p>Code formatting is about communication, and communication is the professional developer’s first order of business.</p>
+</blockquote>
+<p>上面的说法可能不被大家认可，但这是一个优秀的开发人员的最重要的品质。格式化的代码是你心灵的窗户，我们希望人们对我们的秩序、对细节的关注和思想的清晰印象深刻。当他人看代码时，如果看到的是混乱的、开头结尾不清晰的代码块，这会直接损害我们的声誉，这一点毋庸置疑！</p>
+<p>如果你认为代码“可以使用”是专业程序员的第一要务，那么你不会有很好的发展的。你今天的功能很有可能在下个版本进行更改，但代码的可读性是不会改变的。</p>
+<p>当原始代码已经改的面目全非时，代码的风格和可读性将影响代码的可维护性。</p>
+<p><strong>以后，你会因为自己的代码风格和纪律被人们记住，而不会因为某段代码。因此，你需要注意你的代码格式，使它受到简单的规则约束，这样的规则必须是所有团队成员都能理解的。</strong></p>
+<h3 id="Write-your-“try-catch-finally”-statement-first"><a href="#Write-your-“try-catch-finally”-statement-first" class="headerlink" title="Write your “try-catch-finally” statement first"></a>Write your “try-catch-finally” statement first</h3><p>Georges Canguilhem明确提到：</p>
+<blockquote>
+<p>人类都会犯错误，但是坚持错误的却是恶魔。</p>
+<p>To err is human, to persist in error is diabolical.</p>
+</blockquote>
+<p>错误处理是每个程序员都必须要做的事情，输入可能异常，设备也可能故障。作为开发人员，我们希望程序按照我们的预期来执行。然而，问题不是处理错误，而是清晰易读的错误处理方式。</p>
+<p>很多代码以处理错误为主，导致主代码逻辑被淹没在其中。这种做法是完全错误的。代码应该整洁、健壮，并且以一种优雅的方式处理错误，这也是优秀工程师的一种标志。</p>
+<p>其中一个错误处理方法是通过适当的<strong>try-catch</strong>代码块来捕获所有错误。在执行<strong>try-catch-finally</strong>中try部分的代码时，任何时间发生异常，都会进入catch部分执行。</p>
+<p>因此，在代码中使用<strong>try-catch-finally</strong>可能是一种比较好的选择。它能帮助你在try部分定义你希望执行的代码，而不用去担心代码出错时怎么办。</p>
+<p><strong>你抛出的每一个异常都应该具有完整的上下文以确定错误的来源和位置。具有创造性的错误信息会在代码写出来后很久，甚至是作者已经离开很长时间后仍然被人们记住。</strong></p>
+<h3 id="Bringing-it-all-together"><a href="#Bringing-it-all-together" class="headerlink" title="Bringing it all together"></a>Bringing it all together</h3><p>那么如何综合一下上面提到的技巧呢？</p>
+<blockquote>
+<p>答案是代码意识，是软件工程中的一种常识。</p>
+<p>The answer is code-sense; the software equivalent of common sense.</p>
+</blockquote>
+<p>据Robert Martin所说，”编写整洁的代码需要通过一段痛苦的过程来获得一些小技巧，这些小技巧被称为代码意识“。有些人天生就有这种感觉，而有些人则需要通过实践、坚持不懈和毅力来获取它。这种意识不仅仅是帮助我们区分好代码和坏代码，更能够给我们代码将坏代码转换成好代码的能力。</p>
+<p>代码意识可以帮助开发者们选择最好的工具来指导他们创造出更有价值的整洁又漂亮的代码。</p>
+<p>简而言之，具有代码意识到程序员就像是画家，他可以将一块空白的屏幕变成精美的艺术品，并被人们记住很长时间。</p>
+<p>就像Harold Abelson所说的一样：</p>
+<blockquote>
+<p>代码写出来首先是给人读的，然后才是指导机器要怎么做。</p>
+</blockquote>
+<h3 id="References"><a href="#References" class="headerlink" title="References"></a>References</h3><p>“A handbook of Agile Software Craftsmanship” — Robert Martin.</p>
+<p>“A handbook of Agile estimation” — Mike Cohn</p>
+<h3 id="原文地址"><a href="#原文地址" class="headerlink" title="原文地址"></a>原文地址</h3><p><a href="https://medium.com/swlh/excellent-code-clean-and-beautiful-code-b541ca4b5a39" target="_blank" rel="noopener">https://medium.com/swlh/excellent-code-clean-and-beautiful-code-b541ca4b5a39</a></p>
+<h3 id="译者点评"><a href="#译者点评" class="headerlink" title="译者点评"></a>译者点评</h3><p>这位作者以一种比较激进的语言告诉大家要注意代码的可读性，不过大家的观点都很类似，无非就是命名、代码格式、注释和错误处理这些点。希望这篇有些激进的文章可以帮助到一些同学，减少别人在review你的代码时，使用WTF的次数。</p>
 
       
     </div>
@@ -464,7 +518,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Java/" rel="tag"><i class="fa fa-tag"></i> Java</a>
+            <a href="/tags/技术杂谈/" rel="tag"><i class="fa fa-tag"></i> 技术杂谈</a>
           
         </div>
       
@@ -477,8 +531,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/09/08/代码洁癖系列（八）：迭代的原则/" rel="next" title="代码洁癖系列（八）：迭代的原则">
-                <i class="fa fa-chevron-left"></i> 代码洁癖系列（八）：迭代的原则
+              <a href="/2019/11/24/Elasticsearch从入门到放弃：文档CRUD要牢记/" rel="next" title="Elasticsearch从入门到放弃：文档CRUD要牢记">
+                <i class="fa fa-chevron-left"></i> Elasticsearch从入门到放弃：文档CRUD要牢记
               </a>
             
           </div>
@@ -486,10 +540,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/09/12/送给你的算法敲门砖/" rel="prev" title="送给你的算法敲门砖">
-                送给你的算法敲门砖 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -551,8 +601,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -631,6 +690,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#“What-is-in-a-NAME”"><span class="nav-number">1.</span> <span class="nav-text">“What is in a NAME”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#“Functions-should-DO-ONLY-ONE-THING-”"><span class="nav-number">2.</span> <span class="nav-text">“Functions should DO ONLY ONE THING.”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#“Comments-do-not-make-up-for-bad-code”"><span class="nav-number">3.</span> <span class="nav-text">“Comments do not make up for bad code”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#“Formatting-Code-is-always-a-priority”"><span class="nav-number">4.</span> <span class="nav-text">“Formatting Code is always a priority”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Write-your-“try-catch-finally”-statement-first"><span class="nav-number">5.</span> <span class="nav-text">Write your “try-catch-finally” statement first</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Bringing-it-all-together"><span class="nav-number">6.</span> <span class="nav-text">Bringing it all together</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#References"><span class="nav-number">7.</span> <span class="nav-text">References</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#原文地址"><span class="nav-number">8.</span> <span class="nav-text">原文地址</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#译者点评"><span class="nav-number">9.</span> <span class="nav-text">译者点评</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
