@@ -285,6 +285,134 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2019/02/26/走近源码：神奇的HyperLogLog/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jackey Wang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/02/26/走近源码：神奇的HyperLogLog/" itemprop="url">走近源码：神奇的HyperLogLog</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-26T22:44:42+08:00">
+                2019-02-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>HyperLogLog是Redis的高级数据结构，是统计基数的利器。<a href="https://jackeyzhe.github.io/2019/01/15/Redis%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%EF%BC%9AHyperLogLog/">前文</a>我们已经介绍过HyperLogLog的基本用法，如果只求会用，只需要掌握HyperLogLog的三个命令即可，如果想要更进一步了解HyperLogLog的原理以及源码实现，相信这篇文章会给你带来一些启发。
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/02/26/走近源码：神奇的HyperLogLog/#espandi" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+      <div>
+        
+      </div>
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2019/01/15/Redis命令详解：HyperLogLog/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -358,7 +486,7 @@
           <p>HyperLogLog是Redis的高级数据结构，它在做基数统计的时候非常有用，每个HyperLogLog的键可以计算接近2<sup>64</sup>不同元素的基数，而大小只需要12KB。
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2019/01/15/Redis命令详解：HyperLogLog/#more" rel="contents">
+            <a class="btn" href="/2019/01/15/Redis命令详解：HyperLogLog/#espandi" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -486,7 +614,7 @@
           <p>前面我们了解过了当Redis执行一个命令时，服务端做了哪些事情，不了解的同学可以看一下这篇文章<a href="https://jackeyzhe.github.io/2019/01/05/%E8%B5%B0%E8%BF%91%E6%BA%90%E7%A0%81%EF%BC%9ARedis%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4/">走近源码：Redis如何执行命令</a>。今天就一起来看看Redis的命令执行过程中客户端都做了什么事情。
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2019/01/12/走近源码：Redis命令执行过程（客户端）/#more" rel="contents">
+            <a class="btn" href="/2019/01/12/走近源码：Redis命令执行过程（客户端）/#espandi" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -614,7 +742,7 @@
           <p>Sorted Set（也称ZSET）和Set一样也是string类型的集合，你可以将它理解为Java中SortedSet和HashMap的集合体，一方面它是一个set，保证了元素的唯一性，另一方面它给每个value赋予了一个权重score，用来进行排序。集合中成员的最大个数为2<sup>32</sup>-1个。
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2019/01/06/Redis命令详解：Sorted-Sets/#more" rel="contents">
+            <a class="btn" href="/2019/01/06/Redis命令详解：Sorted-Sets/#espandi" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -742,7 +870,7 @@
           <p><a href="https://jackeyzhe.github.io/2019/01/04/%E8%B5%B0%E8%BF%91%E6%BA%90%E7%A0%81%EF%BC%9ARedis%E7%9A%84%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/">前文</a>我们了解了Redis的启动过程。在initServer()函数中创建了一些循环事件来监听TCP端口和Unix的Sockets，从而使Redis服务器可以接收新的连接。今天我们再一起来看一下Redis究竟是如何处理命令并返回结果的。
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2019/01/05/走近源码：Redis如何执行命令/#more" rel="contents">
+            <a class="btn" href="/2019/01/05/走近源码：Redis如何执行命令/#espandi" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -870,7 +998,7 @@
           <p>当我们对不断加深对某一项技术的了解时，一定会在一个特定的时间对它的实现方式产生兴趣。没错，这就是我现在的状态，所以，多年没有读/写C语言的我，决定要啃一下Redis的源码。
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2019/01/04/走近源码：Redis的启动过程/#more" rel="contents">
+            <a class="btn" href="/2019/01/04/走近源码：Redis的启动过程/#espandi" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -998,7 +1126,7 @@
           <p>现在是2019年1月1日凌晨1点27分，对自己的2018年做一些总结。
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2019/01/01/2018年终/#more" rel="contents">
+            <a class="btn" href="/2019/01/01/2018年终/#espandi" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1126,7 +1254,7 @@
           <p>Redis的Set结构相当于Java中的HashSet，是无序的元素集合，并且元素都是唯一的。由于Set是通过hash表实现的，所以它的增加、删除、查找操作的时间复杂度都是O(1)。最大成员个数为2<sup>32</sup>-1。
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018/12/19/Redis命令详解：Sets/#more" rel="contents">
+            <a class="btn" href="/2018/12/19/Redis命令详解：Sets/#espandi" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1254,7 +1382,7 @@
           <p>前面我们介绍了国人自己开发的Redis集群方案——Codis，Codis友好的管理界面以及强大的自动平衡槽位的功能深受广大开发者的喜爱。今天我们一起来聊一聊Redis作者自己提供的集群方案——Cluster。希望读完这篇文章，你能够充分了解Codis和Cluster各自的优缺点，面对不同的应用场景可以从容的做出选择。
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018/11/27/玩转Redis集群之Cluster/#more" rel="contents">
+            <a class="btn" href="/2018/11/27/玩转Redis集群之Cluster/#espandi" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1382,135 +1510,7 @@
           <p>List是Redis的基础数据类型之一，类似于Java中的LinkedList。一个列表最多包含2<sup>32</sup>个元素，常被用作模拟队列操作，接下来我们具体介绍一下List相关的命令。
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018/11/23/Redis命令详解：Lists/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-      <div>
-        
-      </div>
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2018/11/22/Redis命令详解：Hashs/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Jackey Wang">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Jackeyzhe">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/11/22/Redis命令详解：Hashs/" itemprop="url">Redis命令详解：Hashs</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-22T22:45:56+08:00">
-                2018-11-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>Hash是一种String类型的field、value的映射表，因此，它非常适合存储对象。下面我们来一一介绍与Hash相关的命令。
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/11/22/Redis命令详解：Hashs/#more" rel="contents">
+            <a class="btn" href="/2018/11/23/Redis命令详解：Lists/#espandi" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1602,7 +1602,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">72</span>
+                  <span class="site-state-item-count">73</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
