@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Elasticsearch笔记," />
+  <meta name="keywords" content="Rust," />
 
 
 
@@ -79,18 +79,21 @@
 
 
 
-<meta name="description" content="前文我们提到，Elasticsearch的数据都存储在索引中，也就是说，索引相当于是MySQL中的数据库。是最基础的概念。今天分享的也是关于索引的一些常用的操作。">
-<meta name="keywords" content="Elasticsearch笔记">
+<meta name="description" content="如果你已经开始学习Rust，相信你已经体会过Rust编译器的强大。它可以帮助你避免程序中的大部分错误，但是编译器也不是万能的，如果程序写的不恰当，还是会发生错误，让程序崩溃。所以今天我们就来聊一聊Rust中如何处理程序错误，也就是所谓的“亡羊补牢”。">
+<meta name="keywords" content="Rust">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Elasticsearch从入门到放弃：索引基本使用方法">
-<meta property="og:url" content="https://jackeyzhe.github.io/2019/10/13/Elasticsearch从入门到放弃：索引基本使用方法/index.html">
+<meta property="og:title" content="Rust入坑指南：亡羊补牢">
+<meta property="og:url" content="https://jackeyzhe.github.io/2019/12/30/Rust入坑指南：亡羊补牢/index.html">
 <meta property="og:site_name" content="Jackeyzhe">
-<meta property="og:description" content="前文我们提到，Elasticsearch的数据都存储在索引中，也就是说，索引相当于是MySQL中的数据库。是最基础的概念。今天分享的也是关于索引的一些常用的操作。">
+<meta property="og:description" content="如果你已经开始学习Rust，相信你已经体会过Rust编译器的强大。它可以帮助你避免程序中的大部分错误，但是编译器也不是万能的，如果程序写的不恰当，还是会发生错误，让程序崩溃。所以今天我们就来聊一聊Rust中如何处理程序错误，也就是所谓的“亡羊补牢”。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-10-16T13:23:27.726Z">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1577629475/Blog/rust/07/Rust07-1.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1577715961/Blog/rust/07/rust07-2.png">
+<meta property="og:updated_time" content="2019-12-30T14:40:44.112Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Elasticsearch从入门到放弃：索引基本使用方法">
-<meta name="twitter:description" content="前文我们提到，Elasticsearch的数据都存储在索引中，也就是说，索引相当于是MySQL中的数据库。是最基础的概念。今天分享的也是关于索引的一些常用的操作。">
+<meta name="twitter:title" content="Rust入坑指南：亡羊补牢">
+<meta name="twitter:description" content="如果你已经开始学习Rust，相信你已经体会过Rust编译器的强大。它可以帮助你避免程序中的大部分错误，但是编译器也不是万能的，如果程序写的不恰当，还是会发生错误，让程序崩溃。所以今天我们就来聊一聊Rust中如何处理程序错误，也就是所谓的“亡羊补牢”。">
+<meta name="twitter:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1577629475/Blog/rust/07/Rust07-1.png">
 
 
 
@@ -120,13 +123,13 @@
 
 
 
-  <link rel="canonical" href="https://jackeyzhe.github.io/2019/10/13/Elasticsearch从入门到放弃：索引基本使用方法/"/>
+  <link rel="canonical" href="https://jackeyzhe.github.io/2019/12/30/Rust入坑指南：亡羊补牢/"/>
 
 
 
 
 
-  <title>Elasticsearch从入门到放弃：索引基本使用方法 | Jackeyzhe</title>
+  <title>Rust入坑指南：亡羊补牢 | Jackeyzhe</title>
   
 
 
@@ -288,7 +291,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2019/10/13/Elasticsearch从入门到放弃：索引基本使用方法/">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2019/12/30/Rust入坑指南：亡羊补牢/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Jackey Wang">
@@ -305,7 +308,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Elasticsearch从入门到放弃：索引基本使用方法</h1>
+          <h1 class="post-title" itemprop="name headline">Rust入坑指南：亡羊补牢</h1>
         
 
         <div class="post-meta">
@@ -317,8 +320,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-13T01:07:09+08:00">
-                2019-10-13
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-30T22:39:27+08:00">
+                2019-12-30
               </time>
             
 
@@ -360,106 +363,54 @@
       
 
       
-        <p>前文我们提到，Elasticsearch的数据都存储在索引中，也就是说，索引相当于是MySQL中的数据库。是最基础的概念。今天分享的也是关于索引的一些常用的操作。<a id="more"></a></p>
-<h3 id="创建索引"><a href="#创建索引" class="headerlink" title="创建索引"></a>创建索引</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -X PUT <span class="string">"localhost:9200/jackey?pretty"</span></span><br></pre></td></tr></table></figure>
-<p>ES创建索引使用PUT请求即可，上面是最简单的新建一个索引的方法，除此之外，你还可以指定：</p>
+        <p>如果你已经开始学习Rust，相信你已经体会过Rust编译器的强大。它可以帮助你避免程序中的大部分错误，但是编译器也不是万能的，如果程序写的不恰当，还是会发生错误，让程序崩溃。所以今天我们就来聊一聊Rust中如何处理程序错误，也就是所谓的“亡羊补牢”。<a id="more"></a></p>
+<h3 id="基础概念"><a href="#基础概念" class="headerlink" title="基础概念"></a>基础概念</h3><p>在编程中遇到的非正常情况通常可以分为三类：失败、错误、异常。</p>
+<p>Rust中用两种方式来消除失败：强大的类型系统和断言。</p>
+<p>对于类型系统，熟悉Java的同学应该比较清楚。例如我们给一个接收参数为int的函数传入了字符串类型的变量。这是由编译器帮我们处理的。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1577629475/Blog/rust/07/Rust07-1.png" alt="rust07-1"></p>
+<p>关于断言，Rust支持6种断言。分别是：</p>
 <ul>
-<li>Settings</li>
-<li>Mappings</li>
-<li>aliases</li>
+<li>assert!</li>
+<li>assert_eq!</li>
+<li>assert_ne!</li>
+<li>debug_assert!</li>
+<li>debug_assert_eq!</li>
+<li>debug_assert_ne!</li>
 </ul>
-<p>索引名称有以下限制：</p>
-<ol>
-<li>必须是小写</li>
-<li>不能包含：<code>\</code>,<code>/</code>,<code>*</code>, <code>?</code>, <code>&quot;</code>, <code>&lt;</code>, <code>&gt;</code>, <code>|</code>, <code></code>(空格),<code>,</code>, <code>#</code></li>
-<li>在ES7.0以前索引名可以包含冒号，但是7.0之后不支持了</li>
-<li>不能以<code>-</code>,<code>_</code>和<code>+</code>开头</li>
-<li>不能是<code>.</code>或<code>..</code></li>
-<li>长度不能超过255字节</li>
-</ol>
-<p>请求支持的一些参数有：</p>
-<ul>
-<li><strong>wait_for_active_shards</strong>：继续操作前，必须处于active状态的分片数，默认是1，也可以设置为all或者不大于总分片数的任意正整数</li>
-<li><strong>timeout</strong>：设置等待响应的超时时间，默认是30秒</li>
-<li><strong>master_timeout</strong>：连接master节点响应的超时时间，默认是30秒</li>
-</ul>
-<p>前面我们提到创建索引时可以指定三种属性，这三种属性都需要放在body中。</p>
-<h4 id="aliases"><a href="#aliases" class="headerlink" title="aliases"></a>aliases</h4><p>索引的别名，一个别名可以赋给多个索引。</p>
-<p>给一个index起别名的方式有两种，一种是创建index时候在body中增加aliases，另一种是通过更新已有索引的方式增加。</p>
-<p>方式一：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">curl -X PUT <span class="string">"localhost:9200/jackey?pretty"</span> -H <span class="string">'Content-Type: application/json'</span> -d<span class="string">'</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">    "aliases" : &#123;</span></span><br><span class="line"><span class="string">        "alias_1" : &#123;&#125;,</span></span><br><span class="line"><span class="string">        "alias_2" : &#123;</span></span><br><span class="line"><span class="string">            "filter" : &#123;</span></span><br><span class="line"><span class="string">                "term" : &#123;"user" : "kimchy" &#125;</span></span><br><span class="line"><span class="string">            &#125;,</span></span><br><span class="line"><span class="string">            "routing" : "kimchy"</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">'</span></span><br></pre></td></tr></table></figure>
-<p>方式二：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST <span class="string">"localhost:9200/_aliases?pretty"</span> -H <span class="string">'Content-Type: application/json'</span> -d<span class="string">'</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">    "actions" : [</span></span><br><span class="line"><span class="string">        &#123; "add" : &#123; "index" : "jackey", "alias" : "alias1" &#125; &#125;</span></span><br><span class="line"><span class="string">    ]</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">'</span></span><br></pre></td></tr></table></figure>
-<p>方式一中，我们还在body中增加了filter和routing。这主要是用于指定使用别名的条件。指定了filter后，通过alias_2，只能访问user为kimchy的document。而routing的值被用来路由，即alias_2只能路由到指定的分片。此外还有index_routing和search_routing，它们和routing类似，这里不做过多解释了。还有一个比较重要的属性是is_write_index，这个属性默认是false，如果设置成true，表示可以通过这个别名来写索引，默认情况下，别名像一个软链接，是不可以修改原索引的。</p>
-<p>此外，还可以使用通配符为多个索引增加相同的别名</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST <span class="string">"localhost:9200/_aliases?pretty"</span> -H <span class="string">'Content-Type: application/json'</span> -d<span class="string">'</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">    "actions" : [</span></span><br><span class="line"><span class="string">        &#123; "add" : &#123; "index" : "test*", "alias" : "all_test_indices" &#125; &#125;</span></span><br><span class="line"><span class="string">    ]</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">'</span></span><br></pre></td></tr></table></figure>
-<p>除了add，还可以使用remove来删除别名</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST <span class="string">"localhost:9200/_aliases?pretty"</span> -H <span class="string">'Content-Type: application/json'</span> -d<span class="string">'</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">    "actions" : [</span></span><br><span class="line"><span class="string">        &#123; "remove" : &#123; "index" : "test1", "alias" : "alias1" &#125; &#125;</span></span><br><span class="line"><span class="string">    ]</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">'</span></span><br></pre></td></tr></table></figure>
-<h4 id="Settings"><a href="#Settings" class="headerlink" title="Settings"></a>Settings</h4><p>先看一个例子：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">curl -X PUT <span class="string">"localhost:9200/twitter?pretty"</span> -H <span class="string">'Content-Type: application/json'</span> -d<span class="string">'</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">    "settings" : &#123;</span></span><br><span class="line"><span class="string">        "index" : &#123;</span></span><br><span class="line"><span class="string">            "number_of_shards" : 3, </span></span><br><span class="line"><span class="string">            "number_of_replicas" : 2 </span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">'</span></span><br></pre></td></tr></table></figure>
-<p>索引的setting分为静态和动态两种。静态的只能在索引创建或关闭时设置；动态的则可以使用update-index-settings API来实时设置。上面的例子中，number_of_shards属于静态设置，number_of_replicas属于动态设置。</p>
-<p>索引可以设置的setting可以在官方文档的<a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.4/index-modules.html" target="_blank" rel="noopener">Index modules</a>查看，下面我会挑几个我认为比较重要的介绍一下。</p>
-<p>先从静态开始：</p>
-<ul>
-<li><strong>index.number_of_shards</strong>：指定索引的分片数，只能在创建索引时设置。默认是1，最大可以设置为1024。这是出于安全考虑的一种保护措施。最大值可以通过设置系统变量来控制export ES_JAVA_OPTS=”-Des.index.max_number_of_shards=128”</li>
-<li><strong>index.routing_partition_size</strong>：可以路由的分片数量，同样只能在创建索引时指定，默认值为1.这个值必须小于number_of_shards（除非number_of_shards的值也是1）</li>
-</ul>
-<p>动态setting：</p>
-<ul>
-<li><strong>index.number_of_replicas</strong>：每个分片的副本数，默认是1</li>
-<li><strong>index.auto_expand_replicas</strong>：基于数据节点可以自动扩展的副本数，默认为为false。可以设置为一个区间，以短线分隔，例如「0-5」，也可以设置成all。需要注意的是，副本的自动扩展并不会考虑其他的分配规则。这有可能导致集群状态变成黄色</li>
-<li><strong>index.search.idle.after</strong>：分片被认为搜索空闲之前没有收到请求或搜索的时间。默认30秒。</li>
-<li><strong>index.refresh_interval</strong>：刷新操作的执行频率，默认是1s。如果设置成-1，表示不会刷新。如果没有显式设置，分片在收到搜索请求前至少index.search.idle.after秒内不会后台刷新</li>
-<li><strong>index.max_result_window</strong>：返回结果的最大数量，默认是10000（一万）。搜索返回结果占用的内存和时间受到这个值的限制</li>
-<li><strong>index.routing.rebalance.enable</strong>：是否允许分片的自平衡。默认是all，允许所有分片重新平衡。还可以设置为primaries，只允许主分片重新平衡。replicas只允许从分片重新平衡。none不允许分片重新平衡。</li>
-</ul>
-<p>除了以上静态setting和动态setting之外，setting中还可以设置一些其他的值，例如分词器等，这些我们以后再做更详细的介绍。</p>
-<h4 id="Mappings"><a href="#Mappings" class="headerlink" title="Mappings"></a>Mappings</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">curl -X PUT <span class="string">"localhost:9200/test?pretty"</span> -H <span class="string">'Content-Type: application/json'</span> -d<span class="string">'</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">    "settings" : &#123;</span></span><br><span class="line"><span class="string">        "number_of_shards" : 1</span></span><br><span class="line"><span class="string">    &#125;,</span></span><br><span class="line"><span class="string">    "mappings" : &#123;</span></span><br><span class="line"><span class="string">        "properties" : &#123;</span></span><br><span class="line"><span class="string">            "field1" : &#123; "type" : "text" &#125;</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">'</span></span><br></pre></td></tr></table></figure>
-<p>Mapping主要用于帮助Elasticsearch理解每个域中数据的类型。7.0.0之前mapping的定义通常包括type名称。Elasticsearch支持的数据类型比较多，其中比较核心的简单数据类型包括：</p>
-<ul>
-<li>字符串: text和keyword</li>
-<li>整数 : byte, short, integer, long</li>
-<li>浮点数: float, double</li>
-<li>布尔型: boolean</li>
-<li>日期: date</li>
-</ul>
-<p>其他的类型，我们以后会做更加详细的介绍。</p>
-<h3 id="删除索引"><a href="#删除索引" class="headerlink" title="删除索引"></a>删除索引</h3><p>删除索引使用的是DELETE请求。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -X DELETE <span class="string">"localhost:9200/jackey?pretty"</span></span><br></pre></td></tr></table></figure>
-<p>你可以在路径中指定具体索引，也可以使用通配符，需要删除多个索引时，可以使用逗号分隔。如果要删除全部索引，可以指定索引为_all或*（不要这么做）。在生产环境，我们通过在elasticsearch.yml文件中将action.destructive_requires_name配置为true来禁止这些危险的操作。</p>
-<p>删除操作支持的参数有以下几种：</p>
-<ul>
-<li><strong>allow_no_indices</strong>：如果设置为true，则通配符或_all匹配不到索引时不会报错</li>
-<li><strong>expand_wildcards</strong>：控制通配符可以扩展到的索引类型。all：可以扩展到所有的索引。open：只能扩展到打开的索引。closed：只能扩展到关闭的索引。none：不接受通配符表达式。默认是open</li>
-<li><strong>ignore_unavailable</strong>：如果设置为true，不存在或关闭的索引不会在返回中。默认是false</li>
-<li><strong>timeout</strong>：指定等待返回响应的最长时间。默认是30秒</li>
-<li><strong>master_timeout</strong>：连接master节点响应的超时时间，默认是30秒</li>
-</ul>
-<h3 id="打开-关闭索引"><a href="#打开-关闭索引" class="headerlink" title="打开/关闭索引"></a>打开/关闭索引</h3><p>前面我们已经提到过了打开/关闭索引。被关闭的索引几乎不能对它进行任何操作，它只是用来保留数据的。而打开或关闭索引通常需要重启分片来使操作生效。具体的操作如下：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST <span class="string">"localhost:9200/jackey/_open?pretty"</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST <span class="string">"localhost:9200/jackey/_close?pretty"</span></span><br></pre></td></tr></table></figure>
-<p>支持的参数有：</p>
-<ul>
-<li><strong>allow_no_indices</strong></li>
-<li><strong>expand_wildcards</strong></li>
-<li><strong>ignore_unavailable</strong></li>
-<li><strong>wait_for_active_shards</strong></li>
-<li><strong>timeout</strong></li>
-<li><strong>master_timeout</strong></li>
-</ul>
-<p>这些参数在前面都有介绍。这里就不再赘述了。</p>
-<h3 id="拆分索引"><a href="#拆分索引" class="headerlink" title="拆分索引"></a>拆分索引</h3><p>随着数据的越来越多，我们可能会有拆分索引的需求，感谢ES为我们提供了便利。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST <span class="string">"localhost:9200/twitter/_split/split-twitter-index?pretty"</span> -H <span class="string">'Content-Type: application/json'</span> -d<span class="string">'</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">  "settings": &#123;</span></span><br><span class="line"><span class="string">    "index.number_of_shards": 2</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">'</span></span><br></pre></td></tr></table></figure>
-<p>在拆分索引之前，要保证索引是只读状态，并且集群健康状态为green。设置只读的方法是：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">curl -X PUT <span class="string">"localhost:9200/my_source_index/_settings?pretty"</span> -H <span class="string">'Content-Type: application/json'</span> -d<span class="string">'</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">  "settings": &#123;</span></span><br><span class="line"><span class="string">    "index.blocks.write": true </span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">'</span></span><br></pre></td></tr></table></figure>
-<p>拆分索引的具体操作是：</p>
-<ol>
-<li>创建一个和源索引相同的目标索引，主分片要大于源索引</li>
-<li>建立从源索引到目标索引的硬连接</li>
-<li>创建低级索引后，再对document做Hash操作。这是为了删除属于不同分片的document</li>
-<li>恢复目标索引，就像重新打开关闭的索引一样</li>
-</ol>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>关于索引的使用就先介绍到这里。还有很多不完善的地方，以后会继续补充。想要了解更多详细信息的同学可以查看<a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.4/indices.html" target="_blank" rel="noopener">官方文档</a>。</p>
+<p>从名称我们就可以看出来这6种断言，可以分为两大类，带debug的和不带debug的，它们的区别就是assert开头的在调试模式和发布模式下都可以使用，而debug开头的只可以在调试模式下使用。再来解释每个大类下的三种断言，assert!是用于断言布尔表达式是否为true，assert_eq!用于断言两个表达式是否相等，assert_ne!用于断言两个表达式是否不相等。当不符合条件时，断言会引发线程恐慌（panic!）。</p>
+<p>Rust处理异常的方法有4种：Option<t>、Result&lt;T, E&gt;、线程恐慌（Panic）、程序终止（Abort）。接下来我们对这些方法进行详细介绍。</t></p>
+<h3 id="Option"><a href="#Option" class="headerlink" title="Option"></a>Option<t></t></h3><p>Option<t>我们在<a href="https://jackeyzhe.github.io/2019/10/27/Rust%E5%85%A5%E5%9D%91%E6%8C%87%E5%8D%97%EF%BC%9A%E5%8D%83%E4%BA%BA%E5%8D%83%E6%9E%84/">Rust入坑指南：千人千构</a>一文中我们进行过一些介绍，它是一种枚举类型，主要包括两种值：Some(T)和None，Rust也是靠它来避免空指针异常的。</t></p>
+<p>在前文中，我们并没有详细介绍如何从Option<t>中提取出T，其实最基本的，可以用match来提取。而我也在前文中给你提供了官方文档的链接，不知道你有没有看。如果还没来得及看也没有关系，我把我看到的一些方法分享给你。</t></p>
+<p>这里介绍两种方法，一种是expect，另一种是unwrap系列的方法。我们通过一个例子来感受一下。</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> a = <span class="literal">Some</span>(<span class="string">"a"</span>);</span><br><span class="line">    <span class="keyword">let</span> b: <span class="built_in">Option</span>&lt;&amp;<span class="built_in">str</span>&gt; = <span class="literal">None</span>;</span><br><span class="line">    <span class="built_in">assert_eq!</span>(a.expect(<span class="string">"a is none"</span>), <span class="string">"a"</span>);</span><br><span class="line">    <span class="built_in">assert_eq!</span>(b.expect(<span class="string">"b is none"</span>), <span class="string">"b is none"</span>);  <span class="comment">//匹配到None会引起线程恐慌，打印的错误是expect的参数信息</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">assert_eq!</span>(a.unwrap(), <span class="string">"a"</span>);   <span class="comment">//如果a是None，则会引起线程恐慌</span></span><br><span class="line">    <span class="built_in">assert_eq!</span>(b.unwrap_or(<span class="string">"b"</span>), <span class="string">"b"</span>); <span class="comment">//匹配到None时返回指定值</span></span><br><span class="line">    <span class="keyword">let</span> k = <span class="number">10</span>;</span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="literal">Some</span>(<span class="number">4</span>).unwrap_or_else(|| <span class="number">2</span> * k), <span class="number">4</span>);<span class="comment">// 与unwrap_or类似，只不过参数是FnOnce() -&gt; T</span></span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="literal">None</span>.unwrap_or_else(|| <span class="number">2</span> * k), <span class="number">20</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这是从Option<t>中提取值的方法，有时我们会觉得每次处理Option<t>都需要先提取，然后再做相应计算这样的操作比较麻烦，那么有没有更加高效的操作呢？答案是肯定的，我从文档中找到了map和and_then这两种方法。</t></t></p>
+<p>其中map方法和unwrap一样，也是一系列方法，包括map、map_or和map_or_else。map会执行参数中闭包的规则，然后将结果再封为Option<t>并返回。</t></p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> some_str = <span class="literal">Some</span>(<span class="string">"Hello!"</span>);</span><br><span class="line">    <span class="keyword">let</span> some_str_len = some_str.map(|s| s.len());</span><br><span class="line">    <span class="built_in">assert_eq!</span>(some_str_len, <span class="literal">Some</span>(<span class="number">6</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>但是，如果参数本身返回的结果就是Option的话，处理起来就比较麻烦，因为每执行一次map都会多封装一层，最后的结果有可能是Some(Some(Some(…)))这样N多层Some的嵌套。这时，我们就可以用and_then来处理了。</p>
+<p>利用and_then方法，我们就可以有如下的链式调用：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="literal">Some</span>(<span class="number">2</span>).and_then(sq).and_then(sq), <span class="literal">Some</span>(<span class="number">16</span>));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">sq</span></span>(x: <span class="built_in">u32</span>) -&gt; <span class="built_in">Option</span>&lt;<span class="built_in">u32</span>&gt; &#123; </span><br><span class="line">    <span class="literal">Some</span>(x * x) </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>关于Option<t>我们就先聊到这里，大家只需要记住，它可以用来处理空值，然后能够使用它的一些处理方法就可以了，实在记不住这些方法，也可以在用的时候再去<a href="https://doc.rust-lang.org/std/option/enum.Option.html" target="_blank" rel="noopener">文档</a>中查询。</t></p>
+<h3 id="Result-lt-T-E-gt"><a href="#Result-lt-T-E-gt" class="headerlink" title="Result&lt;T, E&gt;"></a>Result&lt;T, E&gt;</h3><p>聊完了Option<t>，我们再来看另一种错误处理方法，它也是一个枚举类型，叫做Result&lt;T, E&gt;，定义如下：</t></p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#[must_use = <span class="meta-string">"this `Result` may be an `Err` variant, which should be handled"</span>]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="class"><span class="keyword">enum</span> <span class="title">Result</span></span>&lt;T, E&gt; &#123;</span><br><span class="line">    <span class="literal">Ok</span>(T),</span><br><span class="line">    <span class="literal">Err</span>(E),</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>实际上，Option<t>可以被看作Result&lt;T, ()&gt;。从定义中我们可以看到Result&lt;T, E&gt;有两个变体：Ok(T)和Err(E)。</t></p>
+<p>Result&lt;T, E&gt;用于处理真正意义上的错误，例如，当我们想要打开一个不存在的文件时，或者我们想要将一个非数字的字符串转换为数字时，都会得到一个Err(E)结果。</p>
+<p>Result&lt;T, E&gt;的处理方法和Option<t>类似，都可以使用unwrap和expect方法，也可以使用map和and_then方法，并且用法也都类似，这里就不再赘述了。具体的方法使用细节可以自行查看<a href="https://doc.rust-lang.org/std/result/enum.Result.html" target="_blank" rel="noopener">官方文档</a>。</t></p>
+<p>这里我们来看一下如何处理不同类型的错误。</p>
+<p>Rust在std::io模块定义了统一的错误类型Error，因此我们在处理时可以分别匹配不同的错误类型。</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::fs::File;</span><br><span class="line"><span class="keyword">use</span> std::io::ErrorKind;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> f = File::open(<span class="string">"hello.txt"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> f = <span class="keyword">match</span> f &#123;</span><br><span class="line">        <span class="literal">Ok</span>(file) =&gt; file,</span><br><span class="line">        <span class="literal">Err</span>(error) =&gt; <span class="keyword">match</span> error.kind() &#123;</span><br><span class="line">            ErrorKind::NotFound =&gt; <span class="keyword">match</span> File::create(<span class="string">"hello.txt"</span>) &#123;</span><br><span class="line">                <span class="literal">Ok</span>(fc) =&gt; fc,</span><br><span class="line">                <span class="literal">Err</span>(e) =&gt; <span class="built_in">panic!</span>(<span class="string">"Problem creating the file: &#123;:?&#125;"</span>, e),</span><br><span class="line">            &#125;,</span><br><span class="line">            ErrorKind::PermissionDenied =&gt; <span class="built_in">panic!</span>(<span class="string">"Permission Denied!"</span>),</span><br><span class="line">            other_error =&gt; <span class="built_in">panic!</span>(<span class="string">"Problem opening the file: &#123;:?&#125;"</span>, other_error),</span><br><span class="line">        &#125;,</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在处理Result&lt;T, E&gt;时，我们还有一种处理方法，就是<strong>try!</strong>宏。它会使代码变得非常精简，但是在发生错误时，会将错误返回，传播到外部调用函数中，所以我们在使用之前要考虑清楚是否需要传播错误。</p>
+<p>对于上面的代码，使用try!宏就会非常精简。</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::fs::File;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> f = <span class="built_in">try!</span>(File::open(<span class="string">"hello.txt"</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>try!使用起来虽然简单，但也有一定的问题。像我们刚才提到的传播错误，再就是有可能出现多层嵌套的情况。因此Rust引入了另一个语法糖来代替try!。它就是问号操作符“<strong>?</strong>”。</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::fs::File;</span><br><span class="line"><span class="keyword">use</span> std::io;</span><br><span class="line"><span class="keyword">use</span> std::io::Read;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    read_username_from_file();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">read_username_from_file</span></span>() -&gt; <span class="built_in">Result</span>&lt;<span class="built_in">String</span>, io::Error&gt; &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut</span> f = File::open(<span class="string">"hello.txt"</span>)?;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut</span> s = <span class="built_in">String</span>::new();</span><br><span class="line">    f.read_to_string(&amp;<span class="keyword">mut</span> s)?;</span><br><span class="line">    <span class="literal">Ok</span>(s)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>问号操作符必须在处理错误的代码后面，这样的代码看起来更加优雅。</p>
+<h3 id="恐慌（Panic）"><a href="#恐慌（Panic）" class="headerlink" title="恐慌（Panic）"></a>恐慌（Panic）</h3><p>我们从最开始就聊到线程恐慌，那道理什么是恐慌呢？</p>
+<p>在Rust中，无法处理的错误就会造成线程恐慌，手动执行<strong>panic!</strong>宏时也会造成恐慌。当程序执行panic!宏时，会打印相应的错误信息，同时清理堆栈并退出。但是栈回退和清理会花费大量的时间，如果你想要立即终止程序，可以在Cargo.toml文件中<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">程序报错时，如果你想要查看完整的错误栈信息，可以通过设置环境变量``` RUST_BACKTRACE=1```的方式来实现。</span><br><span class="line"></span><br><span class="line">如果程序发生恐慌，我们前面所说的Result&lt;T, E&gt;就不能使用了，Rust为我们提供了catch_unwind方法来捕获恐慌。</span><br><span class="line"></span><br><span class="line">``` rust</span><br><span class="line">use std::panic;</span><br><span class="line"></span><br><span class="line">fn main() &#123;</span><br><span class="line">    let result = panic::catch_unwind(|| &#123;panic!(&quot;crash and burn&quot;)&#125;);</span><br><span class="line">    assert!(result.is_err());</span><br><span class="line">    println!(&quot;&#123;&#125;&quot;, 1 + 2);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在上面这段代码中，我们手动执行一个panic宏，正常情况下，程序会在第一行退出，并不会执行后面的代码。而这里我们用了catch_unwind方法对panic进行了捕获，结果如图所示。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1577715961/Blog/rust/07/rust07-2.png" alt="rust07-2"></p>
+<p>Rust虽然打印了恐慌信息，但是并没有影响程序的执行，我们的代码<code>println!(&quot;{}&quot;, 1 + 2);</code>可以正常执行。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>至此，Rust处理错误的方法我们已经基本介绍完了，为什么说是基本介绍完了呢？因为还有一些大佬开发了一些第三方库来帮助我们更加方便的处理错误，其中比较有名的有error-chain和failure，这里就不做过多介绍了。</p>
+<p>通过本节的学习，相信你的Rust程序一定会变得更加健壮。</p>
 
       
     </div>
@@ -529,7 +480,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Elasticsearch笔记/" rel="tag"><i class="fa fa-tag"></i> Elasticsearch笔记</a>
+            <a href="/tags/Rust/" rel="tag"><i class="fa fa-tag"></i> Rust</a>
           
         </div>
       
@@ -542,8 +493,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/10/13/Rust入坑指南：核心概念/" rel="next" title="Rust入坑指南：核心概念">
-                <i class="fa fa-chevron-left"></i> Rust入坑指南：核心概念
+              <a href="/2019/12/23/antirez-Redis6真的来了/" rel="next" title="antirez:Redis6真的来了">
+                <i class="fa fa-chevron-left"></i> antirez:Redis6真的来了
               </a>
             
           </div>
@@ -551,10 +502,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/10/15/【译】送给你的代码审查问题手册/" rel="prev" title="【译】送给你的代码审查问题手册">
-                【译】送给你的代码审查问题手册 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -715,7 +662,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建索引"><span class="nav-number">1.</span> <span class="nav-text">创建索引</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#aliases"><span class="nav-number">1.1.</span> <span class="nav-text">aliases</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Settings"><span class="nav-number">1.2.</span> <span class="nav-text">Settings</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Mappings"><span class="nav-number">1.3.</span> <span class="nav-text">Mappings</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#删除索引"><span class="nav-number">2.</span> <span class="nav-text">删除索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#打开-关闭索引"><span class="nav-number">3.</span> <span class="nav-text">打开/关闭索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#拆分索引"><span class="nav-number">4.</span> <span class="nav-text">拆分索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#基础概念"><span class="nav-number">1.</span> <span class="nav-text">基础概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Option"><span class="nav-number">2.</span> <span class="nav-text">Option</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Result-lt-T-E-gt"><span class="nav-number">3.</span> <span class="nav-text">Result&lt;T, E&gt;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#恐慌（Panic）"><span class="nav-number">4.</span> <span class="nav-text">恐慌（Panic）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
             
 
           </div>
