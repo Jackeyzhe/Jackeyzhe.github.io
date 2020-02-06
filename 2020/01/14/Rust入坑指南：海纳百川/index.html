@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="Jackeyzhe">
 <meta property="og:description" content="今天来聊Rust中两个重要的概念：泛型和trait。很多编程语言都支持泛型，Rust也不例外，相信大家对泛型也都比较熟悉，它可以表示任意一种数据类型。trait同样不是Rust所特有的特性，它借鉴于Haskell中的Typeclass。简单来讲，Rust中的trait就是对类型行为的抽象，你可以把它理解为Java中的接口。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2020-01-13T16:25:30.754Z">
+<meta property="og:updated_time" content="2020-01-15T14:56:34.446Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Rust入坑指南：海纳百川">
 <meta name="twitter:description" content="今天来聊Rust中两个重要的概念：泛型和trait。很多编程语言都支持泛型，Rust也不例外，相信大家对泛型也都比较熟悉，它可以表示任意一种数据类型。trait同样不是Rust所特有的特性，它借鉴于Haskell中的Typeclass。简单来讲，Rust中的trait就是对类型行为的抽象，你可以把它理解为Java中的接口。">
@@ -385,7 +385,7 @@
 <p>对于这样的写法，它表示summarize函数的默认实现。</p>
 <h4 id="Trait的实现"><a href="#Trait的实现" class="headerlink" title="Trait的实现"></a>Trait的实现</h4><p>上面是一种默认实现，接下来我们介绍一下在Rust中，对一个Trait的常规实现。Trait的实现是需要针对结构体的，即我们要写明是哪个结构体的哪种行为。</p>
 <figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">pub</span> <span class="class"><span class="keyword">struct</span> <span class="title">NewsArticle</span></span> &#123;</span><br><span class="line">    <span class="keyword">pub</span> headline: <span class="built_in">String</span>,</span><br><span class="line">    <span class="keyword">pub</span> location: <span class="built_in">String</span>,</span><br><span class="line">    <span class="keyword">pub</span> author: <span class="built_in">String</span>,</span><br><span class="line">    <span class="keyword">pub</span> content: <span class="built_in">String</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span> Summary <span class="keyword">for</span> NewsArticle &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">summarize</span></span>(&amp;<span class="keyword">self</span>) -&gt; <span class="built_in">String</span> &#123;</span><br><span class="line">        <span class="built_in">format!</span>(<span class="string">"&#123;&#125;, by &#123;&#125; (&#123;&#125;)"</span>, <span class="keyword">self</span>.headline, <span class="keyword">self</span>.author, <span class="keyword">self</span>.location)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="class"><span class="keyword">struct</span> <span class="title">Tweet</span></span> &#123;</span><br><span class="line">    <span class="keyword">pub</span> username: <span class="built_in">String</span>,</span><br><span class="line">    <span class="keyword">pub</span> content: <span class="built_in">String</span>,</span><br><span class="line">    <span class="keyword">pub</span> reply: <span class="built_in">bool</span>,</span><br><span class="line">    <span class="keyword">pub</span> retweet: <span class="built_in">bool</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span> Summary <span class="keyword">for</span> Tweet &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">summarize</span></span>(&amp;<span class="keyword">self</span>) -&gt; <span class="built_in">String</span> &#123;</span><br><span class="line">        <span class="built_in">format!</span>(<span class="string">"&#123;&#125;: &#123;&#125;"</span>, <span class="keyword">self</span>.username, <span class="keyword">self</span>.content)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>上述代码中，我们分别定义了结构题NewArticle和Tweet，然后为它们实现了trait，定义了summarize函数对应的逻辑。</p>
+<p>上述代码中，我们分别定义了结构体NewArticle和Tweet，然后为它们实现了trait，定义了summarize函数对应的逻辑。</p>
 <h4 id="作为参数的Trait"><a href="#作为参数的Trait" class="headerlink" title="作为参数的Trait"></a>作为参数的Trait</h4><p>此外，trait还可以作为函数的参数，也就是需要传入一个实现了对应trait的结构体的实例。</p>
 <figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">pub</span> <span class="function"><span class="keyword">fn</span> <span class="title">notify</span></span>(item: <span class="keyword">impl</span> Summary) &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"Breaking news! &#123;&#125;"</span>, item.summarize());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>作参数时，我们需要使用<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">Rust还提供了另一种语法糖来，即**Trait限定**，我们可以使用泛型约束的语法来限定Trait参数。</span><br><span class="line"></span><br><span class="line">``` rust</span><br><span class="line">pub fn notify&lt;T: Summary&gt;(item: T) &#123;</span><br><span class="line">    println!(&quot;Breaking news! &#123;&#125;&quot;, item.summarize());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
@@ -523,8 +523,6 @@
 
           
 
-  
-    <div id="gitalk-container"></div>
   
 
   
@@ -860,22 +858,6 @@
 
 
 
-
-  <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
-  <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
-  <script src="/js/src/md5.min.js"></script>
-   <script type="text/javascript">
-    var gitalk = new Gitalk({
-      clientID: '295c1e810999f8d8bf73',
-      clientSecret: '6193e47855339267901507a7e78a2d204ff153bf',
-      repo: 'Jackeyzhe.github.io',
-      owner: 'Jackeyzhe',
-      admin: ['Jackeyzhe'],
-      id: md5(location.pathname),
-      distractionFreeMode: 'true'
-    })
-    gitalk.render('gitalk-container')
-  </script>
 
 
   
