@@ -285,6 +285,154 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2020/02/17/【译】感谢你的Code-Review/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jackey Wang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/02/17/【译】感谢你的Code-Review/" itemprop="url">【译】感谢你的Code Review</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-02-17T22:52:18+08:00">
+                2020-02-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>作为一名初级工程师，当我看到一些问题时，通常会主动去解决它们，因此我总会进行一些大范围的代码修改。</p>
+<p>这意味着我需要发出大量的代码审查。在一次修改中通常会涉及到从UI到数据库的所有部分。</p>
+<p>我对于自己能够维护整个系统而骄傲，也为自己的快速处理问题的能力而骄傲。同时也为自己的勇敢和解决重大问题的能力而自豪。</p>
+<p>直到有一天，一位资深工程师把我拉到一边，给我提出了迄今为止我收到过最好的代码审查返回。它告诉我应该将巨型的代码审查拆分为更小的增量修改。</p>
+<p>我第一反应是感到恼怒。我不理解他为什么要我这么做。我对自己解决重大问题的能力非常有信心！为什么他说我的工作做的不好？！一点一点的进行修改只会拖慢我的脚步！</p>
+<p>虽然当时我还不知道小规模、增量修改的种种好处，但是我很庆幸当时听了这位高级工程师的意见，很高兴我开始学着进行小规模、增量的修改。</p>
+<p>这种方法给我后来的职业生涯带来了巨大的好处。</p>
+<h3 id="增量修改的好处"><a href="#增量修改的好处" class="headerlink" title="增量修改的好处"></a>增量修改的好处</h3><p>进行增量修改有诸多好处，下面我来列举一些。</p>
+<ul>
+<li><strong>更少的合并冲突。</strong>你改的文件越多，和其他人的修改发生冲突的可能性就越大，小规模的修改可以有效的避免冲突，即使有冲突时也能更快的解决。</li>
+<li><strong>更快的代码审查。</strong>对代码审查人员来说，审查5个文件无疑要比审查50多个文件轻松许多。与那些需要面对面交谈十分钟才能开始看的代码相比，小规模的修改能够更快速的开始审查并且更容易解释。当审查人员面对大量的代码审查工作时，他们有可能会犯懒，非常希望能找个人替他们完成这项工作。因此你可能需要花费很长时间才能找到一个愿意审查你的代码的人。</li>
+<li><strong>更早的修正。</strong>你的代码审查者可能与你的思路相左。他们可能会要求你重做所有的事情。如果你之前只花了几个小时进行修改，那么这对你来说可能不是什么大问题。但是如果你在这个问题上已经花费了两天时间，那么重做可能是一件非常痛苦的事情。</li>
+<li><strong>更快速的测试。</strong>如果你的代码修改涉及到了从UI到数据库的所有层级，你可能需要对整个产品进行重新测试。而如果你只进行小规模修改，那就只需要测试你所修改的那部分。如果你需要解决很多代码审查反馈或者是合并很多代码时，这种好处就非常明显了。重新测试所有东西会花费大量的时间，特别是手动测试。</li>
+<li><strong>更少的bug。</strong>小规模修改意味着你不需要同时将所有东西都装进脑子里。你可以专注于你进行优化的这一部分代码，保证你可以把它做到最好。（我曾经见过一个工程师，它对自己的大规模改动感到不知所措，后来他养成了检查和修复都追求完美的习惯。希望你不要成为那样的人，即使没人抱怨，但是你的同事将会慢慢变得不信任你的代码。）</li>
+<li><strong>更容易排除故障。</strong>如果你需要改动一些代码，那么小规模的改动可以帮助你更加容易的定位问题。</li>
+<li><strong>增量部署。</strong>如果你想要不停机更新，那么更小的、增量的改动会帮助你解决这个问题。（但这并不是全部解决方法）</li>
+<li><strong>还原更加简单。</strong>当你写了bug时，你的改动越小，还原就更加简单。如果你合入了大量代码，并且其他人又在后来进行了改动，那么还原你的代码就会是一件非常痛苦的事情。也许你可以进行快速修复，但这并不是一定奏效，生产环境出现事故时，剔除有问题的代码会使团队的其他人更加放心。</li>
+<li><strong>部署回滚更加简单。</strong>如果单次部署更新了web服务和即时生效的UI功能，那么如果你想要回滚后端服务就必须先要回滚UI的改动。由于这样部署方式，想要做到不停机更新可能并不容易。最好的办法就是把它们分别合入代码仓库并部署。</li>
+<li><strong>更低的风险。</strong>这实际上是上述所有情况的结果。</li>
+</ul>
+<h3 id="为你的未来交学费"><a href="#为你的未来交学费" class="headerlink" title="为你的未来交学费"></a>为你的未来交学费</h3><p>那天我从那位高级工程师那里收到的代码审查反馈，已经被证明是职业生涯迄今为止收到的最好的代码审查反馈了。</p>
+<p>多年后，我遇到了另一名工程师，他一直在进行大规模、彻底的变更。我把相同的反馈分享给了他，他看起来很生我的气，但是我完全可以理解他。在我看到他有进步之前，我离开了那家公司，希望他最终能体验到小规模修改带来的好处。</p>
+<p>相信他以后会是一名优秀的工程师。</p>
+<h3 id="译者点评"><a href="#译者点评" class="headerlink" title="译者点评"></a>译者点评</h3><p>小范围的修改确实是很有必要的。我自己在做code review的时候看到那种几百行的代码修改也是很头疼的。作者对于小规模修改的好处总结的还是比较全面的，希望大家能有收获。</p>
+<h3 id="原文地址"><a href="#原文地址" class="headerlink" title="原文地址"></a>原文地址</h3><p><a href="https://medium.com/better-programming/the-best-code-review-feedback-i-ever-received-43313a503517" target="_blank" rel="noopener">https://medium.com/better-programming/the-best-code-review-feedback-i-ever-received-43313a503517</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+      <div>
+        
+      </div>
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2020/02/10/吐血推荐珍藏的IDEA插件/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1424,134 +1572,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2019/11/27/【译】什么才是优秀的代码/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Jackey Wang">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Jackeyzhe">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/11/27/【译】什么才是优秀的代码/" itemprop="url">【译】什么才是优秀的代码</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-27T22:58:32+08:00">
-                2019-11-27
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>究竟什么是优秀的代码？Robert Martin的一句话可以完美诠释。
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2019/11/27/【译】什么才是优秀的代码/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-      <div>
-        
-      </div>
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1602,7 +1622,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">83</span>
+                  <span class="site-state-item-count">84</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
