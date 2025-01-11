@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="技术杂谈,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jackeyzhe" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="作为一名Java工程师，由于工作需要，最近一个月一直在写NodeJS，这种经历可以说是一部辛酸史了。好在有神器Visual Studio Code陪伴，让我的这段经历没有更加困难。眼看这段经历要告一段落了，今天就来给大家分享一下我常用的一些VSC的插件。">
+<meta name="keywords" content="技术杂谈">
+<meta property="og:type" content="article">
+<meta property="og:title" content="吐血推荐珍藏的Visual Studio Code插件">
+<meta property="og:url" content="https://jackeyzhe.github.io/2019/11/11/吐血推荐珍藏的Visual-Studio-Code插件/index.html">
+<meta property="og:site_name" content="Jackeyzhe">
+<meta property="og:description" content="作为一名Java工程师，由于工作需要，最近一个月一直在写NodeJS，这种经历可以说是一部辛酸史了。好在有神器Visual Studio Code陪伴，让我的这段经历没有更加困难。眼看这段经历要告一段落了，今天就来给大家分享一下我常用的一些VSC的插件。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1573309990/Blog/js/vsc/vs3.gif">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1573310011/Blog/js/vsc/vs4.jpg">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1573310651/Blog/js/vsc/vs5.gif">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1573311007/Blog/js/vsc/nj.jpg">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1573311163/Blog/js/vsc/vs6.gif">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1573312918/Blog/js/vsc/vs7.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1573313646/Blog/js/vsc/vs10.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1573314683/Blog/js/vsc/vs12.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1573315069/Blog/js/vsc/vs14.gif">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1573315346/Blog/js/vsc/vs19.gif">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1573315991/Blog/js/vsc/vs20.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1573316228/Blog/js/vsc/vs25.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1573316810/Blog/js/vsc/vs27.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1573317020/Blog/js/vsc/vs32.gif">
+<meta property="og:updated_time" content="2024-12-06T17:02:53.874Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="吐血推荐珍藏的Visual Studio Code插件">
+<meta name="twitter:description" content="作为一名Java工程师，由于工作需要，最近一个月一直在写NodeJS，这种经历可以说是一部辛酸史了。好在有神器Visual Studio Code陪伴，让我的这段经历没有更加困难。眼看这段经历要告一段落了，今天就来给大家分享一下我常用的一些VSC的插件。">
+<meta name="twitter:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1573309990/Blog/js/vsc/vs3.gif">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://jackeyzhe.github.io/2019/11/11/吐血推荐珍藏的Visual-Studio-Code插件/">
+
+
+
+
+
+  <title>吐血推荐珍藏的Visual Studio Code插件 | Jackeyzhe</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+    <a href="https://github.com/Jackeyzhe" class="github-corner" aria-label="View source on Github"><svg width="80" height="80" viewbox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"/><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"/><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"/></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Jackeyzhe</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">靠脸吃饭</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2019/11/11/吐血推荐珍藏的Visual-Studio-Code插件/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jackey Wang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">吐血推荐珍藏的Visual Studio Code插件</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-11T22:46:09+08:00">
+                2019-11-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>作为一名Java工程师，由于工作需要，最近一个月一直在写NodeJS，这种经历可以说是一部辛酸史了。好在有神器Visual Studio Code陪伴，让我的这段经历没有更加困难。眼看这段经历要告一段落了，今天就来给大家分享一下我常用的一些VSC的插件。<a id="more"></a></p>
+<p>VSC的插件安装方法很简单，只需要点击左侧最下方的插件栏选项，然后就可以搜索你想要的插件了。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1573309990/Blog/js/vsc/vs3.gif" alt="extends install"></p>
+<p>下面我们进入正题</p>
+<h3 id="Material-Theme"><a href="#Material-Theme" class="headerlink" title="Material Theme"></a>Material Theme</h3><p>第一个是Material Theme，这个插件可以帮助我们修改主题色，帮助你摆脱只有黑色和白色的世界。当然你也可以通过修改setting文件来自定义主题颜色。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1573310011/Blog/js/vsc/vs4.jpg" alt="Material Theme"></p>
+<h3 id="Auto-Import"><a href="#Auto-Import" class="headerlink" title="Auto Import"></a>Auto Import</h3><p>在写Java时，通常我是直接在代码中写出类名，然后使用IDEA自动导入相应的包的，但是使用VSC时没有这个功能，这个问题就让我很困扰，这意味着作为高级crtlCV工程师，粘贴过来的代码无法直接使用，你还要去查一些引用是属于哪个包的，怎么导入。</p>
+<p>而Auto Import帮我解决了这个大问题，它可以自动识别，解析和增加一些对应的包。有了它，我就可以继续做ctrlCV工程师了。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1573310651/Blog/js/vsc/vs5.gif" alt="Auto Import"></p>
+<h3 id="Import-Cost"><a href="#Import-Cost" class="headerlink" title="Import Cost"></a>Import Cost</h3><p>写过NodeJS的同学可能都会有一个体会，自己可能只写了几行代码，但是要安装的包竟然达到几个G，可能有些夸张，但是大量的node_modules真的很令人崩溃。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1573311007/Blog/js/vsc/nj.jpg" alt="node_modules"></p>
+<p>这时你需要的是Import Cost来帮你控制一下你导入包的大小。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1573311163/Blog/js/vsc/vs6.gif" alt="Import Cost"></p>
+<p>当你写了一个导入语句时，它会提醒你这个包的大小，如果你发现某个包太大时，就需要考虑一下你是否真的需要引入整个包了。</p>
+<h3 id="Indent-Rainbow"><a href="#Indent-Rainbow" class="headerlink" title="Indent-Rainbow"></a>Indent-Rainbow</h3><p>这个插件是帮助你提升读代码的体验的，对于刚开始接触NodeJS的同学来说，读代码的时间往往比写代码的时间要多。如果项目过大时，新同学往往会迷失在很多的代码块中，分辨代码块只能靠行前缩紧数量。但是有时缩紧数量又无法一眼看出。而Indent-Rainbow就是用来帮你快速分辨代码的。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1573312918/Blog/js/vsc/vs7.png" alt="Indent-Rainbow"></p>
+<h3 id="Prettier-—-Code-Formatter"><a href="#Prettier-—-Code-Formatter" class="headerlink" title="Prettier — Code Formatter"></a>Prettier — Code Formatter</h3><p>Prettier插件是用来格式化代码的。</p>
+<p>符合代码规范的代码可以说是一个工程师的脸面，而Prettier可以说是专门帮你维护脸面的插件。有了它，你在写代码时就可以肆无忌惮了，只需要在写完以后按一下对应的快捷键。你的代码就会马上变漂亮。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1573313646/Blog/js/vsc/vs10.png" alt="Prettier"></p>
+<h3 id="Sublime-Text-Keymap-and-Settings-Importer"><a href="#Sublime-Text-Keymap-and-Settings-Importer" class="headerlink" title="Sublime Text Keymap and Settings Importer"></a>Sublime Text Keymap and Settings Importer</h3><p>不知道有多少同学和我一样比较喜欢用Sublime Text。虽然ST3也非常强大，可以用来写JS代码，但是我觉得它还是比不上专业的IDE，所以我更喜欢把ST3当作「记事本」来用，如果你已经比较习惯了ST3的快捷键，并且不想因为使用VSC而改变这个习惯，那么就可以使用这个插件，它会在VSC中模仿ST3的快捷键设置。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1573314683/Blog/js/vsc/vs12.png" alt="ST3"></p>
+<p>你可以使用command+P来唤起命令窗口，然后输入<code>&gt;</code>开始像在ST3中那样操作。</p>
+<h3 id="npm-Intellisense"><a href="#npm-Intellisense" class="headerlink" title="npm Intellisense"></a>npm Intellisense</h3><p>npm Intellisense插件可以帮助你将你想要的node modules补充完整。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1573315069/Blog/js/vsc/vs14.gif" alt="npm Intellisense"></p>
+<h3 id="File-Utils"><a href="#File-Utils" class="headerlink" title="File Utils"></a>File Utils</h3><p>File Utils在我看来是一个非常方（zhuang）便（bi）的插件，它可以帮助你不使用鼠标就可以创建、移动、删除文件。看起来是不是很酷。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1573315346/Blog/js/vsc/vs19.gif" alt="File Utils"></p>
+<h3 id="Bracket-Pair-Colorizer"><a href="#Bracket-Pair-Colorizer" class="headerlink" title="Bracket Pair Colorizer"></a>Bracket Pair Colorizer</h3><p>前面我们提到了缩紧的识别，这里还有一个括号颜色标识的插件。它可以把括号标为不同的颜色，方便识别括号匹配。这种插件我在IDEA中也会用，可以极大的提高读代码的效率。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1573315991/Blog/js/vsc/vs20.png" alt="Bracket Pair Colorizer"></p>
+<h3 id="Trailing-Spaces"><a href="#Trailing-Spaces" class="headerlink" title="Trailing Spaces"></a>Trailing Spaces</h3><p>这个插件会帮我们标出一些无用的尾部空格，如果发现，请立即删除它们。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1573316228/Blog/js/vsc/vs25.png" alt="Trailing Spaces"></p>
+<h3 id="WakaTime"><a href="#WakaTime" class="headerlink" title="WakaTime"></a>WakaTime</h3><p>这个插件很有意思，它会统计你编码的一些数据，例如各种语言的占比，日平均编码时间等。你可以用它来统计一下你每天大概的有效工作时间是多少，如果数据比较漂亮，可以不经意间让领导看到一下，哈哈哈。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1573316810/Blog/js/vsc/vs27.png" alt="WakaTime"></p>
+<h3 id="Vscode-icons"><a href="#Vscode-icons" class="headerlink" title="Vscode-icons"></a>Vscode-icons</h3><p>你是否对VSC的默认icon感到厌烦呢？你想直接通过图标看出某个文件的文件格式吗？Vscode-icons插件来帮你实现。</p>
+<p>它会让文件的icon更加友好，也可以下载一些你喜欢的icon。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1573317020/Blog/js/vsc/vs32.gif" alt="Vscode-icons"></p>
+<p>以上就是我常用的一些VSCode的插件。喜欢的同学可以直接去市场下载体验。这些插件可能大部分都是用于提升读代码，因为我最近也是读代码比较多。如果其他同学有好用的插件也可以分享出来。</p>
+<p>后面我也会考虑分享一些IDEA的插件，做Java的同学可以期待一波。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+      <div>
+            
+              
+            
+      </div>
+      <div>
+        <div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+    <img id="wechat_subscriber_qcode" src="/images/wechat-qcode.jpg" alt="Jackey Wang wechat" style="width: 200px; max-width: 100%;">
+    <div>欢迎关注我的公众号，一起讨论如何写bug</div>
+</div>
+
+      </div>
+    
+
+      <div>
+        
+          <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+        
+      </div>
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>原创不易，感谢支持</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/weixinpay.jpg" alt="Jackey Wang 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpg" alt="Jackey Wang 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/技术杂谈/" rel="tag"><i class="fa fa-tag"></i> 技术杂谈</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/11/05/【译】工程师如何打怪升级/" rel="next" title="【译】工程师如何打怪升级">
+                <i class="fa fa-chevron-left"></i> 【译】工程师如何打怪升级
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/11/14/敲开通往架构师的门/" rel="prev" title="敲开通往架构师的门">
+                敲开通往架构师的门 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_inline_share_toolbox">
+  <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5b669c42ef338b5b" async="async"></script>
+</div>
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Jackey Wang</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">95</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/Jackeyzhe" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:jackeyzhe59@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://stackoverflow.com/jackeyzhe" target="_blank" title="StackOverflow">
+                      
+                        <i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://my.csdn.net/K_Ohaha" target="_blank" title="CSDN">
+                      
+                        <i class="fa fa-fw fa-globe"></i>CSDN</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Material-Theme"><span class="nav-number">1.</span> <span class="nav-text">Material Theme</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Auto-Import"><span class="nav-number">2.</span> <span class="nav-text">Auto Import</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Import-Cost"><span class="nav-number">3.</span> <span class="nav-text">Import Cost</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Indent-Rainbow"><span class="nav-number">4.</span> <span class="nav-text">Indent-Rainbow</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Prettier-—-Code-Formatter"><span class="nav-number">5.</span> <span class="nav-text">Prettier — Code Formatter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Sublime-Text-Keymap-and-Settings-Importer"><span class="nav-number">6.</span> <span class="nav-text">Sublime Text Keymap and Settings Importer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#npm-Intellisense"><span class="nav-number">7.</span> <span class="nav-text">npm Intellisense</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#File-Utils"><span class="nav-number">8.</span> <span class="nav-text">File Utils</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Bracket-Pair-Colorizer"><span class="nav-number">9.</span> <span class="nav-text">Bracket Pair Colorizer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Trailing-Spaces"><span class="nav-number">10.</span> <span class="nav-text">Trailing Spaces</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#WakaTime"><span class="nav-number">11.</span> <span class="nav-text">WakaTime</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Vscode-icons"><span class="nav-number">12.</span> <span class="nav-text">Vscode-icons</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2018 &mdash; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jackey Wang</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

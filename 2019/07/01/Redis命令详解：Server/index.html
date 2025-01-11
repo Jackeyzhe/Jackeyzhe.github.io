@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Redis命令,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jackeyzhe" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="Redis命令学习，服务器篇">
+<meta name="keywords" content="Redis命令">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis命令详解：Server">
+<meta property="og:url" content="https://jackeyzhe.github.io/2019/07/01/Redis命令详解：Server/index.html">
+<meta property="og:site_name" content="Jackeyzhe">
+<meta property="og:description" content="Redis命令学习，服务器篇">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2024-12-06T17:02:53.447Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Redis命令详解：Server">
+<meta name="twitter:description" content="Redis命令学习，服务器篇">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://jackeyzhe.github.io/2019/07/01/Redis命令详解：Server/">
+
+
+
+
+
+  <title>Redis命令详解：Server | Jackeyzhe</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+    <a href="https://github.com/Jackeyzhe" class="github-corner" aria-label="View source on Github"><svg width="80" height="80" viewbox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"/><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"/><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"/></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Jackeyzhe</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">靠脸吃饭</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2019/07/01/Redis命令详解：Server/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jackey Wang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Redis命令详解：Server</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-01T22:29:21+08:00">
+                2019-07-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Redis命令学习，服务器篇<a id="more"></a></p>
+<h4 id="BGREWRITEAOF"><a href="#BGREWRITEAOF" class="headerlink" title="BGREWRITEAOF"></a>BGREWRITEAOF</h4><p>最早可用版本：1.0.0</p>
+<p>使Redis重写AOF文件，重写后的AOF文件相较于当前版本的AOF文件占用的空间更小。即使重写失败，数据也不会丢失，因为在重写成功前，旧版本的AOF文件不会改动。重写操作只会在后台没有其他持久化工作时进行：</p>
+<ul>
+<li>如果Redis子进程正在保存快照，那么重写AOF的操作会到保存工作完成后才开始进行。这种情况下，该命令仍然会返回OK，但是会增加一条额外的返回信息说明。在Redis2.6以后的版本，你可以使用INFO命令查看重写操作是否被预定执行。</li>
+<li>如果已经有一个重写AOF命令正在进行，那么该命令会报错，并且不会预定执行重写操作。</li>
+</ul>
+<p>Redis2.4版本以后，重写AOF操作会自动触发。想要了解更多信息可以查看<a href="https://redis.io/topics/persistence" target="_blank" rel="noopener">持久化文档</a>。</p>
+<h4 id="BGSAVE"><a href="#BGSAVE" class="headerlink" title="BGSAVE"></a>BGSAVE</h4><p>最早可用版本：1.0.0</p>
+<p>在后台保存当前数据库到磁盘。命令会马上返回OK，Redis会fork出一个子进程来进行此操作，而父进程继续提供服务。可以使用LASTSAVE命令查看保存操作是否成功。</p>
+<h4 id="CLIENT-GETNAME"><a href="#CLIENT-GETNAME" class="headerlink" title="CLIENT GETNAME"></a>CLIENT GETNAME</h4><p>最早可用版本：2.6.9</p>
+<p>时间复杂度：O(1)</p>
+<p>这个命令会返回当前连接使用CLIENT SETNAME设置的连接名称，如果没有设置，则返回空。</p>
+<h4 id="CLIENT-ID"><a href="#CLIENT-ID" class="headerlink" title="CLIENT ID"></a>CLIENT ID</h4><p>最早可用版本：5.0.0</p>
+<p>时间复杂度：O(1)</p>
+<p>返回当前连接的ID。每个连接都会保证两点：</p>
+<ol>
+<li>不会重复，所以如果返回的ID相同，那么调用方就可以确定底层是没有断开重连的。</li>
+<li>ID单调递增，如果一个连接的ID大于另一个连接的ID，那么它一定晚于这个连接创建。</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">jackeyzhe@ubuntu:~/redis-5.0.4/src$ ./redis-cli </span><br><span class="line">127.0.0.1:6379&gt; CLIENT ID</span><br><span class="line">(<span class="built_in">integer</span>) 3</span><br><span class="line">127.0.0.1:6379&gt; </span><br><span class="line">jackeyzhe@ubuntu:~/redis-5.0.4/src$ ./redis-cli </span><br><span class="line">127.0.0.1:6379&gt; CLIENT ID</span><br><span class="line">(<span class="built_in">integer</span>) 4</span><br></pre></td></tr></table></figure>
+<h4 id="CLIENT-KILL"><a href="#CLIENT-KILL" class="headerlink" title="CLIENT KILL"></a>CLIENT KILL</h4><p>最早可用版本：2.4.0</p>
+<p>时间复杂度：O(N)，N是客户端连接数</p>
+<p>用法：CLIENT KILL [ip:port] [ID client-id][TYPE normal|master|slave|pubsub] [ADDR ip:port][SKIPME yes/no]</p>
+<p>这个命令用来关闭一个指定的客户端连接。在Redis2.8.11之前，都可以指定要关闭的连接地址，像下面这种形式：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CLIENT KILL addr:port</span><br></pre></td></tr></table></figure>
+<p>ip:port应该和CLIENT LIST命令中的一行匹配。</p>
+<p>在2.8.12及以后的版本，则可以使用以下形式：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CLIENT KILL &lt;filter&gt; &lt;value&gt; ... ... &lt;filter&gt; &lt;value&gt;</span><br></pre></td></tr></table></figure>
+<p>这种形式支持多种根据多种属性匹配客户端：</p>
+<ul>
+<li>CLIENT KILL ADDR ip:port ：这种和旧的形式相同</li>
+<li>CLIENT KILL ID client-id ：这种形式允许关闭指定ID的连接</li>
+<li>CLIENT KILL TYPE type ：这种形式支持关闭某种类型的客户端，type取值为：normal, master, slave和pubsub（master在Redis3.2之后可以使用）</li>
+<li>CLIENT KILL SKIPME yes/no ： 参数默认是yes，也就是不会关闭发出命令的客户端，而如果指定为no，则连自己也一起关闭</li>
+</ul>
+<p><strong>注意：从Redis5开始type不再使用slave，改为replica</strong></p>
+<p>上述的多种过滤器也可以组合使用。使用新的形式时，返回值为关闭的客户端数量。由于Redis是单线程的，所以这个命令不能关闭一个正在执行命令的客户端。</p>
+<h4 id="CLIENT-LIST"><a href="#CLIENT-LIST" class="headerlink" title="CLIENT LIST"></a>CLIENT LIST</h4><p>最早可用版本：2.4.0</p>
+<p>时间复杂度：O(N)，N是客户端连接数</p>
+<p>用法：CLIENT LIST [TYPE normal|master|replica|pubsub]</p>
+<p>这个命令用来查看连接的客户端信息，在Redis5之后，可以使用TYPE参数。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; CLIENT LIST</span><br><span class="line">id=3 addr=127.0.0.1:44994 fd=8 name= age=342 idle=3 flags=N db=0 sub=0 psub=0 multi=-1 qbuf=0 qbuf-free=0 obl=0 oll=0 omem=0 events=r cmd=keys</span><br><span class="line">id=4 addr=127.0.0.1:44996 fd=9 name= age=335 idle=0 flags=N db=0 sub=0 psub=0 multi=-1 qbuf=26 qbuf-free=32742 obl=0 oll=0 omem=0 events=r cmd=client</span><br></pre></td></tr></table></figure>
+<p>返回值：每行代表一个客户端连接，字段包括：</p>
+<ul>
+<li>id：一个64bit唯一ID</li>
+<li>name：使用CLIENT SETNAME设置的客户端名称</li>
+<li>addr：客户端的地址和端口号</li>
+<li>fd：相应的socket文件描述符</li>
+<li>age：连接时长，单位为秒</li>
+<li>idle：空闲时间，单位为秒</li>
+<li>flags：客户端标志</li>
+<li>db：当前数据库ID</li>
+<li>sub：已订阅频道的数量</li>
+<li>psub：已订阅模式的数量</li>
+<li>multi：事务中的命令数</li>
+<li>qbuf：查询缓存的长度</li>
+<li>qbuf-free：查询缓存空闲空间（0表示缓存已满）</li>
+<li>obl：输出缓存的长度</li>
+<li>oll ：输出列表长度（缓存满时，回复会被放入这个列表中）</li>
+<li>omem：输出缓存的内存占用量</li>
+<li>events：文件描述符事件</li>
+<li>cmd：最后一次执行的命令</li>
+</ul>
+<p>客户端标志包括以下几种：</p>
+<ul>
+<li>A：尽可能快的关闭连接</li>
+<li>b：客户端在等待阻塞时间</li>
+<li>c：写完回复之后关闭连接</li>
+<li>d：被监视的key被修改了，事务将失败</li>
+<li>i：客户端正在等待虚拟机I/O（已废弃）</li>
+<li>M：客户端是master节点</li>
+<li>N：没有设置flag</li>
+<li>O：客户端是MONITOR模式</li>
+<li>P：客户端是Pub/Sub的订阅者</li>
+<li>r：客户端是针对集群节点的只读模式</li>
+<li>S：客户端连接到此实例的从节点</li>
+<li>u：客户端未阻塞</li>
+<li>U：客户端通过Unix套接字连接</li>
+<li>x：客户端正在执行事务</li>
+</ul>
+<p>文件描述符事件包括：</p>
+<p>r：客户端套接字可读</p>
+<p>w：客户端套接字可写</p>
+<h4 id="CLIENT-PAUSE"><a href="#CLIENT-PAUSE" class="headerlink" title="CLIENT PAUSE"></a>CLIENT PAUSE</h4><p>最早可用版本：2.9.50</p>
+<p>时间复杂度：O(1)</p>
+<p>这个命令可以使所有连接暂停一段时间（单位：毫秒）。这个命令通常用来将连接从一个Redis实例迁移到另一个实例，例如当一个实例需要进行系统升级时，我们应该这样做：</p>
+<ol>
+<li>使用CLIENT PAUSE暂停所有客户端</li>
+<li>等待几秒钟，以便从节点与主节点数据同步完成</li>
+<li>将一个从节点切换成主节点</li>
+<li>重新使客户端连接到新的主节点</li>
+</ol>
+<p>这个命令通常在事务中和INFO replication命令一起使用，这样做可以使从节点和主节点同步完成。</p>
+<h4 id="CLIENT-REPLY"><a href="#CLIENT-REPLY" class="headerlink" title="CLIENT REPLY"></a>CLIENT REPLY</h4><p>最早可用版本：3.2</p>
+<p>时间复杂度：O(1)</p>
+<p>这个命令用来禁止服务器对当前客户端回复。它有以下几种使用场景：</p>
+<ol>
+<li>客户端发送fire和forget命令时（不关心什么时候完成的命令）</li>
+<li>加载大量数据</li>
+<li>正在创建缓存</li>
+</ol>
+<p>在这些情况下，客户端会忽略服务器的回复，因此，服务器回复是一种资源的浪费。</p>
+<p>命令支持3个参数：</p>
+<ul>
+<li>ON：默认，接收服务器所有回复</li>
+<li>OFF：不接收服务器的所有回复</li>
+<li>SKIP：不接收下一条命令的回复</li>
+</ul>
+<h4 id="CLIENT-SETNAME"><a href="#CLIENT-SETNAME" class="headerlink" title="CLIENT SETNAME"></a>CLIENT SETNAME</h4><p>最早可用版本：2.6.9</p>
+<p>时间复杂度：O(1)</p>
+<p>这个命令用来给连接设置一个名字。这个命令会在CLIENT LIST的输出列表中显示。名字的长度没有限制，但一般不超过Redis字符串类型的长度（512MB）。名字里不能有空格。可以通过设置空字符串的方式来删除一个连接的名称，每个新的连接是没有名称的。</p>
+<h4 id="CLIENT-UNBLOCK"><a href="#CLIENT-UNBLOCK" class="headerlink" title="CLIENT UNBLOCK"></a>CLIENT UNBLOCK</h4><p>最早可用版本：5.0.0</p>
+<p>时间复杂度：O(log N) N是客户端连接数</p>
+<p>用法：CLIENT UNBLOCK client-id [TIMEOUT|ERROR]</p>
+<p>这个命令可以解除被阻塞的客户端（执行了BPOP、XREAD、WAIT等命令）。</p>
+<p>默认情况下，如果阻塞超时，会解除阻塞。这里也可以有其他参数，TIMEOUT或ERROR。如果设置为ERROR，那么，被强制解除阻塞的连接会返回一个-UNBLOCKED错误。</p>
+<p>这个命令主要用于少量连接监控多个key时，如果要监控新的key，又不想使用更多的连接，那么就解除一个连接的阻塞，监控新的key后再重新阻塞。</p>
+<h4 id="COMMAND"><a href="#COMMAND" class="headerlink" title="COMMAND"></a>COMMAND</h4><p>最早可用版本：2.8.13</p>
+<p>时间复杂度：O(N)，N是Redis命令总数</p>
+<p>返回所有Redis命令的相关信息。</p>
+<p>返回信息的第一层包含以下内容：</p>
+<ul>
+<li>命令的名称</li>
+<li>命令arity（可接受的参数数量）</li>
+<li>命令标志</li>
+<li>第一个key在参数列表中的位置</li>
+<li>最后一个key在参数列表中的位置</li>
+<li>用于定位重复key的step</li>
+</ul>
+<p>命令arity如果是整数，表示命令的请求参数（包括命令名称）数量是一个固定的值；如果是负数，表示请求参数的最小数量。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1) 1) <span class="string">"get"</span></span><br><span class="line">   2) (<span class="built_in">integer</span>) 2</span><br><span class="line">   3) 1) <span class="built_in">readonly</span></span><br><span class="line">   4) (<span class="built_in">integer</span>) 1</span><br><span class="line">   5) (<span class="built_in">integer</span>) 1</span><br><span class="line">   6) (<span class="built_in">integer</span>) 1</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1) 1) <span class="string">"mget"</span></span><br><span class="line">   2) (<span class="built_in">integer</span>) -2</span><br><span class="line">   3) 1) <span class="built_in">readonly</span></span><br><span class="line">   4) (<span class="built_in">integer</span>) 1</span><br><span class="line">   5) (<span class="built_in">integer</span>) -1</span><br><span class="line">   6) (<span class="built_in">integer</span>) 1</span><br></pre></td></tr></table></figure>
+<p>命令标志包括以下几种：</p>
+<ul>
+<li>write：命令会改变数据</li>
+<li>readonly：命令不会改变key的值</li>
+<li>denyoom：如果发生OOM，则拒绝命令</li>
+<li>admin：服务器管理员命令</li>
+<li>pubsub：和订阅模式有关的命令</li>
+<li>noscript：脚本中不能执行的命令</li>
+<li>random：命令的执行结果随机</li>
+<li>sort_for_scrpt：如果在脚本中执行，结果会被排序</li>
+<li>loading：允许命令在数据库加载时执行</li>
+<li>stale：副本中有过时数据时，仍然可以执行命令</li>
+<li>skip_monitor：不在MONITOR中显示命令</li>
+<li>asking：集群相关，导入时仍可执行命令</li>
+<li>fast：命令操作时间不变或者是log(N)</li>
+<li>movablekeys：命令没有预先执行的key，必须自己指定</li>
+</ul>
+<h4 id="COMMAND-COUNT"><a href="#COMMAND-COUNT" class="headerlink" title="COMMAND COUNT"></a>COMMAND COUNT</h4><p>最早可用版本：2.8.13</p>
+<p>时间复杂度：O(1)</p>
+<p>返回当前Redis服务器支持的命令数量</p>
+<h4 id="COMMANC-GETKEYS"><a href="#COMMANC-GETKEYS" class="headerlink" title="COMMANC GETKEYS"></a>COMMANC GETKEYS</h4><p>最早可用版本：2.8.13</p>
+<p>时间复杂度：O(N)</p>
+<p>输出命令中的key</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt; COMMAND GETKEYS mset a b c d e f</span><br><span class="line">1) <span class="string">"a"</span></span><br><span class="line">2) <span class="string">"c"</span></span><br><span class="line">3) <span class="string">"e"</span></span><br></pre></td></tr></table></figure>
+<h4 id="COMMAND-INFO"><a href="#COMMAND-INFO" class="headerlink" title="COMMAND INFO"></a>COMMAND INFO</h4><p>最早可用版本：2.8.13</p>
+<p>时间复杂度：O(N)</p>
+<p>返回指定命令的详细信息，返回结果的内容和COMMAND一样，如果命令不存在，返回nil。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&gt; COMMAND INFO get</span><br><span class="line">1) 1) <span class="string">"get"</span></span><br><span class="line">   2) (<span class="built_in">integer</span>) 2</span><br><span class="line">   3) 1) <span class="built_in">readonly</span></span><br><span class="line">      2) fast</span><br><span class="line">   4) (<span class="built_in">integer</span>) 1</span><br><span class="line">   5) (<span class="built_in">integer</span>) 1</span><br><span class="line">   6) (<span class="built_in">integer</span>) 1</span><br></pre></td></tr></table></figure>
+<h4 id="CONFIG-GET"><a href="#CONFIG-GET" class="headerlink" title="CONFIG GET"></a>CONFIG GET</h4><p>最早可用版本：2.0.0</p>
+<p>这个命令可以读redis服务器的配置参数，在2.6版本以后，才可以读到全部配置。命令支持模糊匹配</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">config get *max-*-entries*</span><br><span class="line">1) <span class="string">"hash-max-zipmap-entries"</span></span><br><span class="line">2) <span class="string">"512"</span></span><br><span class="line">3) <span class="string">"list-max-ziplist-entries"</span></span><br><span class="line">4) <span class="string">"512"</span></span><br><span class="line">5) <span class="string">"set-max-intset-entries"</span></span><br><span class="line">6) <span class="string">"512"</span></span><br></pre></td></tr></table></figure>
+<h4 id="CONFIG-RESETSTAT"><a href="#CONFIG-RESETSTAT" class="headerlink" title="CONFIG RESETSTAT"></a>CONFIG RESETSTAT</h4><p>最早可用版本：2.0.0</p>
+<p>时间复杂度：O(1)</p>
+<p>重置INFO命令中的一些统计信息，包括</p>
+<ul>
+<li>Key命中数</li>
+<li>Key未命中数</li>
+<li>命令处理数量</li>
+<li>连接数</li>
+<li>过期Key的数量</li>
+<li>拒绝的连接数</li>
+<li>最近的fork(2)时间</li>
+<li><code>aof_delayed_fsync</code> 计数器</li>
+</ul>
+<h4 id="CONFIG-REWRITE"><a href="#CONFIG-REWRITE" class="headerlink" title="CONFIG REWRITE"></a>CONFIG REWRITE</h4><p>最早可用版本：2.8.0</p>
+<p>该命令用于重写redis.conf文件，应用最小的改变，使其反映当前服务器的配置。如果原始文件不存在，该命令也可以重头写一个配置文件。</p>
+<h4 id="CONFIG-SET"><a href="#CONFIG-SET" class="headerlink" title="CONFIG SET"></a>CONFIG SET</h4><p>最早可用版本：2.0.0</p>
+<p>该命令用于修改服务器的配置。可以使用<code>CONFIG GET *</code>查看可修改的配置。</p>
+<h4 id="DBSIZE"><a href="#DBSIZE" class="headerlink" title="DBSIZE"></a>DBSIZE</h4><p>最早可用版本：1.0.0</p>
+<p>返回当前数据库key的数量</p>
+<h4 id="DEBUG-OBJECT"><a href="#DEBUG-OBJECT" class="headerlink" title="DEBUG OBJECT"></a>DEBUG OBJECT</h4><p>最早可用版本：1.0.0</p>
+<p>这个命令不应该在客户端使用，具体请看<a href="https://redis.io/commands/object" target="_blank" rel="noopener">OBJECT</a>命令。</p>
+<h4 id="DEBUG-SEGFAULT"><a href="#DEBUG-SEGFAULT" class="headerlink" title="DEBUG SEGFAULT"></a>DEBUG SEGFAULT</h4><p>最早可用版本：1.0.0</p>
+<p>这个命令用于执行无效的内存访问，导致Redis崩溃，它用于在开发过程中模拟错误。</p>
+<h4 id="FLUSHALL"><a href="#FLUSHALL" class="headerlink" title="FLUSHALL"></a>FLUSHALL</h4><p>最早可用版本：1.0.0</p>
+<p>删除所有数据库中的key。</p>
+<p>4.0.0版本以后，可以使用ASYNC参数，这个参数可以在后台进行删除任务。</p>
+<h4 id="FLUSHDB"><a href="#FLUSHDB" class="headerlink" title="FLUSHDB"></a>FLUSHDB</h4><p>最早可用版本：1.0.0</p>
+<p>删除当前数据库的所有key。</p>
+<h4 id="INFO"><a href="#INFO" class="headerlink" title="INFO"></a>INFO</h4><p>INFO命令返回服务器的详细信息。可以执行显示的部分：</p>
+<ul>
+<li>server：Redis server通用信息</li>
+<li>clients：客户端连接部分</li>
+<li>memory：内存相关信息</li>
+<li>persistence：RDB和AOF相关信息</li>
+<li>stats：通用统计信息</li>
+<li>replication：主从复制信息</li>
+<li>cpu：CPU相关统计</li>
+<li>commandstats：Redis命令统计</li>
+<li>cluster：Redis集群部分</li>
+<li>keyspace：数据库相关信息</li>
+</ul>
+<h4 id="LASTSAVE"><a href="#LASTSAVE" class="headerlink" title="LASTSAVE"></a>LASTSAVE</h4><p>最早可用版本：1.0.0</p>
+<p>返回DB最后一次保存成功的时间。</p>
+<h4 id="MEMORY-DOCTOR"><a href="#MEMORY-DOCTOR" class="headerlink" title="MEMORY DOCTOR"></a>MEMORY DOCTOR</h4><p>最早可用版本：4.0.0</p>
+<p>该命令报告Redis服务器遇到的与内存相关的问题，并就可能的补救措施提出建议。</p>
+<h4 id="MEMORY-HELP"><a href="#MEMORY-HELP" class="headerlink" title="MEMORY HELP"></a>MEMORY HELP</h4><p>最早可用版本：4.0.0</p>
+<p>该命令返回描述不同子命令的帮助文本。</p>
+<h4 id="MEMORY-MALLOC-STATS"><a href="#MEMORY-MALLOC-STATS" class="headerlink" title="MEMORY MALLOC-STATS"></a>MEMORY MALLOC-STATS</h4><p>最早可用版本：4.0.0</p>
+<p>该命令提供了内存分配器的内部统计报告。这个命令只有在使用jemalloc作为分配器时可用。</p>
+<h4 id="MEMORY-PURGE"><a href="#MEMORY-PURGE" class="headerlink" title="MEMORY PURGE"></a>MEMORY PURGE</h4><p>最早可用版本：4.0.0</p>
+<p>该命令尝试清除脏页面，以便内存分配器回收。</p>
+<h4 id="MEMORY-STATS"><a href="#MEMORY-STATS" class="headerlink" title="MEMORY STATS"></a>MEMORY STATS</h4><p>最早可用版本：4.0.0</p>
+<p>返回内存的使用情况，包括以下维度：（没有特别说明，则以字节为单位）</p>
+<ul>
+<li>peak.allocated：Redis内存消耗的峰值</li>
+<li>total.allocated：Redis使用的内存总数</li>
+<li>startup.allocated：Redis启动时，初始化所需要的内存</li>
+<li>replication.backlog：复制log积压的大小</li>
+<li>clients.slaves：所有副本的总开销</li>
+<li>clients.normal：所有客户端的总开销</li>
+<li>aof.buffer：当前AOF缓冲区的总开销</li>
+<li>dbXXX：对于每个数据库，主字典和到期字典的开销</li>
+<li>overhead.total：所有的间接开销</li>
+<li>keys.count：所有数据库中key的总数</li>
+<li>keys.bytes-per-key：净内存使用和keys.count的比率</li>
+<li>dataset.bytes：数据集的开销</li>
+<li>dataset.percentage：数据集开销所占百分比</li>
+<li>peak.percentage：peak.allocated占total.allocated的百分比</li>
+<li>fragmentation：碎片内存的比率</li>
+</ul>
+<h4 id="MEMORY-USAGE"><a href="#MEMORY-USAGE" class="headerlink" title="MEMORY USAGE"></a>MEMORY USAGE</h4><p>最早可用版本：4.0.0</p>
+<p>时间复杂度：O(N)</p>
+<p>用法 <code>MEMORY USAGE key [Samples count]</code></p>
+<p>该命令返回了指定key和它的value存储所占用的内存大小。</p>
+<p>对于嵌套数据类型，可以使用SAMPLES参数，其中count是采样嵌套的数量，默认是5，如果要对所有嵌套值进行采样，需要将SAMPLES设置为0。</p>
+<h4 id="MONITOR"><a href="#MONITOR" class="headerlink" title="MONITOR"></a>MONITOR</h4><p>最早可用版本：1.0.0</p>
+<p>MONITOR是一个调试命令，它可以回溯Redis服务器处理的每个命令。它可以帮助理解数据库发生了什么。这个命令可以通过redis-cli和telnet使用。</p>
+<p>安全起见，某些命令是不会被MONITOR记录的（如CONFIG）</p>
+<h4 id="REPLICAOF"><a href="#REPLICAOF" class="headerlink" title="REPLICAOF"></a>REPLICAOF</h4><p>最早可用版本：5.0.0</p>
+<p>这个命令可以改变从服务器的从属关系。</p>
+<p>对于一台从服务器来说，执行<code>REPLICAOF NO ONE</code>命令，结果是当前服务器变成master。而执行<code>REPLICAOF host port</code>命令会改变原从属关系，是从服务器归属于新的master。</p>
+<h4 id="ROLE"><a href="#ROLE" class="headerlink" title="ROLE"></a>ROLE</h4><p>最早可用版本：2.8.12</p>
+<p>返回Redis实例的角色信息：包括：master、slave和sentinel</p>
+<p>对于master节点：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">1) <span class="string">"master"</span></span><br><span class="line">2) (<span class="built_in">integer</span>) 3129659</span><br><span class="line">3) 1) 1) <span class="string">"127.0.0.1"</span></span><br><span class="line">      2) <span class="string">"9001"</span></span><br><span class="line">      3) <span class="string">"3129242"</span></span><br><span class="line">   2) 1) <span class="string">"127.0.0.1"</span></span><br><span class="line">      2) <span class="string">"9002"</span></span><br><span class="line">      3) <span class="string">"3129543"</span></span><br></pre></td></tr></table></figure>
+<p>第一行是master字符串；第二行是主从复制的偏移量；用于标记重新同步时开始的位置，第三行开始是从节点的信息，包括IP、端口号和最后同步的从节点偏移量。</p>
+<p>对于从节点：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1) <span class="string">"slave"</span></span><br><span class="line">2) <span class="string">"127.0.0.1"</span></span><br><span class="line">3) (<span class="built_in">integer</span>) 9000</span><br><span class="line">4) <span class="string">"connected"</span></span><br><span class="line">5) (<span class="built_in">integer</span>) 3167038</span><br></pre></td></tr></table></figure>
+<p>第一行返回slave字符串；第二行是IP；第三行是端口号；第四行是与主节点连接状态，可以是connect（需要与主节点连接），connecting（正在连接），sync（尝试进行主从同步），connected（从节点在线）；第五行是从节点收到的数据量</p>
+<p>对于sentinel</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1) <span class="string">"sentinel"</span></span><br><span class="line">2) 1) <span class="string">"resque-master"</span></span><br><span class="line">   2) <span class="string">"html-fragments-master"</span></span><br><span class="line">   3) <span class="string">"stats-master"</span></span><br><span class="line">   4) <span class="string">"metadata-master"</span></span><br></pre></td></tr></table></figure>
+<p>第一行是sentinel；第二行之后是监控master的名字。</p>
+<h4 id="SAVE"><a href="#SAVE" class="headerlink" title="SAVE"></a>SAVE</h4><p>最早可用版本：1.0.0</p>
+<p>同步的执行保存当前数据集快照，并写入到RDB文件。<strong>不要在生产环境使用这个命令！</strong></p>
+<h4 id="SHUTDOWN"><a href="#SHUTDOWN" class="headerlink" title="SHUTDOWN"></a>SHUTDOWN</h4><p>最早可用版本：1.0.0</p>
+<p>这个命令有以下操作：</p>
+<ul>
+<li>停止全部客户端</li>
+<li>如果设置了save point，就会执行SAVE命令</li>
+<li>如果AOF是enabled，刷新AOF文件</li>
+<li>退出服务器</li>
+</ul>
+<p>如果启用了持久化，则可以保证数据不丢失。</p>
+<p>如果执行SHUTDOWN SAVE，即便没有save point，仍然会强制执行保存操作。</p>
+<p>如果执行SHUTDOWN NOSAVE，有保存点也不会执行保存操作。</p>
+<h4 id="SLAVEOF"><a href="#SLAVEOF" class="headerlink" title="SLAVEOF"></a>SLAVEOF</h4><p>最早可用版本：1.0.0</p>
+<p>该命令被REPLICAOF替代</p>
+<h4 id="SLOWLOG"><a href="#SLOWLOG" class="headerlink" title="SLOWLOG"></a>SLOWLOG</h4><p>最早可用版本：2.2.12</p>
+<p>这个命令用来读取并重置慢查询的日志。通过<em>slowlog-log-slower-than</em>参数设置慢查询的时间，超过这个时间就会被记录</p>
+<h4 id="TIME"><a href="#TIME" class="headerlink" title="TIME"></a>TIME</h4><p>最早可用版本：2.6.0</p>
+<p>时间复杂度：O(1)</p>
+<p>该命令返回当前服务器时间的秒数，以及当前秒中已经过去的微秒数。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+      <div>
+            
+              
+            
+      </div>
+      <div>
+        <div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+    <img id="wechat_subscriber_qcode" src="/images/wechat-qcode.jpg" alt="Jackey Wang wechat" style="width: 200px; max-width: 100%;">
+    <div>欢迎关注我的公众号，一起讨论如何写bug</div>
+</div>
+
+      </div>
+    
+
+      <div>
+        
+          <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+        
+      </div>
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>原创不易，感谢支持</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/weixinpay.jpg" alt="Jackey Wang 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpg" alt="Jackey Wang 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Redis命令/" rel="tag"><i class="fa fa-tag"></i> Redis命令</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/06/23/浅谈Redis通信协议/" rel="next" title="浅谈Redis通信协议">
+                <i class="fa fa-chevron-left"></i> 浅谈Redis通信协议
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/07/01/Redis命令详解：Streams/" rel="prev" title="Redis命令详解：Streams">
+                Redis命令详解：Streams <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_inline_share_toolbox">
+  <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5b669c42ef338b5b" async="async"></script>
+</div>
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Jackey Wang</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">95</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/Jackeyzhe" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:jackeyzhe59@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://stackoverflow.com/jackeyzhe" target="_blank" title="StackOverflow">
+                      
+                        <i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://my.csdn.net/K_Ohaha" target="_blank" title="CSDN">
+                      
+                        <i class="fa fa-fw fa-globe"></i>CSDN</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#BGREWRITEAOF"><span class="nav-number">1.</span> <span class="nav-text">BGREWRITEAOF</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#BGSAVE"><span class="nav-number">2.</span> <span class="nav-text">BGSAVE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CLIENT-GETNAME"><span class="nav-number">3.</span> <span class="nav-text">CLIENT GETNAME</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CLIENT-ID"><span class="nav-number">4.</span> <span class="nav-text">CLIENT ID</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CLIENT-KILL"><span class="nav-number">5.</span> <span class="nav-text">CLIENT KILL</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CLIENT-LIST"><span class="nav-number">6.</span> <span class="nav-text">CLIENT LIST</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CLIENT-PAUSE"><span class="nav-number">7.</span> <span class="nav-text">CLIENT PAUSE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CLIENT-REPLY"><span class="nav-number">8.</span> <span class="nav-text">CLIENT REPLY</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CLIENT-SETNAME"><span class="nav-number">9.</span> <span class="nav-text">CLIENT SETNAME</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CLIENT-UNBLOCK"><span class="nav-number">10.</span> <span class="nav-text">CLIENT UNBLOCK</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#COMMAND"><span class="nav-number">11.</span> <span class="nav-text">COMMAND</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#COMMAND-COUNT"><span class="nav-number">12.</span> <span class="nav-text">COMMAND COUNT</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#COMMANC-GETKEYS"><span class="nav-number">13.</span> <span class="nav-text">COMMANC GETKEYS</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#COMMAND-INFO"><span class="nav-number">14.</span> <span class="nav-text">COMMAND INFO</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CONFIG-GET"><span class="nav-number">15.</span> <span class="nav-text">CONFIG GET</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CONFIG-RESETSTAT"><span class="nav-number">16.</span> <span class="nav-text">CONFIG RESETSTAT</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CONFIG-REWRITE"><span class="nav-number">17.</span> <span class="nav-text">CONFIG REWRITE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CONFIG-SET"><span class="nav-number">18.</span> <span class="nav-text">CONFIG SET</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#DBSIZE"><span class="nav-number">19.</span> <span class="nav-text">DBSIZE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#DEBUG-OBJECT"><span class="nav-number">20.</span> <span class="nav-text">DEBUG OBJECT</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#DEBUG-SEGFAULT"><span class="nav-number">21.</span> <span class="nav-text">DEBUG SEGFAULT</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#FLUSHALL"><span class="nav-number">22.</span> <span class="nav-text">FLUSHALL</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#FLUSHDB"><span class="nav-number">23.</span> <span class="nav-text">FLUSHDB</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#INFO"><span class="nav-number">24.</span> <span class="nav-text">INFO</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#LASTSAVE"><span class="nav-number">25.</span> <span class="nav-text">LASTSAVE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MEMORY-DOCTOR"><span class="nav-number">26.</span> <span class="nav-text">MEMORY DOCTOR</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MEMORY-HELP"><span class="nav-number">27.</span> <span class="nav-text">MEMORY HELP</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MEMORY-MALLOC-STATS"><span class="nav-number">28.</span> <span class="nav-text">MEMORY MALLOC-STATS</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MEMORY-PURGE"><span class="nav-number">29.</span> <span class="nav-text">MEMORY PURGE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MEMORY-STATS"><span class="nav-number">30.</span> <span class="nav-text">MEMORY STATS</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MEMORY-USAGE"><span class="nav-number">31.</span> <span class="nav-text">MEMORY USAGE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MONITOR"><span class="nav-number">32.</span> <span class="nav-text">MONITOR</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#REPLICAOF"><span class="nav-number">33.</span> <span class="nav-text">REPLICAOF</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ROLE"><span class="nav-number">34.</span> <span class="nav-text">ROLE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SAVE"><span class="nav-number">35.</span> <span class="nav-text">SAVE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SHUTDOWN"><span class="nav-number">36.</span> <span class="nav-text">SHUTDOWN</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SLAVEOF"><span class="nav-number">37.</span> <span class="nav-text">SLAVEOF</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SLOWLOG"><span class="nav-number">38.</span> <span class="nav-text">SLOWLOG</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#TIME"><span class="nav-number">39.</span> <span class="nav-text">TIME</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2018 &mdash; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jackey Wang</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

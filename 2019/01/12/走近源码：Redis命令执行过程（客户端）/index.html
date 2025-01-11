@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Redis,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jackeyzhe" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="前面我们了解过了当Redis执行一个命令时，服务端做了哪些事情，不了解的同学可以看一下这篇文章走近源码：Redis如何执行命令。今天就一起来看看Redis的命令执行过程中客户端都做了什么事情。">
+<meta name="keywords" content="Redis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="走近源码：Redis命令执行过程（客户端）">
+<meta property="og:url" content="https://jackeyzhe.github.io/2019/01/12/走近源码：Redis命令执行过程（客户端）/index.html">
+<meta property="og:site_name" content="Jackeyzhe">
+<meta property="og:description" content="前面我们了解过了当Redis执行一个命令时，服务端做了哪些事情，不了解的同学可以看一下这篇文章走近源码：Redis如何执行命令。今天就一起来看看Redis的命令执行过程中客户端都做了什么事情。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2024-12-06T17:02:53.931Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="走近源码：Redis命令执行过程（客户端）">
+<meta name="twitter:description" content="前面我们了解过了当Redis执行一个命令时，服务端做了哪些事情，不了解的同学可以看一下这篇文章走近源码：Redis如何执行命令。今天就一起来看看Redis的命令执行过程中客户端都做了什么事情。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://jackeyzhe.github.io/2019/01/12/走近源码：Redis命令执行过程（客户端）/">
+
+
+
+
+
+  <title>走近源码：Redis命令执行过程（客户端） | Jackeyzhe</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+    <a href="https://github.com/Jackeyzhe" class="github-corner" aria-label="View source on Github"><svg width="80" height="80" viewbox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"/><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"/><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"/></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Jackeyzhe</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">靠脸吃饭</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2019/01/12/走近源码：Redis命令执行过程（客户端）/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jackey Wang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">走近源码：Redis命令执行过程（客户端）</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-01-12T15:32:52+08:00">
+                2019-01-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>前面我们了解过了当Redis执行一个命令时，服务端做了哪些事情，不了解的同学可以看一下这篇文章<a href="https://jackeyzhe.github.io/2019/01/05/%E8%B5%B0%E8%BF%91%E6%BA%90%E7%A0%81%EF%BC%9ARedis%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4/">走近源码：Redis如何执行命令</a>。今天就一起来看看Redis的命令执行过程中客户端都做了什么事情。<a id="more"></a></p>
+<h4 id="启动客户端"><a href="#启动客户端" class="headerlink" title="启动客户端"></a>启动客户端</h4><p>首先看redis-cli.c文件的main函数，也就是我们输入redis-cli命令时所要执行的函数。main函数主要是给config变量的各个属性设置默认值。比如：</p>
+<ul>
+<li>hostip：要连接的服务端的IP，默认为127.0.0.1</li>
+<li>hostport：要连接的服务端的端口，默认为6379</li>
+<li>interactive：是否是交互模式，默认为0（非交互模式）</li>
+<li>一些模式的设置，例如：cluster_mode、slave_mode、getrdb_mode、scan_mode等</li>
+<li>cluster相关的参数</li>
+</ul>
+<p>……</p>
+<p>接着调用parseOptions()函数来处理参数，例如-p、-c、–verbose等一些用来指定config属性的（可以输入redis-cli –help查看）或是指定启动模式的。</p>
+<p>处理完这些参数后，需要把它们从参数列表中去除，剩下用于在非交互模式中执行的命令。</p>
+<p>parseEnv()用来判断是否需要验证权限，紧接着就是根据刚才的参数判断需要进入哪种模式，是cluster还是slave又或者是RDB……如果没有进入这些模式，并且没有需要执行的命令，那么就进入交互模式，否则会进入非交互模式。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Start interactive mode when no command is provided */</span></span><br><span class="line"><span class="keyword">if</span> (argc == <span class="number">0</span> &amp;&amp; !config.eval) &#123;</span><br><span class="line">    <span class="comment">/* Ignore SIGPIPE in interactive mode to force a reconnect */</span></span><br><span class="line">    signal(SIGPIPE, SIG_IGN);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Note that in repl mode we don't abort on connection error.</span></span><br><span class="line"><span class="comment">     * A new attempt will be performed for every command send. */</span></span><br><span class="line">    cliConnect(<span class="number">0</span>);</span><br><span class="line">    repl();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Otherwise, we have some arguments to execute */</span></span><br><span class="line"><span class="keyword">if</span> (cliConnect(<span class="number">0</span>) != REDIS_OK) <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line"><span class="keyword">if</span> (config.eval) &#123;</span><br><span class="line">    <span class="keyword">return</span> evalMode(argc,argv);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> noninteractive(argc,convertToSds(argc,argv));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="连接服务器"><a href="#连接服务器" class="headerlink" title="连接服务器"></a>连接服务器</h4><p>cliConnect()函数用于连接服务器，它的参数是一个标志位，如果是CC_FORCE（0）表示强制重连，如果是CC_QUIET（2）表示不打印错误日志。</p>
+<p>如果建立了socket，那么就连接这个socket，否则就去连接指定的IP和端口。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (config.hostsocket == <span class="literal">NULL</span>) &#123;</span><br><span class="line">    context = redisConnect(config.hostip,config.hostport);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    context = redisConnectUnix(config.hostsocket);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="redisConnect"><a href="#redisConnect" class="headerlink" title="redisConnect"></a>redisConnect</h5><p>redisConnect()（在deps/hiredis/hiredis.c文件中）函数用于连接指定的IP和端口的redis实例。它的返回值是redisContext类型的。这个结构封装了一些客户端与服务端之间的连接状态，obuf是用来存放返回结果的缓冲区，同时还有客户端与服务端的协议。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//hiredis.h</span></span><br><span class="line"><span class="comment">/* Context for a connection to Redis */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">redisContext</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span> err; <span class="comment">/* Error flags, 0 when there is no error */</span></span><br><span class="line">    <span class="keyword">char</span> errstr[<span class="number">128</span>]; <span class="comment">/* String representation of error when applicable */</span></span><br><span class="line">    <span class="keyword">int</span> fd;</span><br><span class="line">    <span class="keyword">int</span> flags;</span><br><span class="line">    <span class="keyword">char</span> *obuf; <span class="comment">/* Write buffer */</span></span><br><span class="line">    redisReader *reader; <span class="comment">/* Protocol reader */</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">enum</span> redisConnectionType connection_type;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">timeval</span> *<span class="title">timeout</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">        <span class="keyword">char</span> *host;</span><br><span class="line">        <span class="keyword">char</span> *source_addr;</span><br><span class="line">        <span class="keyword">int</span> port;</span><br><span class="line">    &#125; tcp;</span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">        <span class="keyword">char</span> *path;</span><br><span class="line">    &#125; unix_sock;</span><br><span class="line"></span><br><span class="line">&#125; redisContext;</span><br></pre></td></tr></table></figure>
+<p>redisConnect的实现比较简单，首先初始化一个redisContext变量，然后把客户端的flags字段设置为阻塞状态，接着调用redisContextConnectTcp命令。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">redisContext *<span class="title">redisConnect</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *ip, <span class="keyword">int</span> port)</span> </span>&#123;</span><br><span class="line">    redisContext *c;</span><br><span class="line"></span><br><span class="line">    c = redisContextInit();</span><br><span class="line">    <span class="keyword">if</span> (c == <span class="literal">NULL</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    c-&gt;flags |= REDIS_BLOCK;</span><br><span class="line">    redisContextConnectTcp(c,ip,port,<span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">return</span> c;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="redisContextConnectTcp"><a href="#redisContextConnectTcp" class="headerlink" title="redisContextConnectTcp"></a>redisContextConnectTcp</h5><p>redisContextConnectTcp()函数在net.c文件中，它调用的是_redisContextConnectTcp()这个函数，所以我们主要关注这个函数。它用来与服务端创建TCP连接，首先调整了tcp的host和timeout字段，然后getaddrinfo获取要连接的服务信息，这里兼容了IPv6和IPv4。然后尝试连接服务端。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (connect(s,p-&gt;ai_addr,p-&gt;ai_addrlen) == <span class="number">-1</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (errno == EHOSTUNREACH) &#123;</span><br><span class="line">        redisContextCloseFd(c);</span><br><span class="line">        <span class="keyword">continue</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (errno == EINPROGRESS &amp;&amp; !blocking) &#123;</span><br><span class="line">        <span class="comment">/* This is ok. */</span></span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (errno == EADDRNOTAVAIL &amp;&amp; reuseaddr) &#123;</span><br><span class="line">        <span class="keyword">if</span> (++reuses &gt;= REDIS_CONNECT_RETRIES) &#123;</span><br><span class="line">            <span class="keyword">goto</span> error;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            redisContextCloseFd(c);</span><br><span class="line">            <span class="keyword">goto</span> addrretry;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (redisContextWaitReady(c,timeout_msec) != REDIS_OK)</span><br><span class="line">            <span class="keyword">goto</span> error;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>connect()函数用于去连接服务器，连接上之后，服务器端会调用accept函数。如果连接失败，也会根据情况决定是否要关闭redisContext文件描述符。</p>
+<h4 id="发送命令并接收返回"><a href="#发送命令并接收返回" class="headerlink" title="发送命令并接收返回"></a>发送命令并接收返回</h4><p>当客户端和服务端建立连接之后，客户端向服务器端发送命令并接收返回值了。</p>
+<h5 id="repl"><a href="#repl" class="headerlink" title="repl"></a>repl</h5><p>我们回到redis-cli.c文件中的repl()函数，这个函数就是用来向服务器端发送命令并且接收到的结果返回。</p>
+<p>这里首先调用了cliInitHelp()和cliIntegrateHelp()这两个函数，初始化了一些帮助信息，然后设置了一些回调的方法。如果是终端模式，则会从rc文件中加载历史命令。然后调用linenoise()函数读取用户输入的命令，并以空格分隔参数。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nread = read(l.ifd,&amp;c,<span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+<p>接下来是判断是否需要过滤掉重复的参数。</p>
+<h5 id="issueCommandRepeat"><a href="#issueCommandRepeat" class="headerlink" title="issueCommandRepeat"></a>issueCommandRepeat</h5><p>生成好命令后，就调用issueCommandRepeat()函数开始执行命令。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">issueCommandRepeat</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv, <span class="keyword">long</span> repeat)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">        config.cluster_reissue_command = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">if</span> (cliSendCommand(argc,argv,repeat) != REDIS_OK) &#123;</span><br><span class="line">            cliConnect(CC_FORCE);</span><br><span class="line"></span><br><span class="line">            <span class="comment">/* If we still cannot send the command print error.</span></span><br><span class="line"><span class="comment">             * We'll try to reconnect the next time. */</span></span><br><span class="line">            <span class="keyword">if</span> (cliSendCommand(argc,argv,repeat) != REDIS_OK) &#123;</span><br><span class="line">                cliPrintContextError();</span><br><span class="line">                <span class="keyword">return</span> REDIS_ERR;</span><br><span class="line">            &#125;</span><br><span class="line">         &#125;</span><br><span class="line">         <span class="comment">/* Issue the command again if we got redirected in cluster mode */</span></span><br><span class="line">         <span class="keyword">if</span> (config.cluster_mode &amp;&amp; config.cluster_reissue_command) &#123;</span><br><span class="line">            cliConnect(CC_FORCE);</span><br><span class="line">         &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">             <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> REDIS_OK;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个函数会调用cliSendCommand()函数，将命令发送给服务器端，如果发送失败，会强制重连一次，然后再次发送命令。</p>
+<h5 id="redisAppendCommandArgv"><a href="#redisAppendCommandArgv" class="headerlink" title="redisAppendCommandArgv"></a>redisAppendCommandArgv</h5><p>cliSendCommand()函数又会调用redisAppendCommandArgv()函数（在hiredis.c文件中）这个函数是按照<a href="https://redis.io/topics/protocol" target="_blank" rel="noopener">Redis协议</a>将命令进行编码。</p>
+<h5 id="cliReadReply"><a href="#cliReadReply" class="headerlink" title="cliReadReply"></a>cliReadReply</h5><p>然后调用cliReadReply()函数，接收服务器端返回的结果，调用cliFormatReplyRaw()函数将结果进行编码并返回。</p>
+<h4 id="举个栗子"><a href="#举个栗子" class="headerlink" title="举个栗子"></a>举个栗子</h4><p>我们以GET命令为例，具体描述一下，从客户端到服务端，程序是如何运行的。</p>
+<p>我们用gdb调试redis-server，将断点设置到readQueryFromClient函数这里。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">gdb src/redis-server </span><br><span class="line">GNU gdb (Ubuntu 8.1-0ubuntu3) 8.1.0.20180409-git</span><br><span class="line">Copyright (C) 2018 Free Software Foundation, Inc.</span><br><span class="line">License GPLv3+: GNU GPL version 3 or later &lt;http://gnu.org/licenses/gpl.html&gt;</span><br><span class="line">This is free software: you are free to change and redistribute it.</span><br><span class="line">There is NO WARRANTY, to the extent permitted by law.  Type <span class="string">"show copying"</span></span><br><span class="line">and <span class="string">"show warranty"</span> <span class="keyword">for</span> details.</span><br><span class="line">This GDB was configured as <span class="string">"x86_64-linux-gnu"</span>.</span><br><span class="line">Type <span class="string">"show configuration"</span> <span class="keyword">for</span> configuration details.</span><br><span class="line">For bug reporting instructions, please see:</span><br><span class="line">&lt;http://www.gnu.org/software/gdb/bugs/&gt;.</span><br><span class="line">Find the GDB manual and other documentation resources online at:</span><br><span class="line">&lt;http://www.gnu.org/software/gdb/documentation/&gt;.</span><br><span class="line">For <span class="built_in">help</span>, <span class="built_in">type</span> <span class="string">"help"</span>.</span><br><span class="line">Type <span class="string">"apropos word"</span> to search <span class="keyword">for</span> commands related to <span class="string">"word"</span>...</span><br><span class="line">Reading symbols from src/redis-server...done.</span><br><span class="line">(gdb) b readQueryFromClient</span><br><span class="line">Breakpoint 1 at 0x43c520: file networking.c, line 1379.</span><br><span class="line">(gdb) run redis.conf</span><br></pre></td></tr></table></figure>
+<p>然后再调试redis-cli，断点设置cliReadReply函数。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">gdb src/redis-cli </span><br><span class="line">GNU gdb (Ubuntu 8.1-0ubuntu3) 8.1.0.20180409-git</span><br><span class="line">Copyright (C) 2018 Free Software Foundation, Inc.</span><br><span class="line">License GPLv3+: GNU GPL version 3 or later &lt;http://gnu.org/licenses/gpl.html&gt;</span><br><span class="line">This is free software: you are free to change and redistribute it.</span><br><span class="line">There is NO WARRANTY, to the extent permitted by law.  Type <span class="string">"show copying"</span></span><br><span class="line">and <span class="string">"show warranty"</span> <span class="keyword">for</span> details.</span><br><span class="line">This GDB was configured as <span class="string">"x86_64-linux-gnu"</span>.</span><br><span class="line">Type <span class="string">"show configuration"</span> <span class="keyword">for</span> configuration details.</span><br><span class="line">For bug reporting instructions, please see:</span><br><span class="line">&lt;http://www.gnu.org/software/gdb/bugs/&gt;.</span><br><span class="line">Find the GDB manual and other documentation resources online at:</span><br><span class="line">&lt;http://www.gnu.org/software/gdb/documentation/&gt;.</span><br><span class="line">For <span class="built_in">help</span>, <span class="built_in">type</span> <span class="string">"help"</span>.</span><br><span class="line">Type <span class="string">"apropos word"</span> to search <span class="keyword">for</span> commands related to <span class="string">"word"</span>...</span><br><span class="line">Reading symbols from src/redis-cli...done.</span><br><span class="line">(gdb) b cliReadReply</span><br><span class="line">Breakpoint 1 at 0x40ffa0: file redis-cli.c, line 845.</span><br><span class="line">(gdb) run</span><br></pre></td></tr></table></figure>
+<p>在客户端输入get命令，发现程序在断点处停止。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; get jackey</span><br><span class="line"></span><br><span class="line">Breakpoint 1, cliReadReply (output_raw_strings=output_raw_strings@entry=0)</span><br><span class="line">    at redis-cli.c:845</span><br><span class="line">845	static int cliReadReply(int output_raw_strings) &#123;</span><br></pre></td></tr></table></figure>
+<p>我们可以看到这时Redis已经准备好将命令发送给服务端了，先来查看一下要发送的内容。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(gdb) p context-&gt;obuf</span><br><span class="line"><span class="variable">$1</span> = 0x684963 <span class="string">"*2\r\n<span class="variable">$3</span>\r\nget\r\n<span class="variable">$6</span>\r\njackey\r\n"</span></span><br></pre></td></tr></table></figure>
+<p>把\r\n替换成换行符看的后是这样：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">*2</span><br><span class="line"><span class="variable">$3</span></span><br><span class="line">get</span><br><span class="line"><span class="variable">$6</span></span><br><span class="line">jackey</span><br></pre></td></tr></table></figure>
+<p>*2表示命令参数的总数，包括命令的名字，也就是告诉服务端应该处理两个参数。</p>
+<p>$3表示第一个参数的长度。</p>
+<p>get是命令名，也就是第一个参数。</p>
+<p>$6表示第二个参数的长度。</p>
+<p>jackey是第二个参数。</p>
+<p>当程序运行到redisGetReply时就会把命令发送给服务端了，这时我们再来看服务端的运行情况。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Thread 1 <span class="string">"redis-server"</span> hit Breakpoint 1, readQueryFromClient (</span><br><span class="line">    el=0x7ffff6a41050, fd=7, privdata=0x7ffff6b1e340, mask=1)</span><br><span class="line">    at networking.c:1379</span><br><span class="line">1379	void readQueryFromClient(aeEventLoop *el, int fd, void *privdata, int mask) &#123;</span><br><span class="line">(gdb)</span><br></pre></td></tr></table></figure>
+<p>程序调整到</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sdsIncrLen(c-&gt;querybuf,nread);</span><br></pre></td></tr></table></figure>
+<p>这时nread的内容会被加到c-&gt;querybuf中，我们来看一下是不是我们发送过来的命令。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(gdb) p c-&gt;querybuf</span><br><span class="line"><span class="variable">$1</span> = (sds) 0x7ffff6a75cc5 <span class="string">"*2\r\n<span class="variable">$3</span>\r\nget\r\n<span class="variable">$6</span>\r\njackey\r\n"</span></span><br></pre></td></tr></table></figure>
+<p>到这里，Redis的服务端已经接受到请求了。接下来就是处理命令的过程，前文我们提到Redis是在processCommand()函数中处理的。</p>
+<p>processCommand()函数会调用lookupCommand()函数，从redisCommandTable表中查询出要执行的函数。然后调用c-&gt;cmd-&gt;proc(c)执行这个函数，这里我们get命令对应的是getCommand函数，getCommand里只是调用了getGenericCommand()函数。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//t_string.c</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">getGenericCommand</span><span class="params">(client *c)</span> </span>&#123;</span><br><span class="line">    robj *o;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ((o = lookupKeyReadOrReply(c,c-&gt;argv[<span class="number">1</span>],shared.null[c-&gt;resp])) == <span class="literal">NULL</span>)</span><br><span class="line">        <span class="keyword">return</span> C_OK;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (o-&gt;type != OBJ_STRING) &#123;</span><br><span class="line">        addReply(c,shared.wrongtypeerr);</span><br><span class="line">        <span class="keyword">return</span> C_ERR;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        addReplyBulk(c,o);</span><br><span class="line">        <span class="keyword">return</span> C_OK;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>lookupKeyReadOrReply()用来查找指定key存储的内容。并返回一个Redis对象，它的实现在db.c文件中。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">robj *<span class="title">lookupKeyReadOrReply</span><span class="params">(client *c, robj *key, robj *reply)</span> </span>&#123;</span><br><span class="line">    robj *o = lookupKeyRead(c-&gt;db, key);</span><br><span class="line">    <span class="keyword">if</span> (!o) addReply(c,reply);</span><br><span class="line">    <span class="keyword">return</span> o;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在lookupKeyReadWithFlags函数中，会先判断这个key是否过期，如果没有过期，则会继续调用lookupKey()函数进行查找。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">robj *<span class="title">lookupKey</span><span class="params">(redisDb *db, robj *key, <span class="keyword">int</span> flags)</span> </span>&#123;</span><br><span class="line">    dictEntry *de = dictFind(db-&gt;dict,key-&gt;ptr);</span><br><span class="line">    <span class="keyword">if</span> (de) &#123;</span><br><span class="line">        robj *val = dictGetVal(de);</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* Update the access time for the ageing algorithm.</span></span><br><span class="line"><span class="comment">         * Don't do it if we have a saving child, as this will trigger</span></span><br><span class="line"><span class="comment">         * a copy on write madness. */</span></span><br><span class="line">        <span class="keyword">if</span> (server.rdb_child_pid == <span class="number">-1</span> &amp;&amp;</span><br><span class="line">            server.aof_child_pid == <span class="number">-1</span> &amp;&amp;</span><br><span class="line">            !(flags &amp; LOOKUP_NOTOUCH))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (server.maxmemory_policy &amp; MAXMEMORY_FLAG_LFU) &#123;</span><br><span class="line">                updateLFU(val);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                val-&gt;lru = LRU_CLOCK();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> val;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在这个函数中，先调用了dictFind函数，找到key对应的entry，然后再从entry中取出val。</p>
+<p>找到val后，我们回到getGenericCommand函数中，它会调用addReplyBulk函数，将返回值添加到client结构的buf字段。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(gdb) p c-&gt;buf</span><br><span class="line"><span class="variable">$18</span> = <span class="string">"<span class="variable">$3</span>\r\nzhe\r\n\n<span class="variable">$8</span>\r\nflushall\r\n:-1\r\n"</span>, <span class="string">'\000'</span> &lt;repeats 16354 <span class="built_in">times</span>&gt;</span><br></pre></td></tr></table></figure>
+<p>到这里，get命令的处理过程已经完结了，剩下的事情就是将结果返回给客户端，并且等待下次命令。</p>
+<p>客户端收到返回值后，如果是控制台输出，则会调用cliFormatReplyTTY对结果进行解析</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">(gdb) n</span><br><span class="line">912	                out = cliFormatReplyTTY(reply,<span class="string">""</span>);</span><br><span class="line">(gdb) n</span><br><span class="line">918	        fwrite(out,sdslen(out),1,stdout);</span><br><span class="line">(gdb) p out</span><br><span class="line"><span class="variable">$5</span> = (sds) 0x6949b3 <span class="string">"\"zhe\"\n"</span></span><br></pre></td></tr></table></figure>
+<p>最后将结果输出。</p>
+<h4 id="推荐阅读"><a href="#推荐阅读" class="headerlink" title="推荐阅读"></a>推荐阅读</h4><p><a href="https://jackeyzhe.github.io/2019/01/05/%E8%B5%B0%E8%BF%91%E6%BA%90%E7%A0%81%EF%BC%9ARedis%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4/#more">走近源码：Redis如何执行命令</a></p>
+<p><a href="https://pauladamsmith.com/blog/2011/03/redis_get_set.html" target="_blank" rel="noopener">More Redis internals: Tracing a GET &amp; SET</a></p>
+<p><a href="https://darkdust.net/files/GDB%20Cheat%20Sheet.pdf" target="_blank" rel="noopener">GDB cheatsheet </a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+      <div>
+            
+              
+            
+      </div>
+      <div>
+        <div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+    <img id="wechat_subscriber_qcode" src="/images/wechat-qcode.jpg" alt="Jackey Wang wechat" style="width: 200px; max-width: 100%;">
+    <div>欢迎关注我的公众号，一起讨论如何写bug</div>
+</div>
+
+      </div>
+    
+
+      <div>
+        
+          <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+        
+      </div>
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>原创不易，感谢支持</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/weixinpay.jpg" alt="Jackey Wang 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpg" alt="Jackey Wang 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Redis/" rel="tag"><i class="fa fa-tag"></i> Redis</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/01/06/Redis命令详解：Sorted-Sets/" rel="next" title="Redis命令详解：Sorted Sets">
+                <i class="fa fa-chevron-left"></i> Redis命令详解：Sorted Sets
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/01/15/Redis命令详解：HyperLogLog/" rel="prev" title="Redis命令详解：HyperLogLog">
+                Redis命令详解：HyperLogLog <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_inline_share_toolbox">
+  <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5b669c42ef338b5b" async="async"></script>
+</div>
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Jackey Wang</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">95</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/Jackeyzhe" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:jackeyzhe59@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://stackoverflow.com/jackeyzhe" target="_blank" title="StackOverflow">
+                      
+                        <i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://my.csdn.net/K_Ohaha" target="_blank" title="CSDN">
+                      
+                        <i class="fa fa-fw fa-globe"></i>CSDN</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#启动客户端"><span class="nav-number">1.</span> <span class="nav-text">启动客户端</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#连接服务器"><span class="nav-number">2.</span> <span class="nav-text">连接服务器</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#redisConnect"><span class="nav-number">2.1.</span> <span class="nav-text">redisConnect</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#redisContextConnectTcp"><span class="nav-number">2.2.</span> <span class="nav-text">redisContextConnectTcp</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#发送命令并接收返回"><span class="nav-number">3.</span> <span class="nav-text">发送命令并接收返回</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#repl"><span class="nav-number">3.1.</span> <span class="nav-text">repl</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#issueCommandRepeat"><span class="nav-number">3.2.</span> <span class="nav-text">issueCommandRepeat</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#redisAppendCommandArgv"><span class="nav-number">3.3.</span> <span class="nav-text">redisAppendCommandArgv</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#cliReadReply"><span class="nav-number">3.4.</span> <span class="nav-text">cliReadReply</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#举个栗子"><span class="nav-number">4.</span> <span class="nav-text">举个栗子</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#推荐阅读"><span class="nav-number">5.</span> <span class="nav-text">推荐阅读</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2018 &mdash; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jackey Wang</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

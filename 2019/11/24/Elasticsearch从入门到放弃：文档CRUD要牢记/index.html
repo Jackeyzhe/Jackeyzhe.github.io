@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Elasticsearch笔记,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jackeyzhe" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="在Elasticsearch中，文档（document）是所有可搜索数据的最小单位。它被序列化成JSON存储在Elasticsearch中。每个文档都会有一个唯一ID，这个ID你可以自己指定或者交给Elasticsearch自动生成。">
+<meta name="keywords" content="Elasticsearch笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Elasticsearch从入门到放弃：文档CRUD要牢记">
+<meta property="og:url" content="https://jackeyzhe.github.io/2019/11/24/Elasticsearch从入门到放弃：文档CRUD要牢记/index.html">
+<meta property="og:site_name" content="Jackeyzhe">
+<meta property="og:description" content="在Elasticsearch中，文档（document）是所有可搜索数据的最小单位。它被序列化成JSON存储在Elasticsearch中。每个文档都会有一个唯一ID，这个ID你可以自己指定或者交给Elasticsearch自动生成。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2024-12-06T17:02:53.319Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Elasticsearch从入门到放弃：文档CRUD要牢记">
+<meta name="twitter:description" content="在Elasticsearch中，文档（document）是所有可搜索数据的最小单位。它被序列化成JSON存储在Elasticsearch中。每个文档都会有一个唯一ID，这个ID你可以自己指定或者交给Elasticsearch自动生成。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://jackeyzhe.github.io/2019/11/24/Elasticsearch从入门到放弃：文档CRUD要牢记/">
+
+
+
+
+
+  <title>Elasticsearch从入门到放弃：文档CRUD要牢记 | Jackeyzhe</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+    <a href="https://github.com/Jackeyzhe" class="github-corner" aria-label="View source on Github"><svg width="80" height="80" viewbox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"/><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"/><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"/></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Jackeyzhe</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">靠脸吃饭</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2019/11/24/Elasticsearch从入门到放弃：文档CRUD要牢记/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jackey Wang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Elasticsearch从入门到放弃：文档CRUD要牢记</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-24T21:16:46+08:00">
+                2019-11-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在Elasticsearch中，文档（document）是所有可搜索数据的最小单位。它被序列化成JSON存储在Elasticsearch中。每个文档都会有一个唯一ID，这个ID你可以自己指定或者交给Elasticsearch自动生成。<a id="more"></a></p>
+<p>如果延续我们之前不恰当的对比RDMS的话，我认为文档可以类比成关系型数据库中的表。</p>
+<h3 id="元数据"><a href="#元数据" class="headerlink" title="元数据"></a>元数据</h3><p>前面我们提到，每个文档都有一个唯一ID来标识，获取文档时，“_id”字段记录的就是文档的唯一ID，它是元数据之一。当然，文档还有一些其他的元数据，下面我们来一一介绍</p>
+<ul>
+<li>_index：文档所属的索引名</li>
+<li>_type：文档所属的type</li>
+<li>_id：文档的唯一ID</li>
+</ul>
+<p>有了这三个，我们就可以唯一确定一个document了，当然，7.0版本以后我们已经不需要_type了。接下来我们再来看看其他的一些元数据</p>
+<ul>
+<li>_source：文档的原始JSON数据</li>
+<li>_field_names：该字段用于索引文档中值不为null的字段名，主要用于exists请求查找指定字段是否为空</li>
+<li>_ignore：这个字段用于索引和存储文档中每个由于异常（开启了ignore_malformed）而被忽略的字段的名称</li>
+<li>_meta：该字段用于存储一些自定义的元数据信息</li>
+<li>_routing：用来指定数据落在哪个分片上，默认值是Id</li>
+<li>_version：文档的版本信息</li>
+<li>_score：相关性打分</li>
+</ul>
+<h3 id="创建文档"><a href="#创建文档" class="headerlink" title="创建文档"></a>创建文档</h3><p>创建文档有以下4种方法：</p>
+<ul>
+<li>PUT /\&lt;index>/_doc/&lt;_id&gt;</li>
+<li>POST /\&lt;index>/_doc/</li>
+<li>PUT /\<index>/_create/&lt;_id&gt;</index></li>
+<li>POST /\<index>/_create/&lt;_id&gt;</index></li>
+</ul>
+<p>这四种方法的区别是，如果不指定id，则Elasticsearch会自动生成一个id。如果使用_create的方法，则必须保证文档不存在，而使用_doc方法的话，既可以创建新的文档，也可以更新已存在的文档。</p>
+<p>在创建文档时，还可以选择一些参数。</p>
+<h4 id="请求参数"><a href="#请求参数" class="headerlink" title="请求参数"></a>请求参数</h4><ul>
+<li><strong>if_seq_no</strong>：当文档的序列号是指定值时才更新</li>
+<li><strong>if_primary_term</strong>：当文档的primary term是指定值时才更新</li>
+<li><strong>op_type</strong>：如果设置为create则指定id的文档必须不存在，否则操作失败。有效值为index或create，默认为index</li>
+<li><strong>op_type</strong>：指定预处理的管道id</li>
+<li><strong>refresh</strong>：如果设置为true，则立即刷新受影响的分片。如果是wait_for，则会等到刷新分片后，此次操作才对搜索可见。如果是false，则不会刷新分片。默认值为false</li>
+<li><strong>routing</strong>：指定路由到的主分片</li>
+<li><strong>timeout</strong>：指定响应时间，默认是30秒</li>
+<li><strong>master_timeout</strong>：连接主节点的响应时长，默认是30秒</li>
+<li><strong>version</strong>：显式的指定版本号</li>
+<li><strong>version_type</strong>：指定版本号类型：internal、 external、external_gte、force</li>
+<li><strong>wait_for_active_shards</strong>：处理操作之前，必须保持活跃的分片副本数量，可以设置为all或者任意正整数。默认是1，即只需要主分片活跃。</li>
+</ul>
+<h4 id="响应包体"><a href="#响应包体" class="headerlink" title="响应包体"></a>响应包体</h4><ul>
+<li><strong>_shards</strong>：提供分片的信息</li>
+<li><strong>_shards.total</strong>：创建了文档的总分片数量</li>
+<li><strong>_shards.successful</strong>：成功创建文档分片的数量</li>
+<li><strong>_shards.failed</strong>：创建文档失败的分片数量</li>
+<li><strong>_index</strong>：文档所属索引</li>
+<li><strong>_type</strong>：文档所属type，目前只支持_doc</li>
+<li><strong>_id</strong>：文档的id</li>
+<li><strong>_version</strong>：文档的版本号</li>
+<li><strong>_seq_no</strong>：文档的序列号</li>
+<li><strong>_primary_term</strong>：文档的主要术语</li>
+<li><strong>result</strong>：索引的结果，created或者updated</li>
+</ul>
+<p>我们在创建文档时，如果指定的索引不存在，则ES会自动为我们创建索引。这一操作是可以通过设置中的action.auto_create_index字段来控制的，默认是true。你可以修改这个字段，实现指定某些索引可以自动创建或者所有索引都不能自动创建的目的。</p>
+<h3 id="更新文档"><a href="#更新文档" class="headerlink" title="更新文档"></a>更新文档</h3><p>了解了如何创建文档之后，我们再来看看应该如何更新一个已经存在的文档。其实在创建文档时我们就提到过，使用PUT /\<index>/_doc/\<id>的方法就可以更新一个已存在的文档。除此之外，我们还有另一种更新文档的方法：</id></index></p>
+<p>POST /\<index>/_update/\&lt;_id&gt;</index></p>
+<p>这两种更新有所不同。_doc方法是先删除原有的文档，再创建新的。而_update方法则是增量更新，它的更新过程是先检索到文档，然后运行指定脚本，最后重新索引。</p>
+<p>还有一个区别就是_update方法支持使用脚本更新，默认的语言是painless，你可以通过参数lang来进行设置。在请求参数方面，_update相较于_doc多了以下几个参数：</p>
+<ul>
+<li><strong>lang</strong>：指定脚本语言</li>
+<li><strong>retry_on_conflict</strong>：发生冲突时重试次数，默认是0</li>
+<li><strong>_source</strong>：设置为false，则不返回任何检索字段</li>
+<li><strong>_source_excludes</strong>：指定要从检索结果排除的source字段</li>
+<li><strong>_source_includes</strong>：指定要返回的检索source字段</li>
+</ul>
+<p>下面的一个例子是用脚本来更新文档</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST <span class="string">"localhost:9200/test/_update/1?pretty"</span> -H <span class="string">'Content-Type: application/json'</span> -d<span class="string">'</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">    "script" : &#123;</span></span><br><span class="line"><span class="string">        "source": "ctx._source.counter += params.count",</span></span><br><span class="line"><span class="string">        "lang": "painless",</span></span><br><span class="line"><span class="string">        "params" : &#123;</span></span><br><span class="line"><span class="string">            "count" : 4</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">'</span></span><br></pre></td></tr></table></figure>
+<h4 id="Upsert"><a href="#Upsert" class="headerlink" title="Upsert"></a>Upsert</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST <span class="string">"localhost:9200/test/_update/1?pretty"</span> -H <span class="string">'Content-Type: application/json'</span> -d<span class="string">'</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">    "script" : &#123;</span></span><br><span class="line"><span class="string">        "source": "ctx._source.counter += params.count",</span></span><br><span class="line"><span class="string">        "lang": "painless",</span></span><br><span class="line"><span class="string">        "params" : &#123;</span></span><br><span class="line"><span class="string">            "count" : 4</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">    &#125;,</span></span><br><span class="line"><span class="string">    "upsert" : &#123;</span></span><br><span class="line"><span class="string">        "counter" : 1</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">'</span></span><br></pre></td></tr></table></figure>
+<p>当指定的文档不存在时，可以使用upsert参数，创建一个新的文档，而当指定的文档存在时，该请求会执行script中的脚本。如果不想使用脚本，而只想新增/更新文档的话，可以使用doc_as_upsert。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST <span class="string">"localhost:9200/test/_update/1?pretty"</span> -H <span class="string">'Content-Type: application/json'</span> -d<span class="string">'</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">    "doc" : &#123;</span></span><br><span class="line"><span class="string">        "name" : "new_name"</span></span><br><span class="line"><span class="string">    &#125;,</span></span><br><span class="line"><span class="string">    "doc_as_upsert" : true</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">'</span></span><br></pre></td></tr></table></figure>
+<h4 id="update-by-query"><a href="#update-by-query" class="headerlink" title="update by query"></a>update by query</h4><p>这个API是用于批量更新检索出的文档的，具体可以通过一个例子来了解。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST <span class="string">"localhost:9200/twitter/_update_by_query?pretty"</span> -H <span class="string">'Content-Type: application/json'</span> -d<span class="string">'</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">  "script": &#123;</span></span><br><span class="line"><span class="string">    "source": "ctx._source.likes++",</span></span><br><span class="line"><span class="string">    "lang": "painless"</span></span><br><span class="line"><span class="string">  &#125;,</span></span><br><span class="line"><span class="string">  "query": &#123;</span></span><br><span class="line"><span class="string">    "term": &#123;</span></span><br><span class="line"><span class="string">      "user": "kimchy"</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">'</span></span><br></pre></td></tr></table></figure>
+<h3 id="获取文档"><a href="#获取文档" class="headerlink" title="获取文档"></a>获取文档</h3><p>ES获取文档用的是GET API，请求的格式是：</p>
+<p>GET /\<index>/_doc/&lt;_id&gt;</index></p>
+<p>它会返回文档的数据和一些元数据，如果你只想要文档的内容而不需要元数据时，可以使用</p>
+<p>GET /\<index>/_source/&lt;_id&gt;</index></p>
+<h4 id="请求参数-1"><a href="#请求参数-1" class="headerlink" title="请求参数"></a>请求参数</h4><p>获取文档的有几个请求参数之前已经提到过，这里不再赘述，它们分别是：</p>
+<ul>
+<li><strong>refresh</strong></li>
+<li><strong>routing</strong></li>
+<li><strong>_source</strong></li>
+<li><strong>_source_excludes</strong></li>
+<li><strong>_source_includes</strong></li>
+<li><strong>version</strong></li>
+<li><strong>version_type</strong></li>
+</ul>
+<p>而还有一些之前没提到过的参数，我们来具体看一下</p>
+<ul>
+<li><strong>preference</strong>：用来 指定执行请求的node或shard，如果设置为_local，则会优先在本地的分片执行</li>
+<li><strong>realtime</strong>：如果设置为true，则请求是实时的而不是近实时。默认是true</li>
+<li><strong>stored_fields</strong>：返回指定的字段中，store为true的字段</li>
+</ul>
+<h4 id="mget"><a href="#mget" class="headerlink" title="mget"></a>mget</h4><p>mget是批量获取的方法之一，请求的格式有两种：</p>
+<ul>
+<li>GET /_mget</li>
+<li>GET /\<index>/_mget</index></li>
+</ul>
+<p>第一种是在请求体中写index。第二种是把index放到url中，不过这种方式可能会触发ES的安全检查。</p>
+<p>mget的请求参数和get相同，只是需要在请求体中指定doc的相关检索条件</p>
+<p><strong>request</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">GET /_mget</span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">"docs"</span> : [</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="string">"_index"</span> : <span class="string">"jackey"</span>,</span><br><span class="line">            <span class="string">"_id"</span> : <span class="string">"1"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="string">"_index"</span> : <span class="string">"jackey"</span>,</span><br><span class="line">            <span class="string">"_id"</span> : <span class="string">"2"</span></span><br><span class="line">        &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>response</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="string">"docs"</span> : [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="string">"_index"</span> : <span class="string">"jackey"</span>,</span><br><span class="line">      <span class="string">"_type"</span> : <span class="string">"_doc"</span>,</span><br><span class="line">      <span class="string">"_id"</span> : <span class="string">"1"</span>,</span><br><span class="line">      <span class="string">"_version"</span> : 5,</span><br><span class="line">      <span class="string">"_seq_no"</span> : 6,</span><br><span class="line">      <span class="string">"_primary_term"</span> : 1,</span><br><span class="line">      <span class="string">"found"</span> : <span class="literal">true</span>,</span><br><span class="line">      <span class="string">"_source"</span> : &#123;</span><br><span class="line">        <span class="string">"user"</span> : <span class="string">"ja"</span>,</span><br><span class="line">        <span class="string">"tool"</span> : <span class="string">"ES"</span>,</span><br><span class="line">        <span class="string">"message"</span> : <span class="string">"qwer"</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="string">"_index"</span> : <span class="string">"jackey"</span>,</span><br><span class="line">      <span class="string">"_type"</span> : <span class="string">"_doc"</span>,</span><br><span class="line">      <span class="string">"_id"</span> : <span class="string">"2"</span>,</span><br><span class="line">      <span class="string">"_version"</span> : 1,</span><br><span class="line">      <span class="string">"_seq_no"</span> : 2,</span><br><span class="line">      <span class="string">"_primary_term"</span> : 1,</span><br><span class="line">      <span class="string">"found"</span> : <span class="literal">true</span>,</span><br><span class="line">      <span class="string">"_source"</span> : &#123;</span><br><span class="line">        <span class="string">"user"</span> : <span class="string">"zhe"</span>,</span><br><span class="line">        <span class="string">"post_date"</span> : <span class="string">"2019-11-15T14:12:12"</span>,</span><br><span class="line">        <span class="string">"message"</span> : <span class="string">"learning Elasticsearch"</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="删除文档"><a href="#删除文档" class="headerlink" title="删除文档"></a>删除文档</h3><p>CURD操作只剩下最后一个D了，下面我们就一起来看看ES中如何删除一个文档。</p>
+<p>删除指定id使用的请求是</p>
+<p>DELETE /\<index>/_doc/&lt;_id&gt;</index></p>
+<p>在并发量比较大的情况下，我们在删除时通常会指定版本，以确定删除的文档是我们真正想要删除的文档。删除请求的参数我们在之前也都介绍过，想要具体了解的同学可以直接查看<a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.4/docs-delete.html" target="_blank" rel="noopener">官方文档</a>。</p>
+<h4 id="delete-by-query"><a href="#delete-by-query" class="headerlink" title="delete by query"></a>delete by query</h4><p>类似于update，delete也有一个delete by query的API。</p>
+<p>POST /\<index>/_delete_by_query</index></p>
+<p>它也是要先按照条件来查询匹配的文档，然后删除这些文档。在执行查询之前，Elasticsearch会先为指定索引做一个快照，如果在执行删除过程中，要索引发生改变，则会导致操作冲突，同时返回删除失败。</p>
+<p>如果删除的文档比较多，也可以使这个请求异步执行，只需要设置wait_for_completion=false即可。</p>
+<p>这个API的refresh与delete API的refresh参数有所不同，delete中的refresh参数是设置操作是否立即可见，即只刷新一个分片，而这个API中的refresh参数则是需要刷新受影响的所有分片。</p>
+<h3 id="Bulk-API"><a href="#Bulk-API" class="headerlink" title="Bulk API"></a>Bulk API</h3><p>最后，我们再来介绍一种特殊的API，批量操作的API。它支持两种写法，可以将索引名写到url中，也可以写到请求体中。</p>
+<ul>
+<li><p>POST /_bulk</p>
+</li>
+<li><p>POST /\<index>/_bulk</index></p>
+</li>
+</ul>
+<p>在这个请求中，你可以任意使用之前的CRUD请求的组合。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST <span class="string">"localhost:9200/_bulk?pretty"</span> -H <span class="string">'Content-Type: application/json'</span> -d<span class="string">'</span></span><br><span class="line"><span class="string">&#123; "index" : &#123; "_index" : "test", "_id" : "1" &#125; &#125;</span></span><br><span class="line"><span class="string">&#123; "field1" : "value1" &#125;</span></span><br><span class="line"><span class="string">&#123; "delete" : &#123; "_index" : "test", "_id" : "2" &#125; &#125;</span></span><br><span class="line"><span class="string">&#123; "create" : &#123; "_index" : "test", "_id" : "3" &#125; &#125;</span></span><br><span class="line"><span class="string">&#123; "field1" : "value3" &#125;</span></span><br><span class="line"><span class="string">&#123; "update" : &#123;"_id" : "1", "_index" : "test"&#125; &#125;</span></span><br><span class="line"><span class="string">&#123; "doc" : &#123;"field2" : "value2"&#125; &#125;</span></span><br><span class="line"><span class="string">'</span></span><br></pre></td></tr></table></figure>
+<p>请求体中使用的语法是newline delimited JSON（NDJSON）。具体怎么用呢？其实我们在上面的例子中已经有所展现了，对于index或create这样的请求，如果请求本身是有包体的，那么用换行符来表示下面的内容与子请求分隔，即为包体的开始。</p>
+<p>例如上面例子中的index请求，它的包体就是{ “field1” : “value1” }，所以它会在index请求的下一行出现。</p>
+<p>对于批量执行操作来说，单条操作失败并不会影响其他操作，而最终每条操作的结果也都会返回。</p>
+<p>上面的例子执行完之后，我们得到的结果应该是</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="string">"took"</span>: 30,</span><br><span class="line">   <span class="string">"errors"</span>: <span class="literal">false</span>,</span><br><span class="line">   <span class="string">"items"</span>: [</span><br><span class="line">      &#123;</span><br><span class="line">         <span class="string">"index"</span>: &#123;</span><br><span class="line">            <span class="string">"_index"</span>: <span class="string">"test"</span>,</span><br><span class="line">            <span class="string">"_type"</span>: <span class="string">"_doc"</span>,</span><br><span class="line">            <span class="string">"_id"</span>: <span class="string">"1"</span>,</span><br><span class="line">            <span class="string">"_version"</span>: 1,</span><br><span class="line">            <span class="string">"result"</span>: <span class="string">"created"</span>,</span><br><span class="line">            <span class="string">"_shards"</span>: &#123;</span><br><span class="line">               <span class="string">"total"</span>: 2,</span><br><span class="line">               <span class="string">"successful"</span>: 1,</span><br><span class="line">               <span class="string">"failed"</span>: 0</span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="string">"status"</span>: 201,</span><br><span class="line">            <span class="string">"_seq_no"</span> : 0,</span><br><span class="line">            <span class="string">"_primary_term"</span>: 1</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      &#123;</span><br><span class="line">         <span class="string">"delete"</span>: &#123;</span><br><span class="line">            <span class="string">"_index"</span>: <span class="string">"test"</span>,</span><br><span class="line">            <span class="string">"_type"</span>: <span class="string">"_doc"</span>,</span><br><span class="line">            <span class="string">"_id"</span>: <span class="string">"2"</span>,</span><br><span class="line">            <span class="string">"_version"</span>: 1,</span><br><span class="line">            <span class="string">"result"</span>: <span class="string">"not_found"</span>,</span><br><span class="line">            <span class="string">"_shards"</span>: &#123;</span><br><span class="line">               <span class="string">"total"</span>: 2,</span><br><span class="line">               <span class="string">"successful"</span>: 1,</span><br><span class="line">               <span class="string">"failed"</span>: 0</span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="string">"status"</span>: 404,</span><br><span class="line">            <span class="string">"_seq_no"</span> : 1,</span><br><span class="line">            <span class="string">"_primary_term"</span> : 2</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      &#123;</span><br><span class="line">         <span class="string">"create"</span>: &#123;</span><br><span class="line">            <span class="string">"_index"</span>: <span class="string">"test"</span>,</span><br><span class="line">            <span class="string">"_type"</span>: <span class="string">"_doc"</span>,</span><br><span class="line">            <span class="string">"_id"</span>: <span class="string">"3"</span>,</span><br><span class="line">            <span class="string">"_version"</span>: 1,</span><br><span class="line">            <span class="string">"result"</span>: <span class="string">"created"</span>,</span><br><span class="line">            <span class="string">"_shards"</span>: &#123;</span><br><span class="line">               <span class="string">"total"</span>: 2,</span><br><span class="line">               <span class="string">"successful"</span>: 1,</span><br><span class="line">               <span class="string">"failed"</span>: 0</span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="string">"status"</span>: 201,</span><br><span class="line">            <span class="string">"_seq_no"</span> : 2,</span><br><span class="line">            <span class="string">"_primary_term"</span> : 3</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      &#123;</span><br><span class="line">         <span class="string">"update"</span>: &#123;</span><br><span class="line">            <span class="string">"_index"</span>: <span class="string">"test"</span>,</span><br><span class="line">            <span class="string">"_type"</span>: <span class="string">"_doc"</span>,</span><br><span class="line">            <span class="string">"_id"</span>: <span class="string">"1"</span>,</span><br><span class="line">            <span class="string">"_version"</span>: 2,</span><br><span class="line">            <span class="string">"result"</span>: <span class="string">"updated"</span>,</span><br><span class="line">            <span class="string">"_shards"</span>: &#123;</span><br><span class="line">                <span class="string">"total"</span>: 2,</span><br><span class="line">                <span class="string">"successful"</span>: 1,</span><br><span class="line">                <span class="string">"failed"</span>: 0</span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="string">"status"</span>: 200,</span><br><span class="line">            <span class="string">"_seq_no"</span> : 3,</span><br><span class="line">            <span class="string">"_primary_term"</span> : 4</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">   ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>批量操作的执行过程相比多次单个操作而言，在性能上会有一定的提升。但同时也会有一定的风险，所以我们在使用的时候要非常的谨慎。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>本文我们先介绍了文档的基本概念和文档的元数据。接着又介绍了文档的CRUD操作和Bulk API。相信看完文章你对Elasticsearch的文档也会有一定的了解。那最后就请你启动你的Elasticsearch，然后亲自动手试一试这些操作，看看各种请求的参数究竟有什么作用。相信亲手实验过一遍之后你会对这些API有更深的印象。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+      <div>
+            
+              
+            
+      </div>
+      <div>
+        <div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+    <img id="wechat_subscriber_qcode" src="/images/wechat-qcode.jpg" alt="Jackey Wang wechat" style="width: 200px; max-width: 100%;">
+    <div>欢迎关注我的公众号，一起讨论如何写bug</div>
+</div>
+
+      </div>
+    
+
+      <div>
+        
+          <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+        
+      </div>
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>原创不易，感谢支持</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/weixinpay.jpg" alt="Jackey Wang 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpg" alt="Jackey Wang 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Elasticsearch笔记/" rel="tag"><i class="fa fa-tag"></i> Elasticsearch笔记</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/11/20/【译】利用Lombok消除重复代码/" rel="next" title="【译】利用Lombok消除重复代码">
+                <i class="fa fa-chevron-left"></i> 【译】利用Lombok消除重复代码
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/11/27/【译】什么才是优秀的代码/" rel="prev" title="【译】什么才是优秀的代码">
+                【译】什么才是优秀的代码 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_inline_share_toolbox">
+  <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5b669c42ef338b5b" async="async"></script>
+</div>
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Jackey Wang</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">95</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/Jackeyzhe" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:jackeyzhe59@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://stackoverflow.com/jackeyzhe" target="_blank" title="StackOverflow">
+                      
+                        <i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://my.csdn.net/K_Ohaha" target="_blank" title="CSDN">
+                      
+                        <i class="fa fa-fw fa-globe"></i>CSDN</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#元数据"><span class="nav-number">1.</span> <span class="nav-text">元数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#创建文档"><span class="nav-number">2.</span> <span class="nav-text">创建文档</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#请求参数"><span class="nav-number">2.1.</span> <span class="nav-text">请求参数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#响应包体"><span class="nav-number">2.2.</span> <span class="nav-text">响应包体</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#更新文档"><span class="nav-number">3.</span> <span class="nav-text">更新文档</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Upsert"><span class="nav-number">3.1.</span> <span class="nav-text">Upsert</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#update-by-query"><span class="nav-number">3.2.</span> <span class="nav-text">update by query</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#获取文档"><span class="nav-number">4.</span> <span class="nav-text">获取文档</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#请求参数-1"><span class="nav-number">4.1.</span> <span class="nav-text">请求参数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#mget"><span class="nav-number">4.2.</span> <span class="nav-text">mget</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#删除文档"><span class="nav-number">5.</span> <span class="nav-text">删除文档</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#delete-by-query"><span class="nav-number">5.1.</span> <span class="nav-text">delete by query</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Bulk-API"><span class="nav-number">6.</span> <span class="nav-text">Bulk API</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">7.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2018 &mdash; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jackey Wang</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

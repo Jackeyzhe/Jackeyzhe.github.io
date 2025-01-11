@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Code Review,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jackeyzhe" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="代码审查是许多高效团队的工程实践。即使你的软件已经有很多优点了，但团队在做代码审查时仍然会遇到一些陷阱。">
+<meta name="keywords" content="Code Review">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【译】别让你的团队掉入Code Review的坑">
+<meta property="og:url" content="https://jackeyzhe.github.io/2019/09/12/【译】别让你的团队掉入Code-Review的坑/index.html">
+<meta property="og:site_name" content="Jackeyzhe">
+<meta property="og:description" content="代码审查是许多高效团队的工程实践。即使你的软件已经有很多优点了，但团队在做代码审查时仍然会遇到一些陷阱。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://i1.wp.com/www.michaelagreiler.com/wp-content/uploads/2019/05/E-Book-Preview.jpg?w=860&ssl=1">
+<meta property="og:image" content="https://i1.wp.com/www.michaelagreiler.com/wp-content/uploads/2019/04/Code-Review-value-time.png?w=1024&ssl=1">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1567928096/Blog/Other/code_review/code-review00.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1568307144/Blog/Other/code_review/code-review-qrcode.jpg">
+<meta property="og:updated_time" content="2024-12-06T17:02:53.729Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="【译】别让你的团队掉入Code Review的坑">
+<meta name="twitter:description" content="代码审查是许多高效团队的工程实践。即使你的软件已经有很多优点了，但团队在做代码审查时仍然会遇到一些陷阱。">
+<meta name="twitter:image" content="https://i1.wp.com/www.michaelagreiler.com/wp-content/uploads/2019/05/E-Book-Preview.jpg?w=860&ssl=1">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://jackeyzhe.github.io/2019/09/12/【译】别让你的团队掉入Code-Review的坑/">
+
+
+
+
+
+  <title>【译】别让你的团队掉入Code Review的坑 | Jackeyzhe</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+    <a href="https://github.com/Jackeyzhe" class="github-corner" aria-label="View source on Github"><svg width="80" height="80" viewbox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"/><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"/><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"/></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Jackeyzhe</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">靠脸吃饭</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2019/09/12/【译】别让你的团队掉入Code-Review的坑/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jackey Wang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">【译】别让你的团队掉入Code Review的坑</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-12T23:31:26+08:00">
+                2019-09-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>代码审查是许多高效团队的工程实践。即使你的软件已经有很多优点了，但团队在做代码审查时仍然会遇到一些陷阱。<a id="more"></a></p>
+<p>这篇文章我讲向你介绍一些需要特别注意的陷阱，以防代码审查工作拖累你的团队。知道可能遇到的问题或陷阱，将会帮助你进行更加高效、有效的的代码审查工作。这是我们<a href="https://www.michaelagreiler.com/wp-content/uploads/2019/03/Code-Reviewing-in-the-Trenches-Understanding-Challenges-Best-Practices-and-Tool-Needs.pdf" target="_blank" rel="noopener">调查了900名微软员工后得到的结论</a>。</p>
+<h4 id="一个典型的代码审查过程"><a href="#一个典型的代码审查过程" class="headerlink" title="一个典型的代码审查过程"></a>一个典型的代码审查过程</h4><p>一个典型的使用工具进行的代码审查过程大致是这样的：开发者完成一段代码，她提交代码准备开始让别人review。然后她选择需要审查她的代码的人。审查代码的人开始查看代码并给出一些评论。作者按照这些评论完善代码。当所有人都觉得没问题了以后，代码就可以合并进代码库了。在另一篇中我详细介绍了微软的代码审查的过程。</p>
+<p>我为我的邮件订阅读者们准备了一份代码审查电子书，书中包含了全部的代码审查最佳实践的清单。我还加了一些额外的见解，大家可以<a href="https://www.michaelagreiler.com/code-review-e-book/" target="_blank" rel="noopener">自行申请</a>。</p>
+<p><img src="https://i1.wp.com/www.michaelagreiler.com/wp-content/uploads/2019/05/E-Book-Preview.jpg?w=860&amp;ssl=1" alt="Check out the VIP [Code Review e-Book](https://www.michaelagreiler.com/code-review-e-book/) I prepared for my subscribers."></p>
+<h4 id="代码审查并不总是一个平稳的过程"><a href="#代码审查并不总是一个平稳的过程" class="headerlink" title="代码审查并不总是一个平稳的过程"></a>代码审查并不总是一个平稳的过程</h4><p>这些步骤听起来像是 一个很平稳的过程，其实并不是，像其他所有事情一样，实际过程往往不如预期。在代码审查过程中，经常会遇到一些陷阱，这会降低整个审查代码的积极性。如果不能正确处理，代码审查会对整个团队的工作效率产生影响。所以让我们来看一下代码审查过程中究竟存在哪些坑。</p>
+<p>关键问题主要有两种：代码审查花费的时间和代码审查所能提供的价值。</p>
+<h4 id="等待回复是一种煎熬"><a href="#等待回复是一种煎熬" class="headerlink" title="等待回复是一种煎熬"></a>等待回复是一种煎熬</h4><p>作者需要面对的一个最主要的陷阱就是及时收到回复。等待评论的过程中不能在代码中做其他工作是一个巨大的问题。即使开发者可以完成其他任务，如果代码审查工作耗时过长，也会对开发者对工作效率和满意度造成不好的影响。</p>
+<h4 id="开发者必须兼顾多项职责"><a href="#开发者必须兼顾多项职责" class="headerlink" title="开发者必须兼顾多项职责"></a>开发者必须兼顾多项职责</h4><p>代码审查并不是代码审查人员唯一的任务。相反，它只是开发者日常工作之一（即使需要每天花费大量时间来做）。所以代码审查人员很可能在做其他工作，并且必须在开始代码审查之前停下或完成这些工作。</p>
+<p>如果时间不理想，或者代码审查人员在之前没有预料到这种变化，那么她可能在代码审查之前需要一点时间。远程团队还需要注意时差，这意味着代码审查可能花费更多的时间。</p>
+<h4 id="开发者会面对代码审查不被当作实际工作的问题"><a href="#开发者会面对代码审查不被当作实际工作的问题" class="headerlink" title="开发者会面对代码审查不被当作实际工作的问题"></a>开发者会面对代码审查不被当作实际工作的问题</h4><p>对于作者和代码审查人员来说，时间都是有限的，如果团队想要开发者做代码审查工作，但又不把它计入工作时间，这是有很大问题的。</p>
+<p><img src="https://i1.wp.com/www.michaelagreiler.com/wp-content/uploads/2019/04/Code-Review-value-time.png?w=1024&amp;ssl=1" alt="You have to value and plan for the time spent doing code reviews.
+Photo by [freestocks.org](https://unsplash.com/photos/vcPtHBqHnKk?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText) on [Unsplash](https://unsplash.com/?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText)"></p>
+<h4 id="代码审查工作和效果没有奖励"><a href="#代码审查工作和效果没有奖励" class="headerlink" title="代码审查工作和效果没有奖励"></a>代码审查工作和效果没有奖励</h4><p>如果只是声称对代码审查工作进行评估而没有任何奖励，这将没有意义。大多数公司只会对开发者开发的功能或者写出的代码进行奖励，这减弱了开发人员在工作中帮助他人的动力和能力。代码审查应该成为绩效评估和晋升决策的基石。</p>
+<h4 id="社会因素和团队动力"><a href="#社会因素和团队动力" class="headerlink" title="社会因素和团队动力"></a>社会因素和团队动力</h4><p>等待代码审查并不总是和缺乏时间以及缺少奖励系统有关。由于社会性质，延迟审查可能是由于不安全感或团队动力。尤其是如果代码审查工作是压倒性的或者审查者是新手，那么代码审查会让人不知所措。</p>
+<h4 id="大量代码很难审查"><a href="#大量代码很难审查" class="headerlink" title="大量代码很难审查"></a>大量代码很难审查</h4><p>大量的代码是审查工作的另一个巨大的陷阱。想象一下如果你是代码审查人员，当你需要审查一段代码时，你通常会想：我很快就能看完，但是当你打开的时候，发现这是一段巨大的改动，修改遍布整个代码库，你的第一反应是什么？</p>
+<p>大概是：天呐！（译者注：也可能是我*！）</p>
+<p>没错，这正是我们在分析了数千次代码评审中看到的。随着代码数量的增加，不仅是审核时间需要增加，评论的质量也会随之下降。这也是可以理解的。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1567928096/Blog/Other/code_review/code-review00.png" alt="tweet"></p>
+<p>大量的代码更改非常难以审核，另外，如果审核人员对这部分代码并不熟悉，那这将是一场噩梦。</p>
+<h4 id="理解代码修改需要一些指导"><a href="#理解代码修改需要一些指导" class="headerlink" title="理解代码修改需要一些指导"></a>理解代码修改需要一些指导</h4><p>大多数审核人员会面临无法理解代码修改的动机的困境。如果没有任何对修改的描述和解释，代码审查工作将会非常难以进行。研究表明如果审核人员不理解代码修改的目的，或者由于量大而不堪重负，那么她很难给出良好的建议。</p>
+<blockquote>
+<p>It’s just this big incomprehensible mess… then you can’t add any value because they are just going to explain it to you and you’re going to parrot back what they say.</p>
+</blockquote>
+<h4 id="没有得到有价值的反馈会降低开发人员审核代码的动力"><a href="#没有得到有价值的反馈会降低开发人员审核代码的动力" class="headerlink" title="没有得到有价值的反馈会降低开发人员审核代码的动力"></a>没有得到有价值的反馈会降低开发人员审核代码的动力</h4><p>毫无疑问，花费时间去等待代码审查，却没有得到有用的反馈是一个常见的问题。虽然团队可能从知识分享中受益，但这样仍会降低开发者的动力和收益。</p>
+<p>审核人员不能给出有效建议的原因通常有这样几种</p>
+<ol>
+<li>审核人员不具备这方面专业知识</li>
+<li>审核人员没有时间去完整的审查代码</li>
+<li>审核人员没有理解修改的目的</li>
+</ol>
+<h4 id="一旦主要讨论代码格式，你就需要采取行动"><a href="#一旦主要讨论代码格式，你就需要采取行动" class="headerlink" title="一旦主要讨论代码格式，你就需要采取行动"></a>一旦主要讨论代码格式，你就需要采取行动</h4><p>另一个在代码审查过程中很重要的问题叫做bikeshedding。它的意思是开发者专注于小问题的讨论（例如代码格式）而忽略了更严重的问题。导致这种行为的原因有很多，通常是由于审核人员并不理解改动的目的或者没有时间做代码审查。有时bikeshedding可能代表团队的动力出了问题。</p>
+<h4 id="达成共识可能需要面对面讨论"><a href="#达成共识可能需要面对面讨论" class="headerlink" title="达成共识可能需要面对面讨论"></a>达成共识可能需要面对面讨论</h4><p>有时候会发生代码作者和审核人员或者是审核人员之间很难达成共识的情况。由于团队动力和这件事紧密相关，因此必须小心处理这种情况通过工具和书面形式只会加剧这种问题。如果要讨论有争议的问题，那么面对面或者视频也许是更好的方案。</p>
+<h4 id="代码审核的好处大于工作量"><a href="#代码审核的好处大于工作量" class="headerlink" title="代码审核的好处大于工作量"></a>代码审核的好处大于工作量</h4><p>我希望这些陷阱不会改变你对代码审核的想法，因为如果你了解了这些陷阱并妥善处理它们，代码审核工作对于整个技术团队是非常有好处的，而且会有更有效的方法来做代码审核。</p>
+<h4 id="原文地址"><a href="#原文地址" class="headerlink" title="原文地址"></a>原文地址</h4><p><a href="https://www.michaelagreiler.com/code-review-pitfalls-slow-down/" target="_blank" rel="noopener">https://www.michaelagreiler.com/code-review-pitfalls-slow-down/</a></p>
+<p>最后，如果可以的话请帮忙填一下调查问卷。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1568307144/Blog/Other/code_review/code-review-qrcode.jpg" alt="调查问卷"></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+      <div>
+            
+              
+            
+      </div>
+      <div>
+        <div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+    <img id="wechat_subscriber_qcode" src="/images/wechat-qcode.jpg" alt="Jackey Wang wechat" style="width: 200px; max-width: 100%;">
+    <div>欢迎关注我的公众号，一起讨论如何写bug</div>
+</div>
+
+      </div>
+    
+
+      <div>
+        
+          <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+        
+      </div>
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>原创不易，感谢支持</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/weixinpay.jpg" alt="Jackey Wang 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpg" alt="Jackey Wang 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Code-Review/" rel="tag"><i class="fa fa-tag"></i> Code Review</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/09/07/【译】antirez：Redis6将支持客户端缓存/" rel="next" title="【译】antirez：Redis6将支持客户端缓存">
+                <i class="fa fa-chevron-left"></i> 【译】antirez：Redis6将支持客户端缓存
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/09/19/Elasticsearch从入门到放弃：人生若只如初见/" rel="prev" title="Elasticsearch从入门到放弃：人生若只如初见">
+                Elasticsearch从入门到放弃：人生若只如初见 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_inline_share_toolbox">
+  <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5b669c42ef338b5b" async="async"></script>
+</div>
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Jackey Wang</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">95</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/Jackeyzhe" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:jackeyzhe59@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://stackoverflow.com/jackeyzhe" target="_blank" title="StackOverflow">
+                      
+                        <i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://my.csdn.net/K_Ohaha" target="_blank" title="CSDN">
+                      
+                        <i class="fa fa-fw fa-globe"></i>CSDN</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一个典型的代码审查过程"><span class="nav-number">1.</span> <span class="nav-text">一个典型的代码审查过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#代码审查并不总是一个平稳的过程"><span class="nav-number">2.</span> <span class="nav-text">代码审查并不总是一个平稳的过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#等待回复是一种煎熬"><span class="nav-number">3.</span> <span class="nav-text">等待回复是一种煎熬</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#开发者必须兼顾多项职责"><span class="nav-number">4.</span> <span class="nav-text">开发者必须兼顾多项职责</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#开发者会面对代码审查不被当作实际工作的问题"><span class="nav-number">5.</span> <span class="nav-text">开发者会面对代码审查不被当作实际工作的问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#代码审查工作和效果没有奖励"><span class="nav-number">6.</span> <span class="nav-text">代码审查工作和效果没有奖励</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#社会因素和团队动力"><span class="nav-number">7.</span> <span class="nav-text">社会因素和团队动力</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#大量代码很难审查"><span class="nav-number">8.</span> <span class="nav-text">大量代码很难审查</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#理解代码修改需要一些指导"><span class="nav-number">9.</span> <span class="nav-text">理解代码修改需要一些指导</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#没有得到有价值的反馈会降低开发人员审核代码的动力"><span class="nav-number">10.</span> <span class="nav-text">没有得到有价值的反馈会降低开发人员审核代码的动力</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#一旦主要讨论代码格式，你就需要采取行动"><span class="nav-number">11.</span> <span class="nav-text">一旦主要讨论代码格式，你就需要采取行动</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#达成共识可能需要面对面讨论"><span class="nav-number">12.</span> <span class="nav-text">达成共识可能需要面对面讨论</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#代码审核的好处大于工作量"><span class="nav-number">13.</span> <span class="nav-text">代码审核的好处大于工作量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#原文地址"><span class="nav-number">14.</span> <span class="nav-text">原文地址</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2018 &mdash; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jackey Wang</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Redis,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jackeyzhe" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="经过前面对Redis源码的了解，令人印象深刻的也许就是Redis各种节约内存手段。而Redis对于内存的节约可以说是费尽心思，今天我就再来介绍一种Redis为了节约内存而创造的存储结构——压缩列表（ziplist）。">
+<meta name="keywords" content="Redis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="走近源码：压缩列表是怎样炼成的">
+<meta property="og:url" content="https://jackeyzhe.github.io/2019/03/23/走近源码：压缩列表是怎样炼成的/index.html">
+<meta property="og:site_name" content="Jackeyzhe">
+<meta property="og:description" content="经过前面对Redis源码的了解，令人印象深刻的也许就是Redis各种节约内存手段。而Redis对于内存的节约可以说是费尽心思，今天我就再来介绍一种Redis为了节约内存而创造的存储结构——压缩列表（ziplist）。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1553096929/Blog/Redis/ziplist/ziplist%E7%BB%93%E6%9E%84.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1553350839/Blog/Redis/ziplist/%E7%BA%A7%E8%81%94%E6%9B%B4%E6%96%B0.png">
+<meta property="og:updated_time" content="2024-12-06T17:02:53.967Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="走近源码：压缩列表是怎样炼成的">
+<meta name="twitter:description" content="经过前面对Redis源码的了解，令人印象深刻的也许就是Redis各种节约内存手段。而Redis对于内存的节约可以说是费尽心思，今天我就再来介绍一种Redis为了节约内存而创造的存储结构——压缩列表（ziplist）。">
+<meta name="twitter:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1553096929/Blog/Redis/ziplist/ziplist%E7%BB%93%E6%9E%84.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://jackeyzhe.github.io/2019/03/23/走近源码：压缩列表是怎样炼成的/">
+
+
+
+
+
+  <title>走近源码：压缩列表是怎样炼成的 | Jackeyzhe</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+    <a href="https://github.com/Jackeyzhe" class="github-corner" aria-label="View source on Github"><svg width="80" height="80" viewbox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"/><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"/><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"/></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Jackeyzhe</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">靠脸吃饭</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2019/03/23/走近源码：压缩列表是怎样炼成的/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jackey Wang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">走近源码：压缩列表是怎样炼成的</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-23T22:33:05+08:00">
+                2019-03-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>经过前面对Redis源码的了解，令人印象深刻的也许就是Redis各种节约内存手段。而Redis对于内存的节约可以说是费尽心思，今天我就再来介绍一种Redis为了节约内存而创造的存储结构——压缩列表（ziplist）。<a id="more"></a></p>
+<h4 id="存储结构"><a href="#存储结构" class="headerlink" title="存储结构"></a>存储结构</h4><p>ziplist是zset和hash在元素数量较少时使用的一种存储结构。它的特点存储于一块连续的内存，元素与元素之间没有空隙。我们可以用DEBUG OBJECT命令来查看一个zset的编码格式：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; ZADD db 1.0 mysql 2.0 mongo 3.0 redis</span><br><span class="line">(<span class="built_in">integer</span>) 3</span><br><span class="line">127.0.0.1:6379&gt; DEBUG OBJECT db</span><br><span class="line">Value at:0x7f5bf1908070 refcount:1 encoding:ziplist serializedlength:39 lru:9589668 lru_seconds_idle:12</span><br></pre></td></tr></table></figure>
+<p>那么ziplist究竟是一种怎样的结构的，话不多说，直接看图。</p>
+<h5 id="ZIPLIST-OVERALL-LAYOUT"><a href="#ZIPLIST-OVERALL-LAYOUT" class="headerlink" title="ZIPLIST OVERALL LAYOUT"></a>ZIPLIST OVERALL LAYOUT</h5><p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1553096929/Blog/Redis/ziplist/ziplist%E7%BB%93%E6%9E%84.png" alt="ziplist结构"></p>
+<p>接下来我们挨个解释一下每一部分存储的内容：</p>
+<ul>
+<li>zlbytes：32位无符号整数，存储的是包括它自己在内的整个ziplist所占用的字节数</li>
+<li>zltail：32位无符号整数，存储的是最后一个entry的偏移量，用来快速定位最后一个元素</li>
+<li>zllen：16位无符号整数，用于存储entry的数量，当元素数量大于2<sup>16</sup>-2时，这个值就被设置为2<sup>16</sup>-1。我们想知道元素的数量就需要遍历整个列表</li>
+<li>entry：表示存储的元素</li>
+<li>zlend：8位无符号整数，用于标识整个ziplist的结尾。它的值是255。</li>
+</ul>
+<h5 id="ZIPLIST-ENTRIES"><a href="#ZIPLIST-ENTRIES" class="headerlink" title="ZIPLIST ENTRIES"></a>ZIPLIST ENTRIES</h5><p>了解了ziplist的大概结构以后，我们剖析更深一层的entry的结构。</p>
+<p>对于每个entry都有两个前缀</p>
+<ul>
+<li>prevlen：表示前一个元素的长度，它与zltail字段结合使用可以实现快速的从后向前定位元素</li>
+<li>encoding：表示元素的编码格式，它用来表示元素是整数还是字符串，如果是字符串，也表示字符串的长度</li>
+<li>entry-data：元素的数据，它并不是一定存在，对于某些编码而言，编码本身也是数据，因此这一部分可以省略</li>
+</ul>
+<p>这里要解释一点，prevlen是一个变长的整数，当前一个元素的长度小于254时，它仅需要一个字节（8位无符号整数）表示，如果元素的长度大于（或等于）254字节，prevlen就用5个字节来表示，其中第一个字节是254，后4个字节表示前一个元素的长度。</p>
+<p>encoding字段决定了元素的内容。如果entry存储的是字符串，那么就通过encoding的前两位来区分不同长度的字符串，如果entry存储的内容是整数，那么前两位都会被设置为1，再后面两位用来区分整数的类型。</p>
+<ol>
+<li>|00pppppp|：字符串长度小于63字节，pppppp是6位无符号整数，用来表示字符串长度</li>
+<li>|01pppppp|qqqqqqqq|：字符串长度小于等于16383字节，后面14位表示字符串长度</li>
+<li>|10000000|qqqqqqqq|rrrrrrrr|ssssssss|tttttttt|：字符串长度大于等于16384字节，后4个字节表示字符串长度</li>
+<li>|11000000|：16位整数，后面跟2个字节存储整数</li>
+<li>|11010000|：32位整数，后面跟4个字节存储整数</li>
+<li>|11100000|：64位整数，后面跟8个字节存储整数</li>
+<li>|11110000|：24位整数，后面跟3个字节存储整数</li>
+<li>|11111110|：8位整数，后面跟1个字节存储整数</li>
+<li>|1111xxxx|：(xxxx 取值从0000到1101)表示0到12的整数，读到的xxxx减1为实际表示的整数。这就是前面提到的省略entry-data的情况</li>
+<li>|11111111|：ziplist的结束值，也就是zlend的值</li>
+</ol>
+<p>说了这么多，也许你还是不太清楚ziplist存储的内容究竟要表示什么，我们还是来举一个栗子</p>
+<p>[0f 00 00 00] [0c 00 00 00] [02 00] [00 f3] [02 f6] [ff]</p>
+<p>这是一个实际的ziplist存储的内容，我们就一起来解读一下。</p>
+<p>首先是4个字节的zlbytes，ziplist一共是15个字节，因此zlbytes的值是0x0f；接下来是4个字节的zltail，偏移量是12，因此zltail的值是0x0c；后两个字节是zllen，也就是一共两个元素；第一个元素的prevlen为00，0xf3表示元素值是2：1111 0011符合上述第9条，读到xxxx为3，需要减1，因此实际值是2；第二个元素同理，0xf6表示的值是5，最后0xff表示这个ziplist结束。</p>
+<p>这时，我向这个ziplist中又加了一个元素，是一个字符串，请大家自行解读下面的entry（注意，只是entry）。友情提示：需要查询ASCII码表来解读</p>
+<p>[02] [0b] [48 65 6c 6c 6f 20 57 6f 72 6c 64]</p>
+<h4 id="增加元素"><a href="#增加元素" class="headerlink" title="增加元素"></a>增加元素</h4><p>了解了ziplist的存储之后，我们再来看一下ziplist是如何增加元素的。前面提到过，ziplist存储结构用于元素数量少的zset和hash。那么我们就以zset为例，一起追踪源码，了解ziplist增加元素的过程。</p>
+<p>我们从ZADD命令执行的函数zaddCommand()开始。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">zaddCommand</span><span class="params">(client *c)</span> </span>&#123;</span><br><span class="line">    zaddGenericCommand(c,ZADD_NONE);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>它只是简单调用了zaddGenericCommand()函数，传入了客户端对象c和一个标志位，表示要执行ZADD命令，因为这个函数同样也是ZINCRBY要执行的函数（传入的标志是ZADD_INCR）。</p>
+<p>而在zaddGenericCommand()函数中，首先对参数进行了处理，并且做了一些校验。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Lookup the key and create the sorted set if does not exist. */</span></span><br><span class="line">zobj = lookupKeyWrite(c-&gt;db,key);</span><br><span class="line"><span class="keyword">if</span> (zobj == <span class="literal">NULL</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (xx) <span class="keyword">goto</span> reply_to_client; <span class="comment">/* No key + XX option: nothing to do. */</span></span><br><span class="line">    <span class="keyword">if</span> (server.zset_max_ziplist_entries == <span class="number">0</span> ||</span><br><span class="line">        server.zset_max_ziplist_value &lt; sdslen(c-&gt;argv[scoreidx+<span class="number">1</span>]-&gt;ptr))</span><br><span class="line">    &#123;</span><br><span class="line">        zobj = createZsetObject();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        zobj = createZsetZiplistObject();</span><br><span class="line">    &#125;</span><br><span class="line">    dbAdd(c-&gt;db,key,zobj);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (zobj-&gt;type != OBJ_ZSET) &#123;</span><br><span class="line">        addReply(c,shared.wrongtypeerr);</span><br><span class="line">        <span class="keyword">goto</span> cleanup;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后判断key是否存在，如果存在，验证数据类型；否则创建一个新的zset对象。这里可以看到，当</p>
+<p>zset_max_ziplist_entries为0或者第一个元素的长度大于zset_max_ziplist_value时，创建zset对象，否则创建ziplist对象。创建好对象之后，就开始遍历元素，执行zsetAdd函数了：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (j = <span class="number">0</span>; j &lt; elements; j++) &#123;</span><br><span class="line">    <span class="keyword">double</span> newscore;</span><br><span class="line">    score = scores[j];</span><br><span class="line">    <span class="keyword">int</span> retflags = flags;</span><br><span class="line"></span><br><span class="line">    ele = c-&gt;argv[scoreidx+<span class="number">1</span>+j*<span class="number">2</span>]-&gt;ptr;</span><br><span class="line">    <span class="keyword">int</span> retval = zsetAdd(zobj, score, ele, &amp;retflags, &amp;newscore);</span><br><span class="line">    <span class="keyword">if</span> (retval == <span class="number">0</span>) &#123;</span><br><span class="line">        addReplyError(c,nanerr);</span><br><span class="line">        <span class="keyword">goto</span> cleanup;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (retflags &amp; ZADD_ADDED) added++;</span><br><span class="line">    <span class="keyword">if</span> (retflags &amp; ZADD_UPDATED) updated++;</span><br><span class="line">    <span class="keyword">if</span> (!(retflags &amp; ZADD_NOP)) processed++;</span><br><span class="line">    score = newscore;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个函数用来增加新元素或者更新元素的score。这个函数中判断了zset对象的编码方式，对压缩列表ziplist和跳跃列表skiplist分开处理，跳跃列表是zset的另一种编码方式，这个我们以后再介绍，本文我们只关注ziplist。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (zobj-&gt;encoding == OBJ_ENCODING_ZIPLIST) &#123;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> *eptr;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ((eptr = zzlFind(zobj-&gt;ptr,ele,&amp;curscore)) != <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="comment">/* NX? Return, same element already exists. */</span></span><br><span class="line">        <span class="keyword">if</span> (nx) &#123;</span><br><span class="line">            *flags |= ZADD_NOP;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* Prepare the score for the increment if needed. */</span></span><br><span class="line">        <span class="keyword">if</span> (incr) &#123;</span><br><span class="line">            score += curscore;</span><br><span class="line">            <span class="keyword">if</span> (isnan(score)) &#123;</span><br><span class="line">                *flags |= ZADD_NAN;</span><br><span class="line">                <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (newscore) *newscore = score;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* Remove and re-insert when score changed. */</span></span><br><span class="line">        <span class="keyword">if</span> (score != curscore) &#123;</span><br><span class="line">            zobj-&gt;ptr = zzlDelete(zobj-&gt;ptr,eptr);</span><br><span class="line">            zobj-&gt;ptr = zzlInsert(zobj-&gt;ptr,ele,score);</span><br><span class="line">            *flags |= ZADD_UPDATED;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (!xx) &#123;</span><br><span class="line">        <span class="comment">/* Optimize: check if the element is too large or the list</span></span><br><span class="line"><span class="comment">             * becomes too long *before* executing zzlInsert. */</span></span><br><span class="line">        zobj-&gt;ptr = zzlInsert(zobj-&gt;ptr,ele,score);</span><br><span class="line">        <span class="keyword">if</span> (zzlLength(zobj-&gt;ptr) &gt; server.zset_max_ziplist_entries)</span><br><span class="line">            zsetConvert(zobj,OBJ_ENCODING_SKIPLIST);</span><br><span class="line">        <span class="keyword">if</span> (sdslen(ele) &gt; server.zset_max_ziplist_value)</span><br><span class="line">            zsetConvert(zobj,OBJ_ENCODING_SKIPLIST);</span><br><span class="line">        <span class="keyword">if</span> (newscore) *newscore = score;</span><br><span class="line">        *flags |= ZADD_ADDED;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        *flags |= ZADD_NOP;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到，这里首先调用zzlFind()函数查找对应的元素，如果元素存在，那么就判断是否包含参数NX或者是否是INCR操作。如果修改了元素的分数，则先删除原有的元素，再重新增加；如果元素不存在，就直接执行zzlInsert()函数，再insert之后，会判断是否需要改为跳跃列表存储。这里有两个条件：</p>
+<ol>
+<li>zset元素数量大于zset_max_ziplist_entries（默认128）</li>
+<li>添加的元素长度大于zset_max_ziplist_value（默认64）</li>
+</ol>
+<p>满足任意一个条件，zset都会使用跳跃列表来存储。</p>
+<p>我们继续追踪zzlInsert()函数。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">unsigned</span> <span class="keyword">char</span> *<span class="title">zzlInsert</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">char</span> *zl, sds ele, <span class="keyword">double</span> score)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> *eptr = ziplistIndex(zl,<span class="number">0</span>), *sptr;</span><br><span class="line">    <span class="keyword">double</span> s;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (eptr != <span class="literal">NULL</span>) &#123;</span><br><span class="line">        sptr = ziplistNext(zl,eptr);</span><br><span class="line">        serverAssert(sptr != <span class="literal">NULL</span>);</span><br><span class="line">        s = zzlGetScore(sptr);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (s &gt; score) &#123;</span><br><span class="line">            <span class="comment">/* First element with score larger than score for element to be</span></span><br><span class="line"><span class="comment">             * inserted. This means we should take its spot in the list to</span></span><br><span class="line"><span class="comment">             * maintain ordering. */</span></span><br><span class="line">            zl = zzlInsertAt(zl,eptr,ele,score);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (s == score) &#123;</span><br><span class="line">            <span class="comment">/* Ensure lexicographical ordering for elements. */</span></span><br><span class="line">            <span class="keyword">if</span> (zzlCompareElements(eptr,(<span class="keyword">unsigned</span> <span class="keyword">char</span>*)ele,sdslen(ele)) &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                zl = zzlInsertAt(zl,eptr,ele,score);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* Move to next element. */</span></span><br><span class="line">        eptr = ziplistNext(zl,sptr);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Push on tail of list when it was not yet inserted. */</span></span><br><span class="line">    <span class="keyword">if</span> (eptr == <span class="literal">NULL</span>)</span><br><span class="line">        zl = zzlInsertAt(zl,<span class="literal">NULL</span>,ele,score);</span><br><span class="line">    <span class="keyword">return</span> zl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>它首先定位了zset的第一个元素，如果该元素不为空，就比较该元素的分数s与要插入的元素分数score，如果s&gt;score，就插入到当前位置，如果分数相同，则比较元素（按字典序）。插入后，将后面的元素依次移到下一位。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">unsigned</span> <span class="keyword">char</span> *<span class="title">zzlInsertAt</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">char</span> *zl, <span class="keyword">unsigned</span> <span class="keyword">char</span> *eptr, sds ele, <span class="keyword">double</span> score)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> *sptr;</span><br><span class="line">    <span class="keyword">char</span> scorebuf[<span class="number">128</span>];</span><br><span class="line">    <span class="keyword">int</span> scorelen;</span><br><span class="line">    <span class="keyword">size_t</span> offset;</span><br><span class="line"></span><br><span class="line">    scorelen = d2string(scorebuf,<span class="keyword">sizeof</span>(scorebuf),score);</span><br><span class="line">    <span class="keyword">if</span> (eptr == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        zl = ziplistPush(zl,(<span class="keyword">unsigned</span> <span class="keyword">char</span>*)ele,sdslen(ele),ZIPLIST_TAIL);</span><br><span class="line">        zl = ziplistPush(zl,(<span class="keyword">unsigned</span> <span class="keyword">char</span>*)scorebuf,scorelen,ZIPLIST_TAIL);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">/* Keep offset relative to zl, as it might be re-allocated. */</span></span><br><span class="line">        offset = eptr-zl;</span><br><span class="line">        zl = ziplistInsert(zl,eptr,(<span class="keyword">unsigned</span> <span class="keyword">char</span>*)ele,sdslen(ele));</span><br><span class="line">        eptr = zl+offset;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* Insert score after the element. */</span></span><br><span class="line">        serverAssert((sptr = ziplistNext(zl,eptr)) != <span class="literal">NULL</span>);</span><br><span class="line">        zl = ziplistInsert(zl,sptr,(<span class="keyword">unsigned</span> <span class="keyword">char</span>*)scorebuf,scorelen);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> zl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在zzlInsertAt()函数中，主要是调用了ziplistPush()或者ziplistInsert()将元素和分数插入列表尾部或中间。插入顺序是先插入元素，然后插入分数。</p>
+<p>接下来就到了ziplist.c文件中，真正向压缩列表中插入元素了。关键代码在__ziplistInsert()函数中。</p>
+<p>首先需要计算插入位置前一个元素的长度，存储到当前entry的prevlen。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (p[<span class="number">0</span>] != ZIP_END) &#123;</span><br><span class="line">    ZIP_DECODE_PREVLEN(p, prevlensize, prevlen);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> *ptail = ZIPLIST_ENTRY_TAIL(zl);</span><br><span class="line">    <span class="keyword">if</span> (ptail[<span class="number">0</span>] != ZIP_END) &#123;</span><br><span class="line">        prevlen = zipRawEntryLength(ptail);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里区分了是否是在尾部插入元素的情况，如果是在尾部，就可以通过ziplist中的zltail字段直接定位。接下来就是尝试对插入的元素进行编码，判断是否可以存储为整数，如果不能，就按照字符串的编码格式来存储。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (zipTryEncoding(s,slen,&amp;value,&amp;encoding)) &#123;</span><br><span class="line">    <span class="comment">/* 'encoding' is set to the appropriate integer encoding */</span></span><br><span class="line">    reqlen = zipIntSize(encoding);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">/* 'encoding' is untouched, however zipStoreEntryEncoding will use the</span></span><br><span class="line"><span class="comment">         * string length to figure out how to encode it. */</span></span><br><span class="line">    reqlen = slen;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这一步判断是节省内存的关键，它会使用我们前面介绍的尽量小的编码格式来进行编码。编码完成后就要计算当前entry的长度，包括prevlen、encoding和entry-data，并且需要保证后一个entry（如果有的话）的prevlen能够保存当前entry的长度。这里调用的是zipPrevLenByteDiff()函数，需要的prevlen的长度和现有的prevlen的长度的差值，也就是说如果返回为整数，表示需要更多空间。</p>
+<p>在这之后就要调用zrealloc()来扩展空间了。这里有可能会在原来的基础上进行扩展，也有可能重新分配一块内存，然后将原来的ziplist整体迁移。如果ziplist占用较大内存时，整体迁移的代价是很高的。有了足够的空间之后，就是把当前位置的entry向后移一位了，然后要修改这个entry的prevlen。更新zltail。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (nextdiff != <span class="number">0</span>) &#123;</span><br><span class="line">    offset = p-zl;</span><br><span class="line">    zl = __ziplistCascadeUpdate(zl,p+reqlen);</span><br><span class="line">    p = zl+offset;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>nextdiff是前面zipPrevLenByteDiff()函数的返回值，它不为0表示需要更多空间（小于0时被置为0）。这时后面的元素需要级联更新。所有的这些处理完毕之后，我们终于可以把要插入的entry写入当前位置了，并且将ziplist的长度加1。</p>
+<h4 id="级联更新"><a href="#级联更新" class="headerlink" title="级联更新"></a>级联更新</h4><p>如果一个entry的长度小于254字节，那么后一个元素的prevlen就用一个字节来存储，否则就要用5个字节存储。当我们插入一个元素时，如果它的长度大于253字节，那么原来的entry就可能从1个字节变成5个字节，而如果由于这一变化导致这个entry的长度大于254字节，那么后面的元素也要更新。到后面甚至有可能导致重新分配内存的问题，所以级联更新是一件很可怕的事情。</p>
+<p>接下来就通过源码，看一下级联更新的具体步骤。（查看ziplist.c文件的__ziplistCascadeUpdate函数）</p>
+<p>首先，判断当前entry是否是最后一个，如果是，则跳出级联更新。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (p[rawlen] == ZIP_END) <span class="keyword">break</span>;</span><br></pre></td></tr></table></figure>
+<p>接着判断了下一个entry的prevlen长度是否发生变化，如果没有变化，也不用继续进行级联更新。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">if (next.prevrawlen == rawlen) break;</span><br></pre></td></tr></table></figure>
+<p>而如果下一个entry的prevlen长度需要扩展，那么就先调用ziplistResize扩展内存，然后要更新zltail。要将后面的entry向后移动，再开始判断下一个entry是否需要更新。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (next.prevrawlensize &lt; rawlensize) &#123;</span><br><span class="line">    <span class="comment">/* The "prevlen" field of "next" needs more bytes to hold</span></span><br><span class="line"><span class="comment">     * the raw length of "cur". */</span></span><br><span class="line">    offset = p-zl;</span><br><span class="line">    extra = rawlensize-next.prevrawlensize;</span><br><span class="line">    zl = ziplistResize(zl,curlen+extra);</span><br><span class="line">    p = zl+offset;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Current pointer and offset for next element. */</span></span><br><span class="line">    np = p+rawlen;</span><br><span class="line">    noffset = np-zl;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Update tail offset when next element is not the tail element. */</span></span><br><span class="line">    <span class="keyword">if</span> ((zl+intrev32ifbe(ZIPLIST_TAIL_OFFSET(zl))) != np) &#123;</span><br><span class="line">        ZIPLIST_TAIL_OFFSET(zl) =</span><br><span class="line">            intrev32ifbe(intrev32ifbe(ZIPLIST_TAIL_OFFSET(zl))+extra);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Move the tail to the back. */</span></span><br><span class="line">    memmove(np+rawlensize,</span><br><span class="line">            np+next.prevrawlensize,</span><br><span class="line">            curlen-noffset-next.prevrawlensize<span class="number">-1</span>);</span><br><span class="line">    zipStorePrevEntryLength(np,rawlen);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Advance the cursor */</span></span><br><span class="line">    p += rawlen;</span><br><span class="line">    curlen += extra;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果后面的entry的prevlen大于需要的长度呢，此时应该收缩prevlen，如果要进行收缩，那么可能会继续级联更新。这太麻烦了，所以这里选择了浪费一些空间，用5个字节的空间来存储1个字节可以存储的内容。如果prevlen的长度等于需要的长度，就直接更新内容。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (next.prevrawlensize &gt; rawlensize) &#123;</span><br><span class="line">    <span class="comment">/* This would result in shrinking, which we want to avoid.</span></span><br><span class="line"><span class="comment">     * So, set "rawlen" in the available bytes. */</span></span><br><span class="line">    zipStorePrevEntryLengthLarge(p+rawlen,rawlen);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    zipStorePrevEntryLength(p+rawlen,rawlen);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Stop here, as the raw length of "next" has not changed. */</span></span><br><span class="line"><span class="keyword">break</span>;</span><br></pre></td></tr></table></figure>
+<p>除了新增操作以外，删除操作也有可能引起级联更新。假设我们有3个entry是下面的情况</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1553350839/Blog/Redis/ziplist/%E7%BA%A7%E8%81%94%E6%9B%B4%E6%96%B0.png" alt="删除级联更新"></p>
+<p>我们可以知道，entry2的prevlen需要5个字节，entry3的prevlen只需要1个字节。而如果我们删除了entry2，那么entry3的prevlen就需要扩展到5个字节，这一操作就有可能引起级联更新，后面的情况和新增节点时一样。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>最后做一个总结：</p>
+<ol>
+<li>压缩列表是zset和hash元素个数较少时的存储结构</li>
+<li>ziplist由zlbytes、zltail、zllen、entry、zlend这五部分组成</li>
+<li>每个entry由prevlen、encoding和entry-data三部分组成</li>
+<li>ziplist增加元素时，需要重新计算插入位置的entry的prevlen（prevlen的长度为1字节或5字节），这一操作有可能引起级联更新。</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+      <div>
+            
+              
+            
+      </div>
+      <div>
+        <div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+    <img id="wechat_subscriber_qcode" src="/images/wechat-qcode.jpg" alt="Jackey Wang wechat" style="width: 200px; max-width: 100%;">
+    <div>欢迎关注我的公众号，一起讨论如何写bug</div>
+</div>
+
+      </div>
+    
+
+      <div>
+        
+          <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+        
+      </div>
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>原创不易，感谢支持</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/weixinpay.jpg" alt="Jackey Wang 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpg" alt="Jackey Wang 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Redis/" rel="tag"><i class="fa fa-tag"></i> Redis</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/03/13/retainAll函数那点儿事/" rel="next" title="王小锤学Java：retainAll函数那点儿事">
+                <i class="fa fa-chevron-left"></i> 王小锤学Java：retainAll函数那点儿事
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/03/28/【译】Redis喜提新数据结构：Redis-streams/" rel="prev" title="【译】Redis喜提新数据结构：Redis Streams">
+                【译】Redis喜提新数据结构：Redis Streams <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_inline_share_toolbox">
+  <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5b669c42ef338b5b" async="async"></script>
+</div>
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Jackey Wang</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">95</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/Jackeyzhe" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:jackeyzhe59@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://stackoverflow.com/jackeyzhe" target="_blank" title="StackOverflow">
+                      
+                        <i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://my.csdn.net/K_Ohaha" target="_blank" title="CSDN">
+                      
+                        <i class="fa fa-fw fa-globe"></i>CSDN</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#存储结构"><span class="nav-number">1.</span> <span class="nav-text">存储结构</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#ZIPLIST-OVERALL-LAYOUT"><span class="nav-number">1.1.</span> <span class="nav-text">ZIPLIST OVERALL LAYOUT</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#ZIPLIST-ENTRIES"><span class="nav-number">1.2.</span> <span class="nav-text">ZIPLIST ENTRIES</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#增加元素"><span class="nav-number">2.</span> <span class="nav-text">增加元素</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#级联更新"><span class="nav-number">3.</span> <span class="nav-text">级联更新</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2018 &mdash; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jackey Wang</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
