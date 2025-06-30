@@ -81,22 +81,22 @@
 
 
 
-<meta name="description" content="在前文中，我学习 Flink 的整体架构，接下来的几篇文章，我将重点学习一下 Flink 的几个核心概念。包括时间属性、Watermark、窗口、状态以及容错机制。今天就来学习前三个核心概念。">
+<meta name="description" content="在前文中，我学习 Flink 的整体架构，接下来的几篇文章，我将重点学习一下 Flink 的几个核心概念。包括时间属性、Watermark、窗口、状态以及容错机制。今天就来学习时间属性和 Watermark。">
 <meta name="keywords" content="Flink">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Flink学习笔记：时间与Watermark">
 <meta property="og:url" content="https://jackeyzhe.github.io/2025/06/30/Flink学习笔记：时间与Watermark/index.html">
 <meta property="og:site_name" content="Jackeyzhe&#39;s Blog">
-<meta property="og:description" content="在前文中，我学习 Flink 的整体架构，接下来的几篇文章，我将重点学习一下 Flink 的几个核心概念。包括时间属性、Watermark、窗口、状态以及容错机制。今天就来学习前三个核心概念。">
+<meta property="og:description" content="在前文中，我学习 Flink 的整体架构，接下来的几篇文章，我将重点学习一下 Flink 的几个核心概念。包括时间属性、Watermark、窗口、状态以及容错机制。今天就来学习时间属性和 Watermark。">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1750094745/Blog/flink/1/flink_time.png">
 <meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1751033706/Blog/flink/1/watermark.png">
 <meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1751035105/Blog/flink/1/%E6%88%AA%E5%B1%8F2025-06-27_22.35.50.png">
 <meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1751294872/Blog/flink/1/parallel_streams_watermarks.svg">
-<meta property="og:updated_time" content="2025-06-30T14:58:36.160Z">
+<meta property="og:updated_time" content="2025-06-30T15:08:13.851Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Flink学习笔记：时间与Watermark">
-<meta name="twitter:description" content="在前文中，我学习 Flink 的整体架构，接下来的几篇文章，我将重点学习一下 Flink 的几个核心概念。包括时间属性、Watermark、窗口、状态以及容错机制。今天就来学习前三个核心概念。">
+<meta name="twitter:description" content="在前文中，我学习 Flink 的整体架构，接下来的几篇文章，我将重点学习一下 Flink 的几个核心概念。包括时间属性、Watermark、窗口、状态以及容错机制。今天就来学习时间属性和 Watermark。">
 <meta name="twitter:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1750094745/Blog/flink/1/flink_time.png">
 
 
@@ -365,7 +365,7 @@
       
 
       
-        <p>在前文中，我学习 Flink 的整体架构，接下来的几篇文章，我将重点学习一下 Flink 的几个核心概念。包括时间属性、Watermark、窗口、状态以及容错机制。今天就来学习前三个核心概念。<a id="more"></a></p>
+        <p>在前文中，我学习 Flink 的整体架构，接下来的几篇文章，我将重点学习一下 Flink 的几个核心概念。包括时间属性、Watermark、窗口、状态以及容错机制。今天就来学习时间属性和 Watermark。<a id="more"></a></p>
 <h3 id="时间属性"><a href="#时间属性" class="headerlink" title="时间属性"></a>时间属性</h3><p>首先来学习 Flink 的时间属性，作为流处理引擎，时间是实时数据处理的重要依赖，特别是在做时序分析或者特定时间段数据处理时，时间的概念更显得尤为重要。</p>
 <p>Flink 中支持三种时间属性，分别是：</p>
 <ul>
