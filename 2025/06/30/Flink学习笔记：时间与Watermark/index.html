@@ -92,8 +92,8 @@
 <meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1750094745/Blog/flink/1/flink_time.png">
 <meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1751033706/Blog/flink/1/watermark.png">
 <meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1751035105/Blog/flink/1/%E6%88%AA%E5%B1%8F2025-06-27_22.35.50.png">
-<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1751294872/Blog/flink/1/parallel_streams_watermarks.svg">
-<meta property="og:updated_time" content="2025-06-30T15:08:13.851Z">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1752592909/Blog/flink/1/parallel_streams_watermarks.png">
+<meta property="og:updated_time" content="2025-07-15T15:23:49.476Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Flink学习笔记：时间与Watermark">
 <meta name="twitter:description" content="在前文中，我学习 Flink 的整体架构，接下来的几篇文章，我将重点学习一下 Flink 的几个核心概念。包括时间属性、Watermark、窗口、状态以及容错机制。今天就来学习时间属性和 Watermark。">
@@ -416,7 +416,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">WatermarkStrategy.forMonotonousTimestamps();</span><br></pre></td></tr></table></figure>
 <h4 id="自定义-WatermarkGenerator"><a href="#自定义-WatermarkGenerator" class="headerlink" title="自定义 WatermarkGenerator"></a>自定义 WatermarkGenerator</h4><p>除了上面两个内置的 WatermarkGenerator 外，我们还可以自定义，实现起来也比较简单。只需要实现 WatermarkGenerator 接口并重写 onEvent 和 onPeriodicEmit 两个方法即可。onEvent 是每个事件到来时调用一次，可以用来记录最大事件时间。onPeriodicEmit 则是周期性调用，可以生成 watermark。在前面的例子中，我使用的 CustomWatermarkGenerator 就是自定义的 watermark，对应的实现也在前文中贴了。</p>
 <h3 id="如何处理空闲数据源"><a href="#如何处理空闲数据源" class="headerlink" title="如何处理空闲数据源"></a>如何处理空闲数据源</h3><p>最后，再补充一个与 watermark 相关的比较重要的特性。在 Flink 中，会有一些算子有多个输入源。这时，这个算子的 watermark 是以它收到的数据源中最小的 eventTime 来计算的。直接看官网的例子：</p>
-<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1751294872/Blog/flink/1/parallel_streams_watermarks.svg" alt="parallel_stream_watermark"></p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1752592909/Blog/flink/1/parallel_streams_watermarks.png" alt="parallel_streams_watermarks"></p>
 <p>那么这里就存在一个问题：如果一个输入源数据量很少，很久才发一条消息，而另一个数据源发了很多消息，那么就会在下游算子中积累很多消息等待处理，这对于整个系统的稳定性造成了很大的风险。</p>
 <p>那这种情况有办法处理吗？答案是肯定的，Flink 提供了 withIdleness 方法，它可以用来检测空闲数据源，如果超过一定时间没有数据到来，Flink 认为这个数据源属于空闲数据源，这时就不会再阻塞下游算子触发窗口。达到定期处理数据的目的。</p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>今天我们先了解了 Flink 中时间的概念，EventTime 是事件产生的时间，通常由上游数据源生成，ProcessTime 是处理时间，通常由处理算子本身生成，IngestionTime是摄入时间，通常由 Flink 的 Source 生成。</p>
@@ -513,6 +513,10 @@
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/2025/07/19/Flink学习笔记：窗口/" rel="prev" title="Flink学习笔记：窗口">
+                Flink学习笔记：窗口 <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -596,7 +600,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">97</span>
+                  <span class="site-state-item-count">98</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
