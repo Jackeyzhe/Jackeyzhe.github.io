@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"jackeyzhe.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"github-dark","dark":"github-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="我们继续来聊 Flink 容错相关的内容。前面在介绍 Checkpoint 和 Savepoint 时提到了 State 的稳定存储，那究竟如何存储以及存储在什么地方呢？相信通过读完本文之后，你会有答案。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flink学习笔记：状态后端">
+<meta property="og:url" content="https://jackeyzhe.github.io/2025/08/24/Flink%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%9A%E7%8A%B6%E6%80%81%E5%90%8E%E7%AB%AF/index.html">
+<meta property="og:site_name" content="Jackeyzhe&#39;s Blog">
+<meta property="og:description" content="我们继续来聊 Flink 容错相关的内容。前面在介绍 Checkpoint 和 Savepoint 时提到了 State 的稳定存储，那究竟如何存储以及存储在什么地方呢？相信通过读完本文之后，你会有答案。">
+<meta property="og:locale">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1756052394/Blog/flink/6/HeapStateBackend.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1756053324/Blog/flink/6/OffHeapStateBackend.png">
+<meta property="article:published_time" content="2025-08-23T16:16:42.000Z">
+<meta property="article:modified_time" content="2025-08-24T16:45:33.281Z">
+<meta property="article:author" content="Jackey Wang">
+<meta property="article:tag" content="Flink">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1756052394/Blog/flink/6/HeapStateBackend.png">
+
+
+<link rel="canonical" href="https://jackeyzhe.github.io/2025/08/24/Flink%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%9A%E7%8A%B6%E6%80%81%E5%90%8E%E7%AB%AF/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-Hans","comments":true,"permalink":"https://jackeyzhe.github.io/2025/08/24/Flink%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%9A%E7%8A%B6%E6%80%81%E5%90%8E%E7%AB%AF/","path":"2025/08/24/Flink学习笔记：状态后端/","title":"Flink学习笔记：状态后端"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Flink学习笔记：状态后端 | Jackeyzhe's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script size="300" alpha="0.6" zIndex="1" src="https://cdnjs.cloudflare.com/ajax/libs/ribbon.js/1.0.2/ribbon.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Jackeyzhe's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Jackeyzhe's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">靠脸吃饭</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section">Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section">Tags<span class="badge">14</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section">Archives<span class="badge">102</span></a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section">About</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#State-Backend-%E5%88%86%E7%B1%BB"><span class="nav-number">1.</span> <span class="nav-text">State Backend 分类</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#HashMapStateBackend"><span class="nav-number">1.1.</span> <span class="nav-text">HashMapStateBackend</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#EmbeddedRocksDBStateBackend"><span class="nav-number">1.2.</span> <span class="nav-text">EmbeddedRocksDBStateBackend</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Checkpoint-%E5%AD%98%E5%82%A8%E7%B1%BB%E5%9E%8B"><span class="nav-number">2.</span> <span class="nav-text">Checkpoint 存储类型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#JobManagerCheckpointStorage"><span class="nav-number">2.1.</span> <span class="nav-text">JobManagerCheckpointStorage</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#FileSystemCheckpointStorage"><span class="nav-number">2.2.</span> <span class="nav-text">FileSystemCheckpointStorage</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Checkpoint-%E5%AD%98%E5%82%A8%E8%AE%BE%E7%BD%AE"><span class="nav-number">3.</span> <span class="nav-text">Checkpoint 存储设置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MemoryStateBackend"><span class="nav-number">4.</span> <span class="nav-text">MemoryStateBackend</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#FsStateBackend"><span class="nav-number">4.1.</span> <span class="nav-text">FsStateBackend</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#RocksDBStateBackend"><span class="nav-number">4.2.</span> <span class="nav-text">RocksDBStateBackend</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#State-%E5%BA%8F%E5%88%97%E5%8C%96%E4%B8%8E%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96"><span class="nav-number">5.</span> <span class="nav-text">State 序列化与反序列化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Heap-state-backends"><span class="nav-number">5.1.</span> <span class="nav-text">Heap state backends</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Off-heap-state-backends"><span class="nav-number">5.2.</span> <span class="nav-text">Off-heap state backends</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Jackey Wang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">102</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Jackeyzhe" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:jackeyzhe59@gmail.com" title="E-Mail → mailto:jackeyzhe59@gmail.com" rel="noopener me" target="_blank"><i class="fas fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/jackeyzhe" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i>StackOverflow</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2025/08/24/Flink%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%9A%E7%8A%B6%E6%80%81%E5%90%8E%E7%AB%AF/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Jackey Wang">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Flink学习笔记：状态后端 | Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Flink学习笔记：状态后端
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-08-24 00:16:42" itemprop="dateCreated datePublished" datetime="2025-08-24T00:16:42+08:00">2025-08-24</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>4.9k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>4 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>我们继续来聊 Flink 容错相关的内容。前面在介绍 Checkpoint 和 Savepoint 时提到了 State 的稳定存储，那究竟如何存储以及存储在什么地方呢？相信通过读完本文之后，你会有答案。<span id="more"></span></p>
+<h3 id="State-Backend-分类"><a href="#State-Backend-分类" class="headerlink" title="State Backend 分类"></a>State Backend 分类</h3><p>在 Flink 中状态后端（State Backend）是用来管理状态如何存储的。当前内置了两种 State Backend，分别是 HashMapStateBackend 和 EmbeddedRocksDBStateBackend。Flink 默认使用的是 HashMapStateBackend。</p>
+<h4 id="HashMapStateBackend"><a href="#HashMapStateBackend" class="headerlink" title="HashMapStateBackend"></a>HashMapStateBackend</h4><p>在 HashMapBackend 中，数据是以 Java 对象的形式存储的，它适用于有较大 State，较长 window 和 较大 key/value 状态的场景。同时适用于高可用场景。在使用 HashMapStateBackend 时，建议把 managed memory 设置为 0，以此来增加用户代码可使用的内存。</p>
+<h4 id="EmbeddedRocksDBStateBackend"><a href="#EmbeddedRocksDBStateBackend" class="headerlink" title="EmbeddedRocksDBStateBackend"></a>EmbeddedRocksDBStateBackend</h4><p>对于 EmbeddedRocksDBStateBackend 而言，数据是存储在 RocksDB 中的，在存储之前，要对数据进行序列化。EmbeddedRocksDBStateBackend 也存在一定局限性，那就是最大只能支持每个 key/value 存储 2^31 字节大小的数据，这是当前 RocksDB JNI 的限制。</p>
+<p>EmbeddedRocksDBStateBackend 也有一定的优势，其一是它是目前唯一支持增量 Checkpoint 的 State Backend。其二是因为它是外部存储，因此它可以支持非常大的 State，非常长的窗口。</p>
+<p>增量快照只包含自上一次快照完成后被修改的记录，所以增量快照的一大优点就是可以显著减少快照的耗时。在恢复时间上，要分情况讨论，如果瓶颈在网络带宽，那么增量快照的恢复时间要比全量快照更长，因为增量快照包含的多个 sst 文件之间可能存在重复数据。如果瓶颈在 CPU 或 IO，那增量快照恢复时间更短，因为增量快照不需要恢复不需要解析 Flink 统一的存储格式来重建本地的 RocksDB 表，而是直接基于 sst 文件加载。</p>
+<h3 id="Checkpoint-存储类型"><a href="#Checkpoint-存储类型" class="headerlink" title="Checkpoint 存储类型"></a>Checkpoint 存储类型</h3><p>了解了 State Backend 分类之后，我们再来看 Checkpoint 的存储类型。它也分为两类：JobManagerCheckpointStorage 和 FileSystemCheckpointStorage。</p>
+<h4 id="JobManagerCheckpointStorage"><a href="#JobManagerCheckpointStorage" class="headerlink" title="JobManagerCheckpointStorage"></a>JobManagerCheckpointStorage</h4><p>JobManagerCheckpointStorage 是将快照存储在 JobManager 的堆内存中。JobManagerCheckpointStorage 在使用时有一定限制：</p>
+<ul>
+<li><p>默认每个 State 大小最大为 5MB</p>
+</li>
+<li><p>总的状态大小不能超过 JobManager 内存</p>
+</li>
+</ul>
+<p>基于这些限制，JobManagerCheckpointStorage 只适用于本地的开发和调试。</p>
+<h4 id="FileSystemCheckpointStorage"><a href="#FileSystemCheckpointStorage" class="headerlink" title="FileSystemCheckpointStorage"></a>FileSystemCheckpointStorage</h4><p>FileSystemCheckpointStorage 是将状态数据保存在外部存储中，要适用 FileSystemCheckpointStorage，需要配置文件系统的 URL。例如：“hdfs://namenode:40010/flink/checkpoints”。而元数据</p>
+<h3 id="Checkpoint-存储设置"><a href="#Checkpoint-存储设置" class="headerlink" title="Checkpoint 存储设置"></a>Checkpoint 存储设置</h3><p>有了前面 State Backend 和 存储类型的分类之后，我们就可以将其进行组合，得到最终 Checkpoint 的存储了。</p>
+<p>目前共有三种组合，也对应了旧版本的三种 State Backend。</p>
+<h3 id="MemoryStateBackend"><a href="#MemoryStateBackend" class="headerlink" title="MemoryStateBackend"></a>MemoryStateBackend</h3><p>MemoryStateBackend 对应了 HashMapStateBackend 和 JobManagerCheckpointStorage 的组合。</p>
+<p>设置方法为</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">state.backend:</span> <span class="string">hashmap</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Optional, Flink will automatically default to JobManagerCheckpointStorage</span></span><br><span class="line"><span class="comment"># when no checkpoint directory is specified.</span></span><br><span class="line"><span class="attr">execution.checkpointing.storage:</span> <span class="string">jobmanager</span></span><br></pre></td></tr></table></figure>
+<p>或</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Configuration</span> <span class="variable">config</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Configuration</span>();</span><br><span class="line">config.set(StateBackendOptions.STATE_BACKEND, <span class="string">&quot;hashmap&quot;</span>);</span><br><span class="line">config.set(CheckpointingOptions.CHECKPOINT_STORAGE, <span class="string">&quot;jobmanager&quot;</span>);</span><br><span class="line">env.configure(config);</span><br></pre></td></tr></table></figure>
+<h4 id="FsStateBackend"><a href="#FsStateBackend" class="headerlink" title="FsStateBackend"></a>FsStateBackend</h4><p>FsStateBackend 对应了 HashMapStateBackend 和 FileSystemCheckpointStorage 的组合。</p>
+<p>它的设置方法为：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">state.backend:</span> <span class="string">hashmap</span></span><br><span class="line"><span class="attr">execution.checkpointing.dir:</span> <span class="string">file:///checkpoint-dir/</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Optional, Flink will automatically default to FileSystemCheckpointStorage</span></span><br><span class="line"><span class="comment"># when a checkpoint directory is specified.</span></span><br><span class="line"><span class="attr">execution.checkpointing.storage:</span> <span class="string">filesystem</span></span><br></pre></td></tr></table></figure>
+<p>或</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Configuration</span> <span class="variable">config</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Configuration</span>();</span><br><span class="line">config.set(StateBackendOptions.STATE_BACKEND, <span class="string">&quot;hashmap&quot;</span>);</span><br><span class="line">config.set(CheckpointingOptions.CHECKPOINT_STORAGE, <span class="string">&quot;filesystem&quot;</span>);</span><br><span class="line">config.set(CheckpointingOptions.CHECKPOINTS_DIRECTORY, <span class="string">&quot;file:///checkpoint-dir&quot;</span>);</span><br><span class="line">env.configure(config);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// Advanced FsStateBackend configurations, such as write buffer size</span></span><br><span class="line"><span class="comment">// can be set manually by using CheckpointingOptions.</span></span><br><span class="line">config.set(CheckpointingOptions.FS_WRITE_BUFFER_SIZE, <span class="number">4</span> * <span class="number">1024</span>);</span><br><span class="line">env.configure(config);</span><br></pre></td></tr></table></figure>
+<h4 id="RocksDBStateBackend"><a href="#RocksDBStateBackend" class="headerlink" title="RocksDBStateBackend"></a>RocksDBStateBackend</h4><p>RocksDBStateBackend 对应了 EmbeddedRocksDBStateBackend 和 FileSystemCheckpointStorage 的组合。</p>
+<p>它的设置方法为</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">state.backend:</span> <span class="string">rocksdb</span></span><br><span class="line"><span class="attr">execution.checkpointing.dir:</span> <span class="string">file:///checkpoint-dir/</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Optional, Flink will automatically default to FileSystemCheckpointStorage</span></span><br><span class="line"><span class="comment"># when a checkpoint directory is specified.</span></span><br><span class="line"><span class="attr">execution.checkpointing.storage:</span> <span class="string">filesystem</span></span><br></pre></td></tr></table></figure>
+<p>或</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Configuration</span> <span class="variable">config</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Configuration</span>();</span><br><span class="line">config.set(StateBackendOptions.STATE_BACKEND, <span class="string">&quot;rocksdb&quot;</span>);</span><br><span class="line">config.set(CheckpointingOptions.CHECKPOINT_STORAGE, <span class="string">&quot;filesystem&quot;</span>);</span><br><span class="line">config.set(CheckpointingOptions.CHECKPOINTS_DIRECTORY, <span class="string">&quot;file:///checkpoint-dir&quot;</span>);</span><br><span class="line">env.configure(config);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// If you manually passed FsStateBackend into the RocksDBStateBackend constructor</span></span><br><span class="line"><span class="comment">// to specify advanced checkpointing configurations such as write buffer size,</span></span><br><span class="line"><span class="comment">// you can achieve the same results by using CheckpointingOptions.</span></span><br><span class="line">config.set(CheckpointingOptions.FS_WRITE_BUFFER_SIZE, <span class="number">4</span> * <span class="number">1024</span>);</span><br><span class="line">env.configure(config);</span><br></pre></td></tr></table></figure>
+<h3 id="State-序列化与反序列化"><a href="#State-序列化与反序列化" class="headerlink" title="State 序列化与反序列化"></a>State 序列化与反序列化</h3><p>我们前面在创建 State 的描述符时，指定了 State 的类型，这其实就是告诉 Flink 应该如何去序列化我们的 State。当然，也可以自定义 State 序列化器，自定义序列化器需要 TypeSerializer，然后在创建描述符时指定。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CustomTypeSerializer</span> <span class="keyword">extends</span> <span class="title class_">TypeSerializer</span>&lt;Tuple2&lt;String, Integer&gt;&gt; &#123;...&#125;;</span><br><span class="line"></span><br><span class="line">ListStateDescriptor&lt;Tuple2&lt;String, Integer&gt;&gt; descriptor =</span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">ListStateDescriptor</span>&lt;&gt;(</span><br><span class="line">        <span class="string">&quot;state-name&quot;</span>,</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">CustomTypeSerializer</span>());</span><br><span class="line"></span><br><span class="line">checkpointedState = getRuntimeContext().getListState(descriptor);</span><br></pre></td></tr></table></figure>
+<p>Flink 中状态分为两种类型，一种是基于 Heap，一种是不基于 Heap。</p>
+<h4 id="Heap-state-backends"><a href="#Heap-state-backends" class="headerlink" title="Heap state backends"></a>Heap state backends</h4><p>首先看基于 Heap 的，HashMapStateBackend 是基于 Heap 的。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1756052394/Blog/flink/6/HeapStateBackend.png" alt="HeapStateBackend"></p>
+<p>Heap state backend 存在本地的状态后端中的是非序列化的数据，当触发 Checkpoint / Savepoint 时，会用指定的序列化器将数据序列化，然后存储到指定的稳定存储中。</p>
+<p>如果我们对程序进行了升级，这时要从 State 恢复的话，需要先将稳定存储中的数据进行反序列化，然后将结果加载到 TM 的内存中，供 user code 使用。</p>
+<h4 id="Off-heap-state-backends"><a href="#Off-heap-state-backends" class="headerlink" title="Off-heap state backends"></a>Off-heap state backends</h4><p>EmbeddedRocksDBStateBackend 就是一种不基于 Heap 的状态。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1756053324/Blog/flink/6/OffHeapStateBackend.png" alt="Off-heap State Backend"></p>
+<p>不基于 Heap 的状态在写入本地 State 时就会进行序列化，序列化后的数据会写入到堆外内存。在触发 Checkpoint 时，就只是把数据文件转存到稳定存储中。</p>
+<p>当我们的任务完成升级后，会先将二进制文件恢复到 TM 的内存中，这里是一个文件加载的过程。当我们要使用 State 时，才会进行反序列化，注意这里只会对使用到的 State 进行反序列化读取以及后续的更新，没有使用到的还是保持旧版本的数据。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>本文我们重点介绍了状态后端的存储。State Backend 分为 HashMapStateBackend 和 EmbeddedRocksDBStateBackend，其存储类型又分为 JobManagerCheckpointStorage 和 FileSystemCheckpointStorage。最终我们会有三种不同的状态后端：MemoryStateBackend、FsStateBackend 和 RocksDBStateBackend。最后我们还介绍了 State 的两种不同的序列化。</p>
+<p>相信通过本文的介绍，你已经可以回答开篇的问题了。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>Buy me a coffee</div>
+  <button>
+    Donate
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/weixinpay.jpg" alt="Jackey Wang WeChat Pay">
+        <span>WeChat Pay</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Jackey Wang Alipay">
+        <span>Alipay</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="followme">
+  <span>Welcome to my other publishing channels</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <span class="social-link">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </span>
+
+          <img class="social-item-img" src="/images/wechat-qcode.jpg">
+      </div>
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Flink/" rel="tag"><i class="fa fa-tag"></i> Flink</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/08/17/Flink%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%9A%E5%A6%82%E4%BD%95%E5%81%9A%E5%AE%B9%E9%94%99/" rel="prev" title="Flink学习笔记：如何做容错">
+                  <i class="fa fa-angle-left"></i> Flink学习笔记：如何做容错
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Jackey Wang</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Word count total">416k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">6:18</span>
+  </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/Jackeyzhe" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
