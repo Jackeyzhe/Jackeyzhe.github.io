@@ -6,7 +6,7 @@
   <link href="https://jackeyzhe.github.io/atom.xml" rel="self"/>
   
   <link href="https://jackeyzhe.github.io/"/>
-  <updated>2025-08-24T16:47:19.323Z</updated>
+  <updated>2025-09-07T14:17:06.951Z</updated>
   <id>https://jackeyzhe.github.io/</id>
   
   <author>
@@ -15,6 +15,25 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Flink学习笔记：反压</title>
+    <link href="https://jackeyzhe.github.io/2025/08/26/Flink%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%9A%E5%8F%8D%E5%8E%8B/"/>
+    <id>https://jackeyzhe.github.io/2025/08/26/Flink%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%9A%E5%8F%8D%E5%8E%8B/</id>
+    <published>2025-08-26T15:13:46.000Z</published>
+    <updated>2025-09-07T14:17:06.951Z</updated>
+    
+    <content type="html"><![CDATA[<p>今天来聊在 Flink 运维过程中比较常见的一个问题：反压。<span id="more"></span></p><h3 id="什么是反压"><a href="#什么是反压" class="headerlink" title="什么是反压"></a>什么是反压</h3><p>反压是流式系统中关于数据处理能力的动态反馈机制，并且是从下游到上游的反馈，一般发生在上游节点的生产速度大于下游节点的消费速度的情况。</p><h3 id="数据如何传输"><a href="#数据如何传输" class="headerlink" title="数据如何传输"></a>数据如何传输</h3><p>在了解反压的细节之前，首先要知道 Flink 中数据是如何传输的。在 Flink 中，两个算子之间的关系分为三种：</p><ol><li><p>部署在同一个 TaskManager 上，且属于同一算子链。</p></li><li><p>部署在同一个 TaskManager 上，但不是同一个算子链。</p></li><li><p>部署在不同的 TaskManager 上。</p></li></ol><p>三种不同的关系，对应的算子间的数据传输方式也不同。先说第一种。</p><h4 id="同一线程数据传输"><a href="#同一线程数据传输" class="headerlink" title="同一线程数据传输"></a>同一线程数据传输</h4><p>同一线程中的两个算子共享内存，因此数据传输非常简单，上游产出好数据后，直接调用下游的 processElement 方法即可。</p><h4 id="本地线程数据传输"><a href="#本地线程数据传输" class="headerlink" title="本地线程数据传输"></a>本地线程数据传输</h4><p>对于第二种关系，两个算子不在同一线程，但是部署在同一个 TaskManager 上，也就是算子之间的数据传输是跨线程的。我们通过一个图来解释。</p><p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1757168841/Blog/flink/7/Flink%E9%80%9A%E4%BF%A1.png" alt="本地线程传输"></p><p>图中，Flat Map Task 是上游算子，sum 是下游的算子。它们共享一块 Buffer 内存。当 Buffer 中没有数据可以消费时，sum 所在的线程会阻塞（步骤1）。随着数据的流入，Flat Map Task 会将处理好的数据写入到 ResultSubpartition（步骤2），然后 flush 到 Buffer 中（步骤3）。此时会唤醒 sum 所在的线程（步骤4），它就可以从 Buffer 中读取数据了（步骤5）。</p><h4 id="远程数据传输"><a href="#远程数据传输" class="headerlink" title="远程数据传输"></a>远程数据传输</h4><p>第三种跨 TaskManager 的数据传输，与第二种类似，不过也有些区别。我们还是通过一张图来解释。</p><p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1757170148/Blog/flink/7/Flink%E8%BF%9C%E7%A8%8B%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93.png" alt="远程数据传输"></p><p>从图中可以看到，当 sum 所在线程没有 Buffer 可以消费时，会通过 PartitionRequestClient 向 Flat Map Task 所在的进程发送请求。Flat Map Task 所在进程接收到请求后，会读取 Buffer 中的数据并返回。</p><h3 id="Flink-的反压"><a href="#Flink-的反压" class="headerlink" title="Flink 的反压"></a>Flink 的反压</h3><p>了解了 Flink 的数据传输方式之后，我们再来看下 Flink 是如何感知反压的。</p><p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1757170638/Blog/flink/7/Flink%E5%8F%8D%E5%8E%8B%E8%BF%87%E7%A8%8B.png" alt="Flink反压"></p><p>上图是一个数据传输的简图。当 Task1 有 Buffer 空间时，记录 A 被序列化并写入 LocalBufferPool 中，接着发送到 Task2 的 LocalBufferPool 中，Task2 读取并反序列化后交由程序处理。</p><p>这里我们也分两个场景讨论。</p><h4 id="本地传输"><a href="#本地传输" class="headerlink" title="本地传输"></a>本地传输</h4><p>Task1 和 Task2 在同一个 TaskManager 节点，Task1 和 Task2 共用 Buffer，一旦 Task2 消费了 Buffer，该 Buffer 就会被回收。如果 Task2 的处理速度比 Task1 慢，那么 Buffer 的回收速度就赶不上 Task1 取 Buffer 的速度，这样会导致无 Buffer 可用，最终 Task1 就会降速。</p><h4 id="远程传输"><a href="#远程传输" class="headerlink" title="远程传输"></a>远程传输</h4><p>Task1 和 Task2 运行在不同的 TaskManager 上，那 Buffer 会发送到网络后，等接收端消费完再回收。在发送端，会通过 Netty 水位机制来保证不往网络中写太多数据，如果网络中的数据超过了高水位值，就会等其下降到低水位值以下才会继续写数据。如果网络有堆积，发送端就会暂停发送，Buffer 也不会被回收，这就会阻塞 writer 往 ResultSubPartition 中写数据。</p><h3 id="反压监控"><a href="#反压监控" class="headerlink" title="反压监控"></a>反压监控</h3><p>在 Flink Web UI 中，可以找到反压的监控</p><p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1757254334/Blog/flink/7/back_pressure_subtasks.png" alt="反压监控"></p><p>它有三种状态：</p><ul><li><strong>OK</strong>: 0% &lt;= 反压比例 &lt;= 10%，此时一般不用处理。</li><li><strong>LOW</strong>: 10% &lt; 反压比例 &lt;= 50%，这种状态需要关注。</li><li><strong>HIGH</strong>: 50% &lt; 反压比例 &lt;= 100%，已经反压，需要赶快处理。</li></ul><h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>今天我们聊了什么是反压，以及 Flink 中数据传输方法和 Flink 任务是如何感知反压的。Flink 的传输方式分为三种，分别是同线程传输、本地跨线程传输以及远程传输。Flink 任务在感知反压时也分别针对本地传输和远程传输做了讨论。</p>]]></content>
+    
+    
+    <summary type="html">&lt;p&gt;今天来聊在 Flink 运维过程中比较常见的一个问题：反压。</summary>
+    
+    
+    
+    
+    <category term="Flink" scheme="https://jackeyzhe.github.io/tags/Flink/"/>
+    
+  </entry>
   
   <entry>
     <title>Flink学习笔记：状态后端</title>
@@ -374,25 +393,6 @@
     
     
     <category term="Code Review" scheme="https://jackeyzhe.github.io/tags/Code-Review/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>吐血推荐珍藏的IDEA插件</title>
-    <link href="https://jackeyzhe.github.io/2020/02/10/%E5%90%90%E8%A1%80%E6%8E%A8%E8%8D%90%E7%8F%8D%E8%97%8F%E7%9A%84IDEA%E6%8F%92%E4%BB%B6/"/>
-    <id>https://jackeyzhe.github.io/2020/02/10/%E5%90%90%E8%A1%80%E6%8E%A8%E8%8D%90%E7%8F%8D%E8%97%8F%E7%9A%84IDEA%E6%8F%92%E4%BB%B6/</id>
-    <published>2020-02-10T05:01:05.000Z</published>
-    <updated>2024-12-06T17:02:53.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>之前给大家推荐了一些我自己常用的VS Code插件，很多同学表示很受用，并私信我说要再推荐一些IDEA插件。作为一名职业Java程序员/业余js开发者，我平时还是用IDEA比较多，所以也确实珍藏了一些IDEA插件。今天就一并分享给大家。<span id="more"></span></p><p>在最开始，我还是想先介绍一下IDEA中如何安装插件，首先打开Preferences（菜单栏打开或者使用快捷键Command+,）在Windows版本中应该是Settings。然后选择Plugins一栏，就可以从右侧的MarketPlace中选择自己需要的插件进行安装了。</p><p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1581059914/Blog/Other/idea_plugins/idea.png" alt="idea插件"></p><h3 id="Lombok"><a href="#Lombok" class="headerlink" title="Lombok"></a>Lombok</h3><p>首先向我们走来的是Lombok。作为Java程序员，你还在为不断的写Getter/Setter方法而苦恼吗？你还在为每个Model类都要写类似的构造方法而感到烦恼吗？赶快试试Lombok吧，它可以有效帮助你解决这些问题，只需要一个注解，构造方法和Getter/Setter方法全部搞定，再也不用把时间浪费在无用功上了。</p><p>如果你还不是很了解Lombok的话，可以自己动手，到<a href="https://projectlombok.org/">Lombok官网</a>学习一番，学完记得回来点赞。</p><p>最后展示一个简单的例子供大家参考。</p><p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1581059921/Blog/Other/idea_plugins/idea1.png" alt="lombok"></p><h3 id="String-Manipulation"><a href="#String-Manipulation" class="headerlink" title="String Manipulation"></a>String Manipulation</h3><p>String Manipulation插件是一款非常强大的插件，它可以对代码进行很多操作，如排序、去除空行、字符串格式转换、Encode/Decode。其中我最常用的是字符串格式转换。你可以通过点击右键选择String Manipulation或者使用快捷键Option + M来选择相应的功能。</p><p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1581061347/Blog/Other/idea_plugins/idea2.gif" alt="String Manipulation"></p><h3 id="stackoverflow"><a href="#stackoverflow" class="headerlink" title="stackoverflow"></a>stackoverflow</h3><p>作为一名高级CtrlCV工程师，我写代码有两大利器，一个是Google，另一个就是stackoverflow。两者相辅相成，帮我在编码的道路上越走越远。相信有不少同学跟我一样离不开stackoverflow，那么这款插件就会给你带来极大的方便，遇到问题怎么办？右键一下，点击「search stackoverflow」，大部分问题都可以轻松搞定。</p><h3 id="Rainbow-Brackets"><a href="#Rainbow-Brackets" class="headerlink" title="Rainbow Brackets"></a>Rainbow Brackets</h3><p>在推荐VS Code的插件时我们就介绍过一款叫做Bracket Pair Colorizer的插件，它可以把括号变成不同的颜色，我觉得这样分辨括号非常方便，看起来也比较美观。所以在IDEA中也使用了相同效果的插件，就是Rainbow Brackets。</p><p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1581062247/Blog/Other/idea_plugins/idea3.png" alt="Rainbow Brackets"></p><h3 id="GsonFormat"><a href="#GsonFormat" class="headerlink" title="GsonFormat"></a>GsonFormat</h3><p>我们在接外部接口时，别人给了一串JSON串，我们在代码中需要将JSON中的字段封装到一个类中，一个一个输入挺麻烦的，这时GsonFormat就可以派上用场了。它可以帮助我们根据JSON中的key快速生成我们需要的类。</p><p>它的使用快捷键是Option + S</p><p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1581066692/Blog/Other/idea_plugins/idea4.gif" alt="GsonFormat"></p><h3 id="Maven-Helper"><a href="#Maven-Helper" class="headerlink" title="Maven Helper"></a>Maven Helper</h3><p>如果你的项目使用的构建工具是Maven的话，这个插件就能帮你避免各种依赖冲突，安装好插件之后，打开pom文件，可以看到最下方有一个叫Dependency Analyzer的Tab，这里就可以看到你的哪些依赖是有冲突的，然后在右侧Exclude掉不需要的依赖。</p><p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1581063616/Blog/Other/idea_plugins/idea5.png" alt="Maven Helper"></p><h3 id="RestfulToolkit"><a href="#RestfulToolkit" class="headerlink" title="RestfulToolkit"></a>RestfulToolkit</h3><p>RestfulToolkit是一套辅助开发Restful服务的工具集，对于这个插件，我最常用的功能就是快速查找指定的url对应的方法。快捷键是Command + \</p><p>关于其他的一些功能，大家有兴趣的话可以直接访问该插件的<a href="https://plugins.jetbrains.com/plugin/10292-restfultoolkit">homepage</a>。</p><p>以上这些就是我常用的IDEA插件了，没有太多花里胡哨的东西，大家如果有什么好用的插件也欢迎分享出来。</p>]]></content>
-    
-    
-    <summary type="html">&lt;p&gt;之前给大家推荐了一些我自己常用的VS Code插件，很多同学表示很受用，并私信我说要再推荐一些IDEA插件。作为一名职业Java程序员/业余js开发者，我平时还是用IDEA比较多，所以也确实珍藏了一些IDEA插件。今天就一并分享给大家。</summary>
-    
-    
-    
-    
-    <category term="技术杂谈" scheme="https://jackeyzhe.github.io/tags/%E6%8A%80%E6%9C%AF%E6%9D%82%E8%B0%88/"/>
     
   </entry>
   
