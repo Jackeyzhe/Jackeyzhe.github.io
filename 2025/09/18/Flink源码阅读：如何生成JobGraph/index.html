@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"jackeyzhe.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"github-dark","dark":"github-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="前文我们介绍了 Flink 的四种执行图，并且通过源码了解了 Flink 的 StreamGraph 是怎么生成的，本文我们就一起来看下 Flink 的另一种执行图——JobGraph 是如何生成的。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flink源码阅读：如何生成JobGraph">
+<meta property="og:url" content="https://jackeyzhe.github.io/2025/09/18/Flink%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%9A%E5%A6%82%E4%BD%95%E7%94%9F%E6%88%90JobGraph/index.html">
+<meta property="og:site_name" content="Jackeyzhe&#39;s Blog">
+<meta property="og:description" content="前文我们介绍了 Flink 的四种执行图，并且通过源码了解了 Flink 的 StreamGraph 是怎么生成的，本文我们就一起来看下 Flink 的另一种执行图——JobGraph 是如何生成的。">
+<meta property="og:locale">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1758469798/Blog/flink/9/JobVertex.png">
+<meta property="article:published_time" content="2025-09-18T14:02:40.000Z">
+<meta property="article:modified_time" content="2025-11-04T15:19:13.037Z">
+<meta property="article:author" content="Jackey Wang">
+<meta property="article:tag" content="Flink">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1758469798/Blog/flink/9/JobVertex.png">
+
+
+<link rel="canonical" href="https://jackeyzhe.github.io/2025/09/18/Flink%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%9A%E5%A6%82%E4%BD%95%E7%94%9F%E6%88%90JobGraph/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-Hans","comments":true,"permalink":"https://jackeyzhe.github.io/2025/09/18/Flink%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%9A%E5%A6%82%E4%BD%95%E7%94%9F%E6%88%90JobGraph/","path":"2025/09/18/Flink源码阅读：如何生成JobGraph/","title":"Flink源码阅读：如何生成JobGraph"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Flink源码阅读：如何生成JobGraph | Jackeyzhe's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script size="300" alpha="0.6" zIndex="1" src="https://cdnjs.cloudflare.com/ajax/libs/ribbon.js/1.0.2/ribbon.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Jackeyzhe's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Jackeyzhe's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">靠脸吃饭</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section">Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section">Tags<span class="badge">14</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section">Archives<span class="badge">105</span></a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section">About</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#StreamGraph-%E5%92%8C-JobGraph-%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">1.</span> <span class="nav-text">StreamGraph 和 JobGraph 的区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JobVertex"><span class="nav-number">2.</span> <span class="nav-text">JobVertex</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E6%A0%87%E8%AF%86%E7%AC%A6%E7%9B%B8%E5%85%B3"><span class="nav-number">2.1.</span> <span class="nav-text">1、标识符相关</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%9B%B8%E5%85%B3"><span class="nav-number">2.2.</span> <span class="nav-text">2、输入输出相关</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3%E3%80%81%E6%89%A7%E8%A1%8C%E9%85%8D%E7%BD%AE%E7%9B%B8%E5%85%B3"><span class="nav-number">2.3.</span> <span class="nav-text">3、执行配置相关</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4%E3%80%81%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E7%9B%B8%E5%85%B3"><span class="nav-number">2.4.</span> <span class="nav-text">4、资源管理相关</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5%E3%80%81%E5%8D%8F%E8%B0%83%E5%99%A8"><span class="nav-number">2.5.</span> <span class="nav-text">5、协调器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6%E3%80%81%E6%98%BE%E7%A4%BA%E5%92%8C%E6%8F%8F%E8%BF%B0%E4%BF%A1%E6%81%AF"><span class="nav-number">2.6.</span> <span class="nav-text">6、显示和描述信息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7%E3%80%81%E7%8A%B6%E6%80%81%E5%92%8C%E8%A1%8C%E4%B8%BA%E6%A0%87%E5%BF%97"><span class="nav-number">2.7.</span> <span class="nav-text">7、状态和行为标志</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#8%E3%80%81%E7%BC%93%E5%AD%98%E6%95%B0%E6%8D%AE%E9%9B%86"><span class="nav-number">2.8.</span> <span class="nav-text">8、缓存数据集</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JobEdge"><span class="nav-number">3.</span> <span class="nav-text">JobEdge</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E8%BF%9E%E6%8E%A5%E5%85%B3%E7%B3%BB%E6%88%90%E5%91%98"><span class="nav-number">3.1.</span> <span class="nav-text">1、连接关系成员</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E6%95%B0%E6%8D%AE%E5%88%86%E5%8F%91%E6%A8%A1%E5%BC%8F"><span class="nav-number">3.2.</span> <span class="nav-text">2、数据分发模式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3%E3%80%81%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93%E7%AD%96%E7%95%A5"><span class="nav-number">3.3.</span> <span class="nav-text">3、数据传输策略</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4%E3%80%81%E7%8A%B6%E6%80%81%E9%87%8D%E5%88%86%E5%B8%83%E6%98%A0%E5%B0%84%E5%99%A8"><span class="nav-number">3.4.</span> <span class="nav-text">4、状态重分布映射器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5%E3%80%81%E6%8F%8F%E8%BF%B0%E5%92%8C%E7%BC%93%E5%AD%98%E4%BF%A1%E6%81%AF"><span class="nav-number">3.5.</span> <span class="nav-text">5、描述和缓存信息</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#StreamGraph-%E8%BD%AC%E6%8D%A2%E6%88%90-JobGraph"><span class="nav-number">4.</span> <span class="nav-text">StreamGraph 转换成 JobGraph</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Jackey Wang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">105</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Jackeyzhe" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:jackeyzhe59@gmail.com" title="E-Mail → mailto:jackeyzhe59@gmail.com" rel="noopener me" target="_blank"><i class="fas fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/jackeyzhe" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i>StackOverflow</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2025/09/18/Flink%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%9A%E5%A6%82%E4%BD%95%E7%94%9F%E6%88%90JobGraph/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Jackey Wang">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Flink源码阅读：如何生成JobGraph | Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Flink源码阅读：如何生成JobGraph
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-09-18 22:02:40" itemprop="dateCreated datePublished" datetime="2025-09-18T22:02:40+08:00">2025-09-18</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>13k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>12 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>前文我们介绍了 Flink 的四种执行图，并且通过源码了解了 Flink 的 StreamGraph 是怎么生成的，本文我们就一起来看下 Flink 的另一种执行图——JobGraph 是如何生成的。<span id="more"></span></p>
+<h3 id="StreamGraph-和-JobGraph-的区别"><a href="#StreamGraph-和-JobGraph-的区别" class="headerlink" title="StreamGraph 和 JobGraph 的区别"></a>StreamGraph 和 JobGraph 的区别</h3><p>在正式开始之前，我们再来回顾一下 StreamGraph 和 JobGraph 的区别。假设我们的任务是建造一座大楼，StreamGraph 就像是设计蓝图，它描述了每个窗户、每根水管的位置和规格，而 JobGraph 像是给到施工队的施工流程图，它描述了每个任务模块，例如先把地基浇筑好，再铺设管线等。总的来说，JobGraph 更偏向执行层面，它是由 StreamGraph 优化而来。</p>
+<p>回到 Flink 本身，我们通过一个表格来了解两个图的区别。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>StreamGraph</th>
+<th>JobGraph</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>生成阶段</td>
+<td>客户端，执行 execute() 时</td>
+<td>客户端，提交前由 StreamGraph 转换生成</td>
+</tr>
+<tr>
+<td>抽象层级</td>
+<td>高层逻辑图，直接对应 API</td>
+<td>优化后的执行图，为调度做准备</td>
+</tr>
+<tr>
+<td>核心优化</td>
+<td>无</td>
+<td>主要是算子链优化</td>
+</tr>
+<tr>
+<td>节点</td>
+<td>StreamNode</td>
+<td>JobVertex</td>
+</tr>
+<tr>
+<td>边</td>
+<td>StreamEdge</td>
+<td>JobEdge</td>
+</tr>
+<tr>
+<td>提交对象</td>
+<td>无</td>
+<td>提交给 JobManager</td>
+</tr>
+<tr>
+<td>包含资源</td>
+<td>无</td>
+<td>包含执行作业所需的 Jar 包、依赖库和资源文件</td>
+</tr>
+</tbody>
+</table>
+<h3 id="JobVertex"><a href="#JobVertex" class="headerlink" title="JobVertex"></a>JobVertex</h3><p>JobGraph 中的节点是 JobVertex，在 StreamGraph 转换成 JobGraph 的过程中，会将多个节点串联起来，最终生成 JobVertex。</p>
+<p>JobVertex包含以下成员变量：</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1758469798/Blog/flink/9/JobVertex.png" alt="JobVertex"></p>
+<p>我们分别看一下这些成员变量及其作用。</p>
+<h4 id="1、标识符相关"><a href="#1、标识符相关" class="headerlink" title="1、标识符相关"></a>1、标识符相关</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// JobVertex的id，在作业执行过程中的唯一标识。监控、调度和故障恢复都会使用</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> JobVertexID id;</span><br><span class="line"></span><br><span class="line"><span class="comment">// operator id列表，按照深度优先顺序存储。operator 的管理、状态分配都会用到</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> List&lt;OperatorIDPair&gt; operatorIDs;</span><br></pre></td></tr></table></figure>
+<h4 id="2、输入输出相关"><a href="#2、输入输出相关" class="headerlink" title="2、输入输出相关"></a>2、输入输出相关</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 定义所有的输入边</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> List&lt;JobEdge&gt; inputs = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义所有的输出数据集</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> Map&lt;IntermediateDataSetID, IntermediateDataSet&gt; results = <span class="keyword">new</span> <span class="title class_">LinkedHashMap</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 输入分片源，主要用于批处理作业，定义如何将数据分成多个片</span></span><br><span class="line"><span class="keyword">private</span> InputSplitSource&lt;?&gt; inputSplitSource;</span><br></pre></td></tr></table></figure>
+<h4 id="3、执行配置相关"><a href="#3、执行配置相关" class="headerlink" title="3、执行配置相关"></a>3、执行配置相关</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 并行度，即运行时拆分子任务数量，默认使用全局配置</span></span><br><span class="line"><span class="keyword">private</span> <span class="type">int</span> <span class="variable">parallelism</span> <span class="operator">=</span> ExecutionConfig.PARALLELISM_DEFAULT;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 最大并行度</span></span><br><span class="line"><span class="keyword">private</span> <span class="type">int</span> <span class="variable">maxParallelism</span> <span class="operator">=</span> MAX_PARALLELISM_DEFAULT;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 存储运行时实际执行的类，使 Flink 可以灵活处理不同类型的操作符</span></span><br><span class="line"><span class="comment">// 流任务可以是&quot;org.apache.flink.streaming.runtime.tasks.StreamTask&quot;</span></span><br><span class="line"><span class="comment">// 批任务可以是&quot;org.apache.flink.runtime.operators.BatchTask&quot;</span></span><br><span class="line"><span class="keyword">private</span> String invokableClassName;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 自定义配置</span></span><br><span class="line"><span class="keyword">private</span> Configuration configuration;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 是否是动态设置并发度</span></span><br><span class="line"><span class="keyword">private</span> <span class="type">boolean</span> <span class="variable">dynamicParallelism</span> <span class="operator">=</span> <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 是否支持优雅停止</span></span><br><span class="line"><span class="keyword">private</span> <span class="type">boolean</span> <span class="variable">isStoppable</span> <span class="operator">=</span> <span class="literal">false</span>;</span><br></pre></td></tr></table></figure>
+<h4 id="4、资源管理相关"><a href="#4、资源管理相关" class="headerlink" title="4、资源管理相关"></a>4、资源管理相关</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// JobVertex 最小资源需求</span></span><br><span class="line"><span class="keyword">private</span> <span class="type">ResourceSpec</span> <span class="variable">minResources</span> <span class="operator">=</span> ResourceSpec.DEFAULT;</span><br><span class="line"></span><br><span class="line"><span class="comment">// JobVertex 推荐资源需求</span></span><br><span class="line"><span class="keyword">private</span> <span class="type">ResourceSpec</span> <span class="variable">preferredResources</span> <span class="operator">=</span> ResourceSpec.DEFAULT;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 用于资源优化，运行不同的 JobVertex 的子任务运行在同一个 slot</span></span><br><span class="line"><span class="meta">@Nullable</span> <span class="keyword">private</span> SlotSharingGroup slotSharingGroup;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 需要严格共址的 JobVertex 组，每个 JobVertex 的第 n 个子任务运行在同一个 TaskManager</span></span><br><span class="line"><span class="meta">@Nullable</span> <span class="keyword">private</span> CoLocationGroupImpl coLocationGroup;</span><br></pre></td></tr></table></figure>
+<h4 id="5、协调器"><a href="#5、协调器" class="headerlink" title="5、协调器"></a>5、协调器</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 操作符协调器，用于处理全局协调逻辑</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> List&lt;SerializedValue&lt;OperatorCoordinator.Provider&gt;&gt; operatorCoordinators =</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br></pre></td></tr></table></figure>
+<h4 id="6、显示和描述信息"><a href="#6、显示和描述信息" class="headerlink" title="6、显示和描述信息"></a>6、显示和描述信息</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// JobVertex 的名称</span></span><br><span class="line"><span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 操作符名称，比如 &#x27;Flat Map&#x27; 或 &#x27;Join&#x27;</span></span><br><span class="line"><span class="keyword">private</span> String operatorName;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 操作符的描述，比如 &#x27;Hash Join&#x27; 或 &#x27;Sorted Group Reduce&#x27;</span></span><br><span class="line"><span class="keyword">private</span> String operatorDescription;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 提供比 name 更友好的描述信息</span></span><br><span class="line"><span class="keyword">private</span> String operatorPrettyName;</span><br></pre></td></tr></table></figure>
+<h4 id="7、状态和行为标志"><a href="#7、状态和行为标志" class="headerlink" title="7、状态和行为标志"></a>7、状态和行为标志</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 是否支持同一个子任务并发多次执行</span></span><br><span class="line"><span class="keyword">private</span> <span class="type">boolean</span> <span class="variable">supportsConcurrentExecutionAttempts</span> <span class="operator">=</span> <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 标记并发度是否被显式设置</span></span><br><span class="line"><span class="keyword">private</span> <span class="type">boolean</span> <span class="variable">parallelismConfigured</span> <span class="operator">=</span> <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 是否有阻塞型输出</span></span><br><span class="line"><span class="keyword">private</span> <span class="type">boolean</span> <span class="variable">anyOutputBlocking</span> <span class="operator">=</span> <span class="literal">false</span>;</span><br></pre></td></tr></table></figure>
+<h4 id="8、缓存数据集"><a href="#8、缓存数据集" class="headerlink" title="8、缓存数据集"></a>8、缓存数据集</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 存储该 JobVertex 需要消费的缓存中间数据集的 ID，可提高作业执行效率</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> List&lt;IntermediateDataSetID&gt; intermediateDataSetIdsToConsume = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br></pre></td></tr></table></figure>
+<h3 id="JobEdge"><a href="#JobEdge" class="headerlink" title="JobEdge"></a>JobEdge</h3><p>在 StreamGraph 中，StreamEdge 是连接 StreamNode 的桥梁。在 JobGraph 中，与之对应的是 JobEdge，不同点在于  JobEdge 中保存的是输入节点和输出结果。</p>
+<h4 id="1、连接关系成员"><a href="#1、连接关系成员" class="headerlink" title="1、连接关系成员"></a>1、连接关系成员</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 定义数据流向哪个 JobVertex</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> JobVertex target;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义这条边的源数据</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> IntermediateDataSet source;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 输入类型的编号</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="type">int</span> typeNumber;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 多个输入间的键是否相关，如果为 true，相同键的数据在一个输入被分割时，在其他数据对应的记录也会发送到相同的下游节点</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="type">boolean</span> interInputsKeysCorrelated;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 同一输入内相同的键是否必须发送到同一下游任务</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="type">boolean</span> intraInputKeyCorrelated;</span><br></pre></td></tr></table></figure>
+<h4 id="2、数据分发模式"><a href="#2、数据分发模式" class="headerlink" title="2、数据分发模式"></a>2、数据分发模式</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 定义数据在并行任务期间的分发模式</span></span><br><span class="line"><span class="comment">// 可能值：</span></span><br><span class="line"><span class="comment">// ALL_TO_ALL：全连接，每个上游子任务连接所有下游任务</span></span><br><span class="line"><span class="comment">// POINTWISE：点对点连接，一对一或一对多的本地连接</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> DistributionPattern distributionPattern;</span><br></pre></td></tr></table></figure>
+<h4 id="3、数据传输策略"><a href="#3、数据传输策略" class="headerlink" title="3、数据传输策略"></a>3、数据传输策略</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 是否为广播连接</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="type">boolean</span> isBroadcast;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 是否为 forward 连接，forward 连接最高效，直接转发，无需序列化网络传输</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="type">boolean</span> isForward;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 数据传输策略名称，用于显示</span></span><br><span class="line"><span class="keyword">private</span> String shipStrategyName;</span><br></pre></td></tr></table></figure>
+<h4 id="4、状态重分布映射器"><a href="#4、状态重分布映射器" class="headerlink" title="4、状态重分布映射器"></a>4、状态重分布映射器</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 下游状态重分布映射器，当作业扩容时，决定是否重新分配下游算子的持久化状态</span></span><br><span class="line"><span class="keyword">private</span> <span class="type">SubtaskStateMapper</span> <span class="variable">downstreamSubtaskStateMapper</span> <span class="operator">=</span> SubtaskStateMapper.ROUND_ROBIN;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 上游状态重分布映射器，当作业扩容时，决定是否重新分配上游算子的持久化状态</span></span><br><span class="line"><span class="keyword">private</span> <span class="type">SubtaskStateMapper</span> <span class="variable">upstreamSubtaskStateMapper</span> <span class="operator">=</span> SubtaskStateMapper.ROUND_ROBIN;</span><br></pre></td></tr></table></figure>
+<h4 id="5、描述和缓存信息"><a href="#5、描述和缓存信息" class="headerlink" title="5、描述和缓存信息"></a>5、描述和缓存信息</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 预处理操作的名称</span></span><br><span class="line"><span class="keyword">private</span> String preProcessingOperationName;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 操作符级别缓存的描述</span></span><br><span class="line"><span class="keyword">private</span> String operatorLevelCachingDescription;</span><br></pre></td></tr></table></figure>
+<h3 id="StreamGraph-转换成-JobGraph"><a href="#StreamGraph-转换成-JobGraph" class="headerlink" title="StreamGraph 转换成 JobGraph"></a>StreamGraph 转换成 JobGraph</h3><p>现在我们再来看一下 StreamGraph 是如何转换成 JobGraph 的。转换逻辑的入口是 StreamGraph.getJobGraph 方法。它只是调用了 StreamingJobGraphGenerator.createJobGraph，核心逻辑在 createJobGraph 方法中。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> JobGraph <span class="title function_">createJobGraph</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="comment">// 预验证，检查 StreamGraph 配置正确性</span></span><br><span class="line">    preValidate(streamGraph, userClassloader);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 【核心】链化操作符</span></span><br><span class="line">    setChaining();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (jobGraph.isDynamic()) &#123;</span><br><span class="line">        <span class="comment">// 支持动态扩缩容场景，为动态图设置并行度</span></span><br><span class="line">        setVertexParallelismsForDynamicGraphIfNecessary();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Note that we set all the non-chainable outputs configuration here because the</span></span><br><span class="line">    <span class="comment">// &quot;setVertexParallelismsForDynamicGraphIfNecessary&quot; may affect the parallelism of job</span></span><br><span class="line">    <span class="comment">// vertices and partition-reuse</span></span><br><span class="line">    <span class="keyword">final</span> Map&lt;Integer, Map&lt;StreamEdge, NonChainedOutput&gt;&gt; opIntermediateOutputs =</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">    <span class="comment">// 设置不能链化的输出边</span></span><br><span class="line">    setAllOperatorNonChainedOutputsConfigs(opIntermediateOutputs, jobVertexBuildContext);</span><br><span class="line">    setAllVertexNonChainedOutputsConfigs(opIntermediateOutputs);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 设置物理边连接</span></span><br><span class="line">    setPhysicalEdges(jobVertexBuildContext);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 设置支持并发执行的 JobVertex</span></span><br><span class="line">    markSupportingConcurrentExecutionAttempts(jobVertexBuildContext);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 验证混合 shuffle 模式只在批处理模式下使用</span></span><br><span class="line">    validateHybridShuffleExecuteInBatchMode(jobVertexBuildContext);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 设置 Slot 共享和协同定位</span></span><br><span class="line">    setSlotSharingAndCoLocation(jobVertexBuildContext);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 设置托管内存比例</span></span><br><span class="line">    setManagedMemoryFraction(jobVertexBuildContext);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 为 JobVertex 名称添加前缀</span></span><br><span class="line">    addVertexIndexPrefixInVertexName(jobVertexBuildContext, <span class="keyword">new</span> <span class="title class_">AtomicInteger</span>(<span class="number">0</span>));</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 设置操作符描述信息</span></span><br><span class="line">    setVertexDescription(jobVertexBuildContext);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Wait for the serialization of operator coordinators and stream config.</span></span><br><span class="line">    <span class="comment">// 序列化操作符协调器和流配置</span></span><br><span class="line">    serializeOperatorCoordinatorsAndStreamConfig(serializationExecutor, jobVertexBuildContext);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> jobGraph;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到，在 createJobGraph 方法中，调用了 setChaining 方法，即进行链化操作。这也是 JobGraph 最核心的优化之一。下面我们来看一下具体怎么做链化。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">setChaining</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="comment">// we separate out the sources that run as inputs to another operator (chained inputs)</span></span><br><span class="line">    <span class="comment">// from the sources that needs to run as the main (head) operator.</span></span><br><span class="line">    <span class="keyword">final</span> Map&lt;Integer, OperatorChainInfo&gt; chainEntryPoints =</span><br><span class="line">            buildChainedInputsAndGetHeadInputs();</span><br><span class="line">    <span class="keyword">final</span> Collection&lt;OperatorChainInfo&gt; initialEntryPoints =</span><br><span class="line">            chainEntryPoints.entrySet().stream()</span><br><span class="line">                    .sorted(Comparator.comparing(Map.Entry::getKey))</span><br><span class="line">                    .map(Map.Entry::getValue)</span><br><span class="line">                    .collect(Collectors.toList());</span><br><span class="line"></span><br><span class="line">    <span class="comment">// iterate over a copy of the values, because this map gets concurrently modified</span></span><br><span class="line">    <span class="keyword">for</span> (OperatorChainInfo info : initialEntryPoints) &#123;</span><br><span class="line">        createChain(</span><br><span class="line">                info.getStartNodeId(),</span><br><span class="line">                <span class="number">1</span>, <span class="comment">// operators start at position 1 because 0 is for chained source inputs</span></span><br><span class="line">                info,</span><br><span class="line">                chainEntryPoints,</span><br><span class="line">                <span class="literal">true</span>,</span><br><span class="line">                serializationExecutor,</span><br><span class="line">                jobVertexBuildContext,</span><br><span class="line">                <span class="literal">null</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>setChaining 方法中主要分为两步，第一步是处理 Source 节点，将可以链化的 Source 和不能链化的 Source 节点分开。先来看如何判断一个 Source 是否可被链化。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="type">boolean</span> <span class="title function_">isChainableSource</span><span class="params">(StreamNode streamNode, StreamGraph streamGraph)</span> &#123;</span><br><span class="line">    <span class="comment">// 最基本的一些判空，输出边数量为1</span></span><br><span class="line">    <span class="keyword">if</span> (streamNode.getOperatorFactory() == <span class="literal">null</span></span><br><span class="line">            || !(streamNode.getOperatorFactory() <span class="keyword">instanceof</span> SourceOperatorFactory)</span><br><span class="line">            || streamNode.getOutEdges().size() != <span class="number">1</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">final</span> <span class="type">StreamEdge</span> <span class="variable">sourceOutEdge</span> <span class="operator">=</span> streamNode.getOutEdges().get(<span class="number">0</span>);</span><br><span class="line">    <span class="keyword">final</span> <span class="type">StreamNode</span> <span class="variable">target</span> <span class="operator">=</span> streamGraph.getStreamNode(sourceOutEdge.getTargetId());</span><br><span class="line">    <span class="keyword">final</span> <span class="type">ChainingStrategy</span> <span class="variable">targetChainingStrategy</span> <span class="operator">=</span></span><br><span class="line">            Preconditions.checkNotNull(target.getOperatorFactory()).getChainingStrategy();</span><br><span class="line">    <span class="comment">// 链化策略必须 HEAD_WITH_SOURCES，输出边是可链化的</span></span><br><span class="line">    <span class="keyword">return</span> targetChainingStrategy == ChainingStrategy.HEAD_WITH_SOURCES</span><br><span class="line">            &amp;&amp; isChainableInput(sourceOutEdge, streamGraph, <span class="literal">false</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="type">boolean</span> <span class="title function_">isChainableInput</span><span class="params">(</span></span><br><span class="line"><span class="params">        StreamEdge edge, StreamGraph streamGraph, <span class="type">boolean</span> allowChainWithDefaultParallelism)</span> &#123;</span><br><span class="line">    <span class="type">StreamNode</span> <span class="variable">upStreamVertex</span> <span class="operator">=</span> streamGraph.getSourceVertex(edge);</span><br><span class="line">    <span class="type">StreamNode</span> <span class="variable">downStreamVertex</span> <span class="operator">=</span> streamGraph.getTargetVertex(edge);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!(streamGraph.isChainingEnabled()</span><br><span class="line">            <span class="comment">// 上下游节点是否在同一个 slot 共享组</span></span><br><span class="line">            &amp;&amp; upStreamVertex.isSameSlotSharingGroup(downStreamVertex)</span><br><span class="line">            <span class="comment">// 操作符是否可以链化，主要做并行度检查</span></span><br><span class="line">            &amp;&amp; areOperatorsChainable(</span><br><span class="line">                    upStreamVertex,</span><br><span class="line">                    downStreamVertex,</span><br><span class="line">                    streamGraph,</span><br><span class="line">                    allowChainWithDefaultParallelism)</span><br><span class="line">            <span class="comment">// 分区器和交换模式是否支持链化</span></span><br><span class="line">            &amp;&amp; arePartitionerAndExchangeModeChainable(</span><br><span class="line">                    edge.getPartitioner(), edge.getExchangeMode(), streamGraph.isDynamic()))) &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// check that we do not have a union operation, because unions currently only work</span></span><br><span class="line">    <span class="comment">// through the network/byte-channel stack.</span></span><br><span class="line">    <span class="comment">// we check that by testing that each &quot;type&quot; (which means input position) is used only once</span></span><br><span class="line">    <span class="comment">// 检查是否为 Union 操作，Union 操作不能链化</span></span><br><span class="line">    <span class="keyword">for</span> (StreamEdge inEdge : downStreamVertex.getInEdges()) &#123;</span><br><span class="line">        <span class="keyword">if</span> (inEdge != edge &amp;&amp; inEdge.getTypeNumber() == edge.getTypeNumber()) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Source 的链化条件主要就是这些，我们结合一些例子来看一下。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">Source(并行度=4) -&gt; Map(并行度=4) -&gt; Filter(并行度=4)</span><br><span class="line"></span><br><span class="line">Source -&gt; Map 边：</span><br><span class="line">1. isChainingEnabled() = true</span><br><span class="line">2. isSameSlotSharingGroup() = true (都在默认组)</span><br><span class="line">3. areOperatorsChainable() = true (Source可链化，Map是HEAD_WITH_SOURCES)</span><br><span class="line">4. arePartitionerAndExchangeModeChainable() = true (ForwardPartitioner)</span><br><span class="line">5. Union检查通过</span><br><span class="line">结果：可链化</span><br><span class="line"></span><br><span class="line">Map -&gt; Filter 边：</span><br><span class="line">1. isChainingEnabled() = true</span><br><span class="line">2. isSameSlotSharingGroup() = true</span><br><span class="line">3. areOperatorsChainable() = true (Map和Filter都是ALWAYS)</span><br><span class="line">4. arePartitionerAndExchangeModeChainable() = true (ForwardPartitioner)</span><br><span class="line">5. Union检查通过</span><br><span class="line">结果：可链化</span><br><span class="line"></span><br><span class="line">最终：Source -&gt; Map -&gt; Filter 三者链化到一个JobVertex中</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Source(并行度=2) -&gt; Map(并行度=4)  // 并行度不匹配</span><br><span class="line"></span><br><span class="line">Source -&gt; Map 边：</span><br><span class="line">1. isChainingEnabled() = true</span><br><span class="line">2. isSameSlotSharingGroup() = true</span><br><span class="line">3. areOperatorsChainable() = false (并行度不匹配)</span><br><span class="line">结果：不可链化，需要网络传输</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Source1 --\</span><br><span class="line">          Union -&gt; Map</span><br><span class="line">Source2 --/</span><br><span class="line"></span><br><span class="line">Source1 -&gt; Union 边：</span><br><span class="line">虽然满足前4个条件，但Union节点有两个输入边，typeNumber相同</span><br><span class="line">Union检查失败，不可链化</span><br></pre></td></tr></table></figure>
+<p>得到了所有入口之后，就可以进行后续节点的链化操作了，它的逻辑在 createChain 方法中。这里主要是一个递归过程，先将节点的输出边分为可链化和不可链化两个 list，之后对可链化的边进行递归调用链化。对不可链化的边，需要创建出新的链。由于篇幅原因，这里只贴一部分核心的代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> List&lt;StreamEdge&gt; <span class="title function_">createChain</span><span class="params">(</span></span><br><span class="line"><span class="params">        <span class="keyword">final</span> Integer currentNodeId,</span></span><br><span class="line"><span class="params">        <span class="keyword">final</span> <span class="type">int</span> chainIndex,</span></span><br><span class="line"><span class="params">        <span class="keyword">final</span> OperatorChainInfo chainInfo,</span></span><br><span class="line"><span class="params">        <span class="keyword">final</span> Map&lt;Integer, OperatorChainInfo&gt; chainEntryPoints,</span></span><br><span class="line"><span class="params">        <span class="keyword">final</span> <span class="type">boolean</span> canCreateNewChain,</span></span><br><span class="line"><span class="params">        <span class="keyword">final</span> Executor serializationExecutor,</span></span><br><span class="line"><span class="params">        <span class="keyword">final</span> JobVertexBuildContext jobVertexBuildContext,</span></span><br><span class="line"><span class="params">        <span class="keyword">final</span> <span class="meta">@Nullable</span> Consumer&lt;Integer&gt; visitedStreamNodeConsumer)</span> &#123;</span><br><span class="line"></span><br><span class="line">    ......</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 拆分可链化边和不可链化边</span></span><br><span class="line">        <span class="keyword">for</span> (StreamEdge outEdge : currentNode.getOutEdges()) &#123;</span><br><span class="line">            <span class="keyword">if</span> (isChainable(outEdge, streamGraph)) &#123;</span><br><span class="line">                chainableOutputs.add(outEdge);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                nonChainableOutputs.add(outEdge);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 处理可链化边</span></span><br><span class="line">        <span class="keyword">for</span> (StreamEdge chainable : chainableOutputs) &#123;</span><br><span class="line">            <span class="type">StreamNode</span> <span class="variable">targetNode</span> <span class="operator">=</span> streamGraph.getStreamNode(chainable.getTargetId());</span><br><span class="line">            <span class="type">Attribute</span> <span class="variable">targetNodeAttribute</span> <span class="operator">=</span> targetNode.getAttribute();</span><br><span class="line">            <span class="keyword">if</span> (isNoOutputUntilEndOfInput) &#123;</span><br><span class="line">                <span class="keyword">if</span> (targetNodeAttribute != <span class="literal">null</span>) &#123;</span><br><span class="line">                    targetNodeAttribute.setNoOutputUntilEndOfInput(<span class="literal">true</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            transitiveOutEdges.addAll(</span><br><span class="line">                    createChain(</span><br><span class="line">                            chainable.getTargetId(),</span><br><span class="line">                            chainIndex + <span class="number">1</span>,</span><br><span class="line">                            chainInfo,</span><br><span class="line">                            chainEntryPoints,</span><br><span class="line">                            canCreateNewChain,</span><br><span class="line">                            serializationExecutor,</span><br><span class="line">                            jobVertexBuildContext,</span><br><span class="line">                            visitedStreamNodeConsumer));</span><br><span class="line">            <span class="comment">// Mark upstream nodes in the same chain as outputBlocking</span></span><br><span class="line">            <span class="keyword">if</span> (targetNodeAttribute != <span class="literal">null</span></span><br><span class="line">                    &amp;&amp; targetNodeAttribute.isNoOutputUntilEndOfInput()) &#123;</span><br><span class="line">                currentNodeAttribute.setNoOutputUntilEndOfInput(<span class="literal">true</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 处理不可链化边</span></span><br><span class="line">        <span class="keyword">for</span> (StreamEdge nonChainable : nonChainableOutputs) &#123;</span><br><span class="line">            transitiveOutEdges.add(nonChainable);</span><br><span class="line">            <span class="comment">// Used to control whether a new chain can be created, this value is true in the</span></span><br><span class="line">            <span class="comment">// full graph generation algorithm and false in the progressive generation</span></span><br><span class="line">            <span class="comment">// algorithm. In the future, this variable can be a boolean type function to adapt</span></span><br><span class="line">            <span class="comment">// to more adaptive scenarios.</span></span><br><span class="line">            <span class="keyword">if</span> (canCreateNewChain) &#123;</span><br><span class="line">                createChain(</span><br><span class="line">                        nonChainable.getTargetId(),</span><br><span class="line">                        <span class="number">1</span>, <span class="comment">// operators start at position 1 because 0 is for chained source</span></span><br><span class="line">                        <span class="comment">// inputs</span></span><br><span class="line">                        chainEntryPoints.computeIfAbsent(</span><br><span class="line">                                nonChainable.getTargetId(),</span><br><span class="line">                                (k) -&gt; chainInfo.newChain(nonChainable.getTargetId())),</span><br><span class="line">                        chainEntryPoints,</span><br><span class="line">                        canCreateNewChain,</span><br><span class="line">                        serializationExecutor,</span><br><span class="line">                        jobVertexBuildContext,</span><br><span class="line">                        visitedStreamNodeConsumer);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 创建 JobVertex</span></span><br><span class="line">        StreamConfig config;</span><br><span class="line">        <span class="keyword">if</span> (currentNodeId.equals(startNodeId)) &#123;</span><br><span class="line">            <span class="type">JobVertex</span> <span class="variable">jobVertex</span> <span class="operator">=</span> jobVertexBuildContext.getJobVertex(startNodeId);</span><br><span class="line">            <span class="keyword">if</span> (jobVertex == <span class="literal">null</span>) &#123;</span><br><span class="line">                jobVertex =</span><br><span class="line">                        createJobVertex(</span><br><span class="line">                                chainInfo, serializationExecutor, jobVertexBuildContext);</span><br><span class="line">            &#125;</span><br><span class="line">            config = <span class="keyword">new</span> <span class="title class_">StreamConfig</span>(jobVertex.getConfiguration());</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            config = <span class="keyword">new</span> <span class="title class_">StreamConfig</span>(<span class="keyword">new</span> <span class="title class_">Configuration</span>());</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 判断是否为起始节点，如果不是，将对应的配置信息存到链化起始节点的 key 中</span></span><br><span class="line">        <span class="keyword">if</span> (currentNodeId.equals(startNodeId)) &#123;</span><br><span class="line">            chainInfo.setTransitiveOutEdges(transitiveOutEdges);</span><br><span class="line">            jobVertexBuildContext.addChainInfo(startNodeId, chainInfo);</span><br><span class="line"></span><br><span class="line">            config.setChainStart();</span><br><span class="line">            config.setChainIndex(chainIndex);</span><br><span class="line">            config.setOperatorName(streamGraph.getStreamNode(currentNodeId).getOperatorName());</span><br><span class="line">            config.setTransitiveChainedTaskConfigs(</span><br><span class="line">                    jobVertexBuildContext.getChainedConfigs().get(startNodeId));</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            config.setChainIndex(chainIndex);</span><br><span class="line">            <span class="type">StreamNode</span> <span class="variable">node</span> <span class="operator">=</span> streamGraph.getStreamNode(currentNodeId);</span><br><span class="line">            config.setOperatorName(node.getOperatorName());</span><br><span class="line">            jobVertexBuildContext</span><br><span class="line">                    .getOrCreateChainedConfig(startNodeId)</span><br><span class="line">                    .put(currentNodeId, config);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    ......</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>是否可链化依赖于 isChainable 方法的结果。它主要判断了下游的输入边数量是否为1，然后调用了 isChainableInput，这个方法我们刚刚已经看过了。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="type">boolean</span> <span class="title function_">isChainable</span><span class="params">(StreamEdge edge, StreamGraph streamGraph)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> isChainable(edge, streamGraph, <span class="literal">false</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="type">boolean</span> <span class="title function_">isChainable</span><span class="params">(</span></span><br><span class="line"><span class="params">        StreamEdge edge, StreamGraph streamGraph, <span class="type">boolean</span> allowChainWithDefaultParallelism)</span> &#123;</span><br><span class="line">    <span class="type">StreamNode</span> <span class="variable">downStreamVertex</span> <span class="operator">=</span> streamGraph.getTargetVertex(edge);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> downStreamVertex.getInEdges().size() == <span class="number">1</span></span><br><span class="line">            &amp;&amp; isChainableInput(edge, streamGraph, allowChainWithDefaultParallelism);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>本文我们主要介绍了生成 JobGraph 的相关代码。首先了解了 JobGraph 中的节点和边对应的类，以及它们和 StreamGraph 中的类的映射关系。然后又看了生成 JobGraph 的核心代码，其中重点学习了链化相关的代码。</p>
+<p>最后补充一个生成 JobGraph 的调用链路，感兴趣的同学可以看下。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">clusterClient.submitJob() → MiniCluster.submitJob() → Dispatcher.submitJob() → JobMasterServiceLeadershipRunnerFactory → DefaultJobMasterServiceFactory → JobMaster → DefaultSchedulerFactory.createInstance()→ StreamGraph.getJobGraph()</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>Buy me a coffee</div>
+  <button>
+    Donate
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/weixinpay.jpg" alt="Jackey Wang WeChat Pay">
+        <span>WeChat Pay</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Jackey Wang Alipay">
+        <span>Alipay</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="followme">
+  <span>Welcome to my other publishing channels</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <span class="social-link">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </span>
+
+          <img class="social-item-img" src="/images/wechat-qcode.jpg">
+      </div>
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Flink/" rel="tag"><i class="fa fa-tag"></i> Flink</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/09/10/Flink%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%9A%E5%A6%82%E4%BD%95%E7%94%9F%E6%88%90StreamGraph/" rel="prev" title="Flink源码阅读：如何生成StreamGraph">
+                  <i class="fa fa-angle-left"></i> Flink源码阅读：如何生成StreamGraph
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Jackey Wang</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Word count total">442k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">6:42</span>
+  </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/Jackeyzhe" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
