@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"jackeyzhe.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"github-dark","dark":"github-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在了解了Rust中的所有权、所有权借用、生命周期这些概念后，相信各位坑友对Rust已经有了比较深刻的认识了，今天又是一个连环坑，我们一起来把智能指针刨出来，一探究竟。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Rust入坑指南：智能指针">
+<meta property="og:url" content="https://jackeyzhe.github.io/2020/03/09/Rust%E5%85%A5%E5%9D%91%E6%8C%87%E5%8D%97%EF%BC%9A%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/index.html">
+<meta property="og:site_name" content="Jackeyzhe&#39;s Blog">
+<meta property="og:description" content="在了解了Rust中的所有权、所有权借用、生命周期这些概念后，相信各位坑友对Rust已经有了比较深刻的认识了，今天又是一个连环坑，我们一起来把智能指针刨出来，一探究竟。">
+<meta property="og:locale">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1583204435/Blog/rust/11/rust11-1.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1583289009/Blog/rust/11/rust11-2.svg">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1583289016/Blog/rust/11/rust11-3.png">
+<meta property="article:published_time" content="2020-03-09T14:26:45.000Z">
+<meta property="article:modified_time" content="2024-12-06T17:02:53.000Z">
+<meta property="article:author" content="Jackey Wang">
+<meta property="article:tag" content="Rust">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1583204435/Blog/rust/11/rust11-1.png">
+
+
+<link rel="canonical" href="https://jackeyzhe.github.io/2020/03/09/Rust%E5%85%A5%E5%9D%91%E6%8C%87%E5%8D%97%EF%BC%9A%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-Hans","comments":true,"permalink":"https://jackeyzhe.github.io/2020/03/09/Rust%E5%85%A5%E5%9D%91%E6%8C%87%E5%8D%97%EF%BC%9A%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/","path":"2020/03/09/Rust入坑指南：智能指针/","title":"Rust入坑指南：智能指针"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Rust入坑指南：智能指针 | Jackeyzhe's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script size="300" alpha="0.6" zIndex="1" src="https://cdnjs.cloudflare.com/ajax/libs/ribbon.js/1.0.2/ribbon.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Jackeyzhe's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Jackeyzhe's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">靠脸吃饭</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section">Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section">Tags<span class="badge">14</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section">Archives<span class="badge">109</span></a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section">About</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Deref"><span class="nav-number">1.1.</span> <span class="nav-text">Deref</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Drop"><span class="nav-number">1.2.</span> <span class="nav-text">Drop</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Box"><span class="nav-number">2.</span> <span class="nav-text">Box</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Rc"><span class="nav-number">3.</span> <span class="nav-text">Rc</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RefCell"><span class="nav-number">4.</span> <span class="nav-text">RefCell</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Jackey Wang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">109</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Jackeyzhe" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:jackeyzhe59@gmail.com" title="E-Mail → mailto:jackeyzhe59@gmail.com" rel="noopener me" target="_blank"><i class="fas fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/jackeyzhe" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i>StackOverflow</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2020/03/09/Rust%E5%85%A5%E5%9D%91%E6%8C%87%E5%8D%97%EF%BC%9A%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Jackey Wang">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Rust入坑指南：智能指针 | Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Rust入坑指南：智能指针
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2020-03-09 22:26:45" itemprop="dateCreated datePublished" datetime="2020-03-09T22:26:45+08:00">2020-03-09</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>6.4k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>6 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在了解了Rust中的所有权、所有权借用、生命周期这些概念后，相信各位坑友对Rust已经有了比较深刻的认识了，今天又是一个连环坑，我们一起来把智能指针刨出来，一探究竟。<span id="more"></span></p>
+<p>智能指针是Rust中一种特殊的数据结构。它与普通指针的本质区别在于普通指针是对值的借用，而智能指针通常拥有对数据的所有权。在Rust中，如果你想要在堆内存中定义一个对象，并不是像Java中那样直接new一个，也不是像C语言中那样需要手动malloc函数来分配内存空间。Rust中使用的是<code>Box::new</code>来对数据进行封箱，而<code>Box&lt;T&gt;</code>就是我们今天要介绍的智能指针之一。除了<code>Box&lt;T&gt;</code>之外，Rust标准库中提供的智能指针还有<code>Rc&lt;T&gt;</code>、<code>Ref&lt;T&gt;</code>、<code>RefCell&lt;T&gt;</code>等等。在详细介绍之前，我们还是先了解一下智能指针的基本概念。</p>
+<h3 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h3><p>我们说Rust的智能指针是一种特殊的数据结构，那么它特殊在哪呢？它与普通数据结构的区别在于智能指针实现了<code>Deref</code>和<code>Drop</code>这两个traits。实现<code>Deref</code>可以使智能指针能够解引用，而实现<code>Drop</code>则使智能指针具有自动析构的能力。</p>
+<h4 id="Deref"><a href="#Deref" class="headerlink" title="Deref"></a>Deref</h4><p>Deref有一个特性是强制隐式转换：<strong>如果一个类型T实现了Deref&lt;Target=U&gt;，则该类型T的引用在应用的时候会被自动转换为类型U</strong>。</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::rc::Rc;</span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = Rc::<span class="title function_ invoke__">new</span>(<span class="string">&quot;hello&quot;</span>);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;:?&#125;&quot;</span>, x.<span class="title function_ invoke__">chars</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果你查看Rc的源码，会发现它并没有实现chars()方法，但我们上面这段代码却可以直接调用，这是因为Rc实现了Deref。</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#[stable(feature = <span class="string">&quot;rust1&quot;</span>, since = <span class="string">&quot;1.0.0&quot;</span>)]</span></span><br><span class="line"><span class="keyword">impl</span>&lt;T: ?<span class="built_in">Sized</span>&gt; Deref <span class="keyword">for</span> <span class="title class_">Rc</span>&lt;T&gt; &#123;</span><br><span class="line">    <span class="keyword">type</span> <span class="title class_">Target</span> = T;</span><br><span class="line"></span><br><span class="line">    <span class="meta">#[inline(always)]</span></span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">deref</span>(&amp;<span class="keyword">self</span>) <span class="punctuation">-&gt;</span> &amp;T &#123;</span><br><span class="line">        &amp;<span class="keyword">self</span>.<span class="title function_ invoke__">inner</span>().value</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这就使得智能指针在使用时被自动解引用，像是不存在一样。</p>
+<p>Deref的内部实现是这样的：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#[lang = <span class="string">&quot;deref&quot;</span>]</span></span><br><span class="line"><span class="meta">#[doc(alias = <span class="string">&quot;*&quot;</span>)]</span></span><br><span class="line"><span class="meta">#[doc(alias = <span class="string">&quot;&amp;*&quot;</span>)]</span></span><br><span class="line"><span class="meta">#[stable(feature = <span class="string">&quot;rust1&quot;</span>, since = <span class="string">&quot;1.0.0&quot;</span>)]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">trait</span> <span class="title class_">Deref</span> &#123;</span><br><span class="line">    <span class="comment">/// The resulting type after dereferencing.</span></span><br><span class="line">    <span class="meta">#[stable(feature = <span class="string">&quot;rust1&quot;</span>, since = <span class="string">&quot;1.0.0&quot;</span>)]</span></span><br><span class="line">    <span class="keyword">type</span> <span class="title class_">Target</span>: ?<span class="built_in">Sized</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/// Dereferences the value.</span></span><br><span class="line">    <span class="meta">#[must_use]</span></span><br><span class="line">    <span class="meta">#[stable(feature = <span class="string">&quot;rust1&quot;</span>, since = <span class="string">&quot;1.0.0&quot;</span>)]</span></span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">deref</span>(&amp;<span class="keyword">self</span>) <span class="punctuation">-&gt;</span> &amp;<span class="keyword">Self</span>::Target;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[lang = <span class="string">&quot;deref_mut&quot;</span>]</span></span><br><span class="line"><span class="meta">#[doc(alias = <span class="string">&quot;*&quot;</span>)]</span></span><br><span class="line"><span class="meta">#[stable(feature = <span class="string">&quot;rust1&quot;</span>, since = <span class="string">&quot;1.0.0&quot;</span>)]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">trait</span> <span class="title class_">DerefMut</span>: Deref &#123;</span><br><span class="line">    <span class="comment">/// Mutably dereferences the value.</span></span><br><span class="line">    <span class="meta">#[stable(feature = <span class="string">&quot;rust1&quot;</span>, since = <span class="string">&quot;1.0.0&quot;</span>)]</span></span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">deref_mut</span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>) <span class="punctuation">-&gt;</span> &amp;<span class="keyword">mut</span> <span class="keyword">Self</span>::Target;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>DerefMut和Deref类似，只不过它是返回可变引用的。</p>
+<h4 id="Drop"><a href="#Drop" class="headerlink" title="Drop"></a>Drop</h4><p>Drop对于智能指针非常重要，它是在智能指针被丢弃时自动执行一些清理工作，这里所说的清理工作并不仅限于释放堆内存，还包括一些释放文件和网络连接等工作。之前我总是把Drop理解成Java中的GC，随着对它的深入了解后，我发现它比GC要强大许多。</p>
+<p>Drop的内部实现是这样的：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#[lang = <span class="string">&quot;drop&quot;</span>]</span></span><br><span class="line"><span class="meta">#[stable(feature = <span class="string">&quot;rust1&quot;</span>, since = <span class="string">&quot;1.0.0&quot;</span>)]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">trait</span> <span class="title class_">Drop</span> &#123;</span><br><span class="line">    <span class="meta">#[stable(feature = <span class="string">&quot;rust1&quot;</span>, since = <span class="string">&quot;1.0.0&quot;</span>)]</span></span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">drop</span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里只有一个drop方法，实现了Drop的结构体，在消亡之前，都会调用drop方法。</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::ops::<span class="built_in">Drop</span>;</span><br><span class="line"><span class="meta">#[derive(Debug)]</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">S</span>(<span class="type">i32</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span> <span class="title class_">Drop</span> <span class="keyword">for</span> <span class="title class_">S</span> &#123;</span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">drop</span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>) &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;drop &#123;&#125;&quot;</span>, <span class="keyword">self</span>.<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = <span class="title function_ invoke__">S</span>(<span class="number">1</span>);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;create x: &#123;:?&#125;&quot;</span>, x);</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">y</span> = <span class="title function_ invoke__">S</span>(<span class="number">2</span>);</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;create y: &#123;:?&#125;&quot;</span>, y);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面代码的执行结果为</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1583204435/Blog/rust/11/rust11-1.png" alt="结果"></p>
+<p>可以看到x和y在生命周期结束时都去执行了drop方法。</p>
+<p>对智能指针的基本概念就先介绍到这里，下面我们进入正题，具体来看看每个智能指针都有什么特点吧。</p>
+<h3 id="Box"><a href="#Box" class="headerlink" title="Box"></a>Box<T></h3><p>前面我们已经提到了Box<T>在Rust中是用来在堆内存中保存数据使用的。它的使用方法非常简单：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = <span class="type">Box</span>::<span class="title function_ invoke__">new</span>(<span class="string">&quot;hello&quot;</span>);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;:?&#125;&quot;</span>, x.<span class="title function_ invoke__">chars</span>())</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们可以看一下<code>Box::new</code>的源码</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#[stable(feature = <span class="string">&quot;rust1&quot;</span>, since = <span class="string">&quot;1.0.0&quot;</span>)]</span></span><br><span class="line"><span class="meta">#[inline(always)]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">fn</span> <span class="title function_">new</span>(x: T) <span class="punctuation">-&gt;</span> <span class="type">Box</span>&lt;T&gt; &#123;</span><br><span class="line">  <span class="keyword">box</span> x</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到这里只有一个box关键字，这个关键字是用来进行堆内存分配的，它只能在Rust源码内部使用。box关键字会调用Rust内部的exchange_malloc和box_free方法来管理内存。</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#[cfg(not(test))]</span></span><br><span class="line"><span class="meta">#[lang = <span class="string">&quot;exchange_malloc&quot;</span>]</span></span><br><span class="line"><span class="meta">#[inline]</span></span><br><span class="line"><span class="keyword">unsafe</span> <span class="keyword">fn</span> <span class="title function_">exchange_malloc</span>(size: <span class="type">usize</span>, align: <span class="type">usize</span>) <span class="punctuation">-&gt;</span> *<span class="keyword">mut</span> <span class="type">u8</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> size == <span class="number">0</span> &#123;</span><br><span class="line">        align <span class="keyword">as</span> *<span class="keyword">mut</span> <span class="type">u8</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">layout</span> = Layout::<span class="title function_ invoke__">from_size_align_unchecked</span>(size, align);</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">ptr</span> = <span class="title function_ invoke__">alloc</span>(layout);</span><br><span class="line">        <span class="keyword">if</span> !ptr.<span class="title function_ invoke__">is_null</span>() &#123;</span><br><span class="line">            ptr</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="title function_ invoke__">handle_alloc_error</span>(layout)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[cfg_attr(not(test), lang = <span class="string">&quot;box_free&quot;</span>)]</span></span><br><span class="line"><span class="meta">#[inline]</span></span><br><span class="line"><span class="title function_ invoke__">pub</span>(<span class="keyword">crate</span>) <span class="keyword">unsafe</span> <span class="keyword">fn</span> <span class="title function_">box_free</span>&lt;T: ?<span class="built_in">Sized</span>&gt;(ptr: Unique&lt;T&gt;) &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">ptr</span> = ptr.<span class="title function_ invoke__">as_ptr</span>();</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">size</span> = <span class="title function_ invoke__">size_of_val</span>(&amp;*ptr);</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">align</span> = <span class="title function_ invoke__">min_align_of_val</span>(&amp;*ptr);</span><br><span class="line">    <span class="comment">// We do not allocate for Box&lt;T&gt; when T is ZST, so deallocation is also not necessary.</span></span><br><span class="line">    <span class="keyword">if</span> size != <span class="number">0</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="variable">layout</span> = Layout::<span class="title function_ invoke__">from_size_align_unchecked</span>(size, align);</span><br><span class="line">        <span class="title function_ invoke__">dealloc</span>(ptr <span class="keyword">as</span> *<span class="keyword">mut</span> <span class="type">u8</span>, layout);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Rc"><a href="#Rc" class="headerlink" title="Rc"></a>Rc<T></h3><p>在前面的学习中，我们知道Rust中一个值在同一时间只能有一个变量拥有其所有权，但有时我们可能会需要多个变量拥有所有权，例如在图结构中，两个图可能对同一条边拥有所有权。</p>
+<p>对于这样的情况，Rust为我们提供了智能指针Rc<T>（reference counting）来解决共享所有权的问题。每当我们通过Rc共享一个所有权时，引用计数就会加一。当引用计数为0时，该值才会被析构。</p>
+<p>Rc<T>是单线程引用计数指针，不是线程安全类型。</p>
+<p>我们还是通过一个简单的例子来看一下Rc<T>的应用吧。（示例来自<a target="_blank" rel="noopener" href="https://doc.rust-lang.org/book/ch15-04-rc.html">the book</a>）</p>
+<p>如果我们想要造一个“双头”的链表，如下图所示，3和4都指向5。我们先来尝试使用Box实现。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1583289009/Blog/rust/11/rust11-2.svg" alt="双头链表"></p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> <span class="title class_">List</span> &#123;</span><br><span class="line">    <span class="title function_ invoke__">Cons</span>(<span class="type">i32</span>, <span class="type">Box</span>&lt;List&gt;),</span><br><span class="line">    Nil,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> crate::List::&#123;Cons, Nil&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">a</span> = <span class="title function_ invoke__">Cons</span>(<span class="number">5</span>,</span><br><span class="line">                 <span class="type">Box</span>::<span class="title function_ invoke__">new</span>(<span class="title function_ invoke__">Cons</span>(<span class="number">10</span>,</span><br><span class="line">                               <span class="type">Box</span>::<span class="title function_ invoke__">new</span>(Nil))));</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">b</span> = <span class="title function_ invoke__">Cons</span>(<span class="number">3</span>, <span class="type">Box</span>::<span class="title function_ invoke__">new</span>(a));</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">c</span> = <span class="title function_ invoke__">Cons</span>(<span class="number">4</span>, <span class="type">Box</span>::<span class="title function_ invoke__">new</span>(a));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上述代码在编译时就会报错，因为a绑定给了b以后就无法再绑定给c了。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1583289016/Blog/rust/11/rust11-3.png" alt="Box无法共享所有权"></p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> <span class="title class_">List</span> &#123;</span><br><span class="line">    <span class="title function_ invoke__">Cons</span>(<span class="type">i32</span>, Rc&lt;List&gt;),</span><br><span class="line">    Nil,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> crate::List::&#123;Cons, Nil&#125;;</span><br><span class="line"><span class="keyword">use</span> std::rc::Rc;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">a</span> = Rc::<span class="title function_ invoke__">new</span>(<span class="title function_ invoke__">Cons</span>(<span class="number">5</span>, Rc::<span class="title function_ invoke__">new</span>(<span class="title function_ invoke__">Cons</span>(<span class="number">10</span>, Rc::<span class="title function_ invoke__">new</span>(Nil)))));</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">b</span> = <span class="title function_ invoke__">Cons</span>(<span class="number">3</span>, Rc::<span class="title function_ invoke__">clone</span>(&amp;a));</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">c</span> = <span class="title function_ invoke__">Cons</span>(<span class="number">4</span>, Rc::<span class="title function_ invoke__">clone</span>(&amp;a));</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;count a &#123;&#125;&quot;</span>, Rc::<span class="title function_ invoke__">strong_count</span>(&amp;a));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这时我们可以看到a的引用计数是3，这是因为这里计算的是节点5的引用计数，而a本身也是对5的一次绑定。这种通过clone方法共享所有权的引用称作<strong>强引用</strong>。</p>
+<p>Rust还为我们提供了另一种智能指针Weak<T>，你可以把它当作是Rc<T>的另一个版本。它提供的引用属于<strong>弱引用</strong>。它共享的指针没有所有权。但他可以帮助我们有效的避免循环引用。</p>
+<h3 id="RefCell"><a href="#RefCell" class="headerlink" title="RefCell"></a>RefCell<T></h3><p>前文中我们聊过变量的可变性和不可变性，主要是针对变量的。按照前面所讲的，对于结构体来说，我们也只能控制它的整个实例是否可变。实例的具体某个成员是否可变我们是控制不了的。但在实际开发中，这样的场景也是比较常见的。比如我们有一个User结构体：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">User</span> &#123;</span><br><span class="line">    id: <span class="type">i32</span>,</span><br><span class="line">    name: <span class="type">str</span>,</span><br><span class="line">    age: <span class="type">u8</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通常情况下，我们只能修改一个人的名称或者年龄，而不能修改用户的id。如果我们把User的实例设置成了可变状态，那就不能保证别人不会去修改id。</p>
+<p>为了应对这种情况，Rust为我们提供了<code>Cell&lt;T&gt;</code>和<code>RefCell&lt;T&gt;</code>。它们本质上不属于智能指针，而是可以提供内部可变性的容器。内部可变性实际上是一种设计模式，它的内部是通过一些<code>unsafe</code>代码来实现的。</p>
+<p>我们先来看一下<code>Cell&lt;T&gt;</code>的使用方法吧。</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::cell::Cell;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">Foo</span> &#123;</span><br><span class="line">    x: <span class="type">u32</span>,</span><br><span class="line">    y: Cell&lt;<span class="type">u32</span>&gt;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">foo</span> = Foo &#123; x: <span class="number">1</span>, y: Cell::<span class="title function_ invoke__">new</span>(<span class="number">3</span>)&#125;;</span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="number">1</span>, foo.x);</span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="number">3</span>, foo.y.<span class="title function_ invoke__">get</span>());</span><br><span class="line">    foo.y.<span class="title function_ invoke__">set</span>(<span class="number">5</span>);</span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="number">5</span>, foo.y.<span class="title function_ invoke__">get</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们可以使用Cell的set/get方法来设置/获取起内部的值。这有点像我们在Java实体类中的setter/getter方法。这里有一点需要注意：<code>Cell&lt;T&gt;</code>中包裹的T必须要实现Copy才能够使用get方法，如果没有实现Copy，则需要使用Cell提供的get_mut方法来返回可变借用，而set方法在任何情况下都可以使用。由此可见Cell并没有违反借用规则。</p>
+<p>对于没有实现Copy的类型，使用<code>Cell&lt;T&gt;</code>还是比较不方便的，还好Rust还提供了<code>RefCell&lt;T&gt;</code>。话不多说，我们直接来看代码。</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::cell::RefCell;</span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">x</span> = RefCell::<span class="title function_ invoke__">new</span>(<span class="built_in">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;:?&#125;&quot;</span>, x.<span class="title function_ invoke__">borrow</span>());</span><br><span class="line">    x.<span class="title function_ invoke__">borrow_mut</span>().<span class="title function_ invoke__">push</span>(<span class="number">5</span>);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;:?&#125;&quot;</span>, x.<span class="title function_ invoke__">borrow</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>从上面这段代码中我们可以观察到<code>RefCell&lt;T&gt;</code>的borrow_mut和borrow方法对应了<code>Cell&lt;T&gt;</code>中的set和get方法。</p>
+<p><code>RefCell&lt;T&gt;</code>和<code>Cell&lt;T&gt;</code>还有一点区别是：<code>Cell&lt;T&gt;</code>没有运行时开销（不过也不要用它包裹大的数据结构），而<code>RefCell&lt;T&gt;</code>是有运行时开销的，这是因为使用<code>RefCell&lt;T&gt;</code>时需要维护一个借用检查器，如果违反借用规则，则会引起线程恐慌。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>关于智能指针我们就先介绍这么多，现在我们简单总结一下。Rust的智能指针为我们提供了很多有用的功能，智能指针的一个特点就是实现了<code>Drop</code>和<code>Deref</code>这两个trait。其中<code>Drop</code>trait中提供了drop方法，在析构时会去调用。<code>Deref</code>trait提供了自动解引用的能力，让我们在使用智能指针的时候不需要再手动解引用了。</p>
+<p>接着我们分别介绍了几种常见的智能指针。<code>Box&lt;T&gt;</code>可以帮助我们在堆内存中分配值，<code>Rc&lt;T&gt;</code>为我们提供了多次借用的能力。<code>RefCell&lt;T&gt;</code>使内部可变性成为现实。</p>
+<p>最后再多说一点，其实我们以前见到过的<code>String</code>和<code>Vec</code>也属于智能指针。</p>
+<p>至于它们为什么属于智能指针，Rust又提供了哪些其他的智能指针呢？这里就留个坑吧，感兴趣的同学可以自己踩一下。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>Buy me a coffee</div>
+  <button>
+    Donate
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/weixinpay.jpg" alt="Jackey Wang WeChat Pay">
+        <span>WeChat Pay</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Jackey Wang Alipay">
+        <span>Alipay</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="followme">
+  <span>Welcome to my other publishing channels</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <span class="social-link">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </span>
+
+          <img class="social-item-img" src="/images/wechat-qcode.jpg">
+      </div>
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Rust/" rel="tag"><i class="fa fa-tag"></i> Rust</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/03/02/Rust%E5%85%A5%E5%9D%91%E6%8C%87%E5%8D%97%EF%BC%9A%E6%9C%9D%E7%94%9F%E6%9A%AE%E6%AD%BB/" rel="prev" title="Rust入坑指南：朝生暮死">
+                  <i class="fa fa-angle-left"></i> Rust入坑指南：朝生暮死
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/03/11/%E3%80%90%E8%AF%91%E3%80%91%E6%8E%A8%E8%8D%90%E4%BD%A0%E4%BD%BF%E7%94%A8Vim%E7%9A%84%E4%B8%89%E4%B8%AA%E5%8D%8A%E7%90%86%E7%94%B1/" rel="next" title="【译】推荐你使用Vim的三个半理由">
+                  【译】推荐你使用Vim的三个半理由 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Jackey Wang</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Word count total">477k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">7:13</span>
+  </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/Jackeyzhe" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

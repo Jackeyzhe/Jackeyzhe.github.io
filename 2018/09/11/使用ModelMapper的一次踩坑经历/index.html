@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"jackeyzhe.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"github-dark","dark":"github-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在实际项目中，我们常常需要把两个相似的对象相互转换，其目的是在对外提供数据时需要将一部分敏感数据（例如：密码、加密token等）隐藏起来。最普通的方法是，新建一个对象，将需要的值逐个set进去。如果有多组需要这样转换的对象，那么就需要做很多只是get&#x2F;set这样无意义的工作。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用ModelMapper的一次踩坑经历">
+<meta property="og:url" content="https://jackeyzhe.github.io/2018/09/11/%E4%BD%BF%E7%94%A8ModelMapper%E7%9A%84%E4%B8%80%E6%AC%A1%E8%B8%A9%E5%9D%91%E7%BB%8F%E5%8E%86/index.html">
+<meta property="og:site_name" content="Jackeyzhe&#39;s Blog">
+<meta property="og:description" content="在实际项目中，我们常常需要把两个相似的对象相互转换，其目的是在对外提供数据时需要将一部分敏感数据（例如：密码、加密token等）隐藏起来。最普通的方法是，新建一个对象，将需要的值逐个set进去。如果有多组需要这样转换的对象，那么就需要做很多只是get&#x2F;set这样无意义的工作。">
+<meta property="og:locale">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1536677296/Blog/ModelMapper/ModelMapper1.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1536678691/Blog/ModelMapper/ModelMapper2.png">
+<meta property="article:published_time" content="2018-09-11T14:08:32.000Z">
+<meta property="article:modified_time" content="2024-12-06T17:02:53.000Z">
+<meta property="article:author" content="Jackey Wang">
+<meta property="article:tag" content="Java">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1536677296/Blog/ModelMapper/ModelMapper1.png">
+
+
+<link rel="canonical" href="https://jackeyzhe.github.io/2018/09/11/%E4%BD%BF%E7%94%A8ModelMapper%E7%9A%84%E4%B8%80%E6%AC%A1%E8%B8%A9%E5%9D%91%E7%BB%8F%E5%8E%86/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-Hans","comments":true,"permalink":"https://jackeyzhe.github.io/2018/09/11/%E4%BD%BF%E7%94%A8ModelMapper%E7%9A%84%E4%B8%80%E6%AC%A1%E8%B8%A9%E5%9D%91%E7%BB%8F%E5%8E%86/","path":"2018/09/11/使用ModelMapper的一次踩坑经历/","title":"使用ModelMapper的一次踩坑经历"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>使用ModelMapper的一次踩坑经历 | Jackeyzhe's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script size="300" alpha="0.6" zIndex="1" src="https://cdnjs.cloudflare.com/ajax/libs/ribbon.js/1.0.2/ribbon.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Jackeyzhe's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Jackeyzhe's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">靠脸吃饭</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section">Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section">Tags<span class="badge">14</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section">Archives<span class="badge">109</span></a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section">About</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Jackey Wang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">109</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Jackeyzhe" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:jackeyzhe59@gmail.com" title="E-Mail → mailto:jackeyzhe59@gmail.com" rel="noopener me" target="_blank"><i class="fas fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/jackeyzhe" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i>StackOverflow</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2018/09/11/%E4%BD%BF%E7%94%A8ModelMapper%E7%9A%84%E4%B8%80%E6%AC%A1%E8%B8%A9%E5%9D%91%E7%BB%8F%E5%8E%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Jackey Wang">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="使用ModelMapper的一次踩坑经历 | Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          使用ModelMapper的一次踩坑经历
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-09-11 22:08:32" itemprop="dateCreated datePublished" datetime="2018-09-11T22:08:32+08:00">2018-09-11</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>7.2k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>7 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在实际项目中，我们常常需要把两个相似的对象相互转换，其目的是在对外提供数据时需要将一部分敏感数据（例如：密码、加密token等）隐藏起来。最普通的方法是，新建一个对象，将需要的值逐个set进去。如果有多组需要这样转换的对象，那么就需要做很多只是get/set这样无意义的工作。<span id="more"></span></p>
+<p>在这样的背景下，ModelMapper诞生了，它是一个简单、高效、智能的对象映射工具。它的使用非常简单，首先添加maven依赖</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">  &lt;groupId&gt;org.modelmapper&lt;/groupId&gt;</span><br><span class="line">  &lt;artifactId&gt;modelmapper&lt;/artifactId&gt;</span><br><span class="line">  &lt;version&gt;<span class="number">2.1</span><span class="number">.1</span>&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+<p>然后就可以直接new出一个ModelMapper对象，并且调用其map方法将指定对象的值映射到另一个对象上了。</p>
+<p>使用方法今天不做过多介绍，大家可以自行Google，找到ModelMapper的相关文档进行学习。今天要分享的时前几天无意间踩到的一个坑。我有两个类，PostDO和PostVO（这里只截取了部分字段，因此两个类的含义也不做解释了）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PostDO</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> Long id;</span><br><span class="line">    <span class="keyword">private</span> String commentId;</span><br><span class="line">    <span class="keyword">private</span> Long postId;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> likeNum;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PostVO</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> Long id;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">boolean</span> like;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> likeNum;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在一个方法中，我试图将PostDO的一个对象映射到PostVO，因此我进行如下操作：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Application</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">ModelMapper</span> <span class="variable">modelMapper</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ModelMapper</span>();</span><br><span class="line">        <span class="type">PostDO</span> <span class="variable">postDO</span> <span class="operator">=</span> PostDO.builder().id(<span class="number">3L</span>).likeNum(<span class="number">0</span>).build();</span><br><span class="line">        <span class="type">PostVO</span> <span class="variable">postVO</span> <span class="operator">=</span> modelMapper.map(postDO, PostVO.class);</span><br><span class="line">        System.out.println(postVO);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行结果是这样的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PostVO(id=<span class="number">3</span>, like=<span class="literal">false</span>, likeNum=<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
+<p>无异常，项目中likeNum字段的值是随着项目的进行递增的。当likeNum增加到2时，异常出现了：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">Exception in thread <span class="string">&quot;main&quot;</span> org.modelmapper.MappingException: ModelMapper mapping errors:</span><br><span class="line"></span><br><span class="line"><span class="number">1</span>) Converter org.modelmapper.internal.converter.BooleanConverter@497470ed failed to convert <span class="type">int</span> to <span class="type">boolean</span>.</span><br><span class="line"></span><br><span class="line"><span class="number">1</span> error</span><br><span class="line">	at org.modelmapper.internal.Errors.throwMappingExceptionIfErrorsExist(Errors.java:<span class="number">380</span>)</span><br><span class="line">	at org.modelmapper.internal.MappingEngineImpl.map(MappingEngineImpl.java:<span class="number">79</span>)</span><br><span class="line">	at org.modelmapper.ModelMapper.mapInternal(ModelMapper.java:<span class="number">554</span>)</span><br><span class="line">	at org.modelmapper.ModelMapper.map(ModelMapper.java:<span class="number">387</span>)</span><br><span class="line">	at Application.main(Application.java:<span class="number">7</span>)</span><br><span class="line">Caused by: org.modelmapper.MappingException: ModelMapper mapping errors:</span><br><span class="line"></span><br><span class="line"><span class="number">1</span>) Error mapping <span class="number">2</span> to <span class="type">boolean</span></span><br><span class="line"></span><br><span class="line"><span class="number">1</span> error</span><br><span class="line">	at org.modelmapper.internal.Errors.toMappingException(Errors.java:<span class="number">258</span>)</span><br><span class="line">	at org.modelmapper.internal.converter.BooleanConverter.convert(BooleanConverter.java:<span class="number">49</span>)</span><br><span class="line">	at org.modelmapper.internal.converter.BooleanConverter.convert(BooleanConverter.java:<span class="number">27</span>)</span><br><span class="line">	at org.modelmapper.internal.MappingEngineImpl.convert(MappingEngineImpl.java:<span class="number">298</span>)</span><br><span class="line">	at org.modelmapper.internal.MappingEngineImpl.map(MappingEngineImpl.java:<span class="number">108</span>)</span><br><span class="line">	at org.modelmapper.internal.MappingEngineImpl.setDestinationValue(MappingEngineImpl.java:<span class="number">238</span>)</span><br><span class="line">	at org.modelmapper.internal.MappingEngineImpl.propertyMap(MappingEngineImpl.java:<span class="number">184</span>)</span><br><span class="line">	at org.modelmapper.internal.MappingEngineImpl.typeMap(MappingEngineImpl.java:<span class="number">148</span>)</span><br><span class="line">	at org.modelmapper.internal.MappingEngineImpl.map(MappingEngineImpl.java:<span class="number">113</span>)</span><br><span class="line">	at org.modelmapper.internal.MappingEngineImpl.map(MappingEngineImpl.java:<span class="number">70</span>)</span><br><span class="line">	... <span class="number">3</span> more</span><br></pre></td></tr></table></figure>
+<p>提示int类型不能转换成boolean型，很明显。ModelMapper是将like字段映射到likeNum了。那么ModelMapper究竟是怎样进行映射的呢，我们一起来看一下ModelMapper的源码。</p>
+<p>ModelMapper利用反射机制，获取到目标类的字段，并生成期望匹配的键值对，类似于这样。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1536677296/Blog/ModelMapper/ModelMapper1.png" alt="键值对"></p>
+<p>接着对这些键值对进行遍历，逐个寻找源类中可以匹配的字段。首先会根据目标字段判断是否存在对应的映射，</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Mapping</span> <span class="variable">existingMapping</span> <span class="operator">=</span> <span class="built_in">this</span>.typeMap.mappingFor(destPath);</span><br><span class="line"><span class="keyword">if</span> (existingMapping == <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="built_in">this</span>.matchSource(<span class="built_in">this</span>.sourceTypeInfo, mutator);</span><br><span class="line">    <span class="built_in">this</span>.propertyNameInfo.clearSource();</span><br><span class="line">    <span class="built_in">this</span>.sourceTypes.clear();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果不存在，就调用matchSource方法，在源类中根据匹配规则寻找可以匹配的字段。匹配过程中，首先会判断目标字段的类型是否在类型列表中存在，如果存在，则可以根据名称，加入匹配的mappings中。如果不存在，则需要判断converterStore中是否存在能够应用于该字段的转换器。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="built_in">this</span>.destinationTypes.contains(destinationMutator.getType())) &#123;</span><br><span class="line">    <span class="built_in">this</span>.mappings.add(<span class="keyword">new</span> <span class="title class_">PropertyMappingImpl</span>(<span class="built_in">this</span>.propertyNameInfo.getSourceProperties(), <span class="built_in">this</span>.propertyNameInfo.getDestinationProperties(), <span class="literal">true</span>));</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    TypeMap&lt;?, ?&gt; propertyTypeMap = <span class="built_in">this</span>.typeMapStore.get(accessor.getType(), destinationMutator.getType(), (String)<span class="literal">null</span>);</span><br><span class="line">    <span class="type">PropertyMappingImpl</span> <span class="variable">mapping</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">if</span> (propertyTypeMap != <span class="literal">null</span>) &#123;</span><br><span class="line">        Converter&lt;?, ?&gt; propertyConverter = propertyTypeMap.getConverter();</span><br><span class="line">        <span class="keyword">if</span> (propertyConverter == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="built_in">this</span>.mergeMappings(propertyTypeMap);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="built_in">this</span>.mappings.add(<span class="keyword">new</span> <span class="title class_">PropertyMappingImpl</span>(<span class="built_in">this</span>.propertyNameInfo.getSourceProperties(), <span class="built_in">this</span>.propertyNameInfo.getDestinationProperties(), propertyTypeMap.getProvider(), propertyConverter));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        doneMatching = <span class="built_in">this</span>.matchingStrategy.isExact();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="type">Iterator</span> <span class="variable">var9</span> <span class="operator">=</span> <span class="built_in">this</span>.converterStore.getConverters().iterator();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span>(var9.hasNext()) &#123;</span><br><span class="line">            ConditionalConverter&lt;?, ?&gt; converter = (ConditionalConverter)var9.next();</span><br><span class="line">            <span class="type">MatchResult</span> <span class="variable">matchResult</span> <span class="operator">=</span> converter.match(accessor.getType(), destinationMutator.getType());</span><br><span class="line">            <span class="keyword">if</span> (!MatchResult.NONE.equals(matchResult)) &#123;</span><br><span class="line">                mapping = <span class="keyword">new</span> <span class="title class_">PropertyMappingImpl</span>(<span class="built_in">this</span>.propertyNameInfo.getSourceProperties(), <span class="built_in">this</span>.propertyNameInfo.getDestinationProperties(), <span class="literal">false</span>);</span><br><span class="line">                <span class="keyword">if</span> (MatchResult.FULL.equals(matchResult)) &#123;</span><br><span class="line">                    <span class="built_in">this</span>.mappings.add(mapping);</span><br><span class="line">                    doneMatching = <span class="built_in">this</span>.matchingStrategy.isExact();</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (!<span class="built_in">this</span>.configuration.isFullTypeMatchingRequired()) &#123;</span><br><span class="line">                    <span class="built_in">this</span>.partiallyMatchedMappings.add(mapping);</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (mapping == <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="built_in">this</span>.intermediateMappings.put(accessor, <span class="keyword">new</span> <span class="title class_">PropertyMappingImpl</span>(<span class="built_in">this</span>.propertyNameInfo.getSourceProperties(), <span class="built_in">this</span>.propertyNameInfo.getDestinationProperties(), <span class="literal">false</span>));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>默认的转换器有11中：</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1536678691/Blog/ModelMapper/ModelMapper2.png" alt="转换器"></p>
+<p>找到对应的converter后，converter的map方法返回一个MatchResult，MatchResult有三种结果：FULL、PARTIAL和NONE（即全部匹配，部分匹配和不匹配）。注意，这里有一个部分匹配，也就是我所踩到的坑，在对like进行匹配是，likeNum就被定义为部分匹配。因此，当likeNum大于2时，就不能被转换成boolean类型。</p>
+<p>这里解决方法有两种，一种是在设置中，规定必须字段名完全匹配；另一种就是将匹配策略定义为严格。</p>
+<p>设置方法如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">modelMapper.getConfiguration().setFullTypeMatchingRequired(<span class="literal">true</span>);</span><br><span class="line">modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);</span><br></pre></td></tr></table></figure>
+<p>到这里，ModelMapper会选出较为合适的源字段，但是如果匹配要求不高的话，ModelMapper可能会筛选出多个符合条件的字段，因此，还需要进一步过滤。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">PropertyMappingImpl mapping;</span><br><span class="line"><span class="keyword">if</span> (<span class="built_in">this</span>.mappings.size() == <span class="number">1</span>) &#123;</span><br><span class="line">    mapping = (PropertyMappingImpl)<span class="built_in">this</span>.mappings.get(<span class="number">0</span>);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    mapping = <span class="built_in">this</span>.disambiguateMappings();</span><br><span class="line">    <span class="keyword">if</span> (mapping == <span class="literal">null</span> &amp;&amp; !<span class="built_in">this</span>.configuration.isAmbiguityIgnored()) &#123;</span><br><span class="line">        <span class="built_in">this</span>.errors.ambiguousDestination(<span class="built_in">this</span>.mappings);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里我们看到，如果匹配到的结果只有1个，那么就返回这个结果；如果有多个，则会调用disambiguateMappings方法，去掉有歧义的结果。我们来看一下这个方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> PropertyMappingImpl <span class="title function_">disambiguateMappings</span><span class="params">()</span> &#123;</span><br><span class="line">    List&lt;ImplicitMappingBuilder.WeightPropertyMappingImpl&gt; weightMappings = <span class="keyword">new</span> <span class="title class_">ArrayList</span>(<span class="built_in">this</span>.mappings.size());</span><br><span class="line">    <span class="type">Iterator</span> <span class="variable">var2</span> <span class="operator">=</span> <span class="built_in">this</span>.mappings.iterator();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(var2.hasNext()) &#123;</span><br><span class="line">        <span class="type">PropertyMappingImpl</span> <span class="variable">mapping</span> <span class="operator">=</span> (PropertyMappingImpl)var2.next();</span><br><span class="line">        ImplicitMappingBuilder.<span class="type">SourceTokensMatcher</span> <span class="variable">matcher</span> <span class="operator">=</span> <span class="built_in">this</span>.createSourceTokensMatcher(mapping);</span><br><span class="line">        ImplicitMappingBuilder.<span class="type">DestTokenIterator</span> <span class="variable">destTokenIterator</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ImplicitMappingBuilder</span>.DestTokenIterator(mapping);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span>(destTokenIterator.hasNext()) &#123;</span><br><span class="line">            matcher.match(destTokenIterator.next());</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="type">double</span> <span class="variable">matchRatio</span> <span class="operator">=</span> (<span class="type">double</span>)matcher.matches() / ((<span class="type">double</span>)matcher.total() + (<span class="type">double</span>)destTokenIterator.total());</span><br><span class="line">        weightMappings.add(<span class="keyword">new</span> <span class="title class_">ImplicitMappingBuilder</span>.WeightPropertyMappingImpl(mapping, matchRatio));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    Collections.sort(weightMappings);</span><br><span class="line">    <span class="keyword">if</span> (((ImplicitMappingBuilder.WeightPropertyMappingImpl)weightMappings.get(<span class="number">0</span>)).ratio == ((ImplicitMappingBuilder.WeightPropertyMappingImpl)weightMappings.get(<span class="number">1</span>)).ratio) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> ((ImplicitMappingBuilder.WeightPropertyMappingImpl)weightMappings.get(<span class="number">0</span>)).mapping;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>ModelMapper定义了一个权重，来判断源字段是否有歧义，这里根据驼峰式的规则（也可以设置为下划线），将源和目标字段名称进行拆分，根据 匹配数量/源token数+目标token数，得到一个匹配的比率，比率越大，说明匹配度越高。最终取得匹配权重最大的那个字段。其他字段被认为是有歧义的。</p>
+<p>截至目前，默认的ModelMapper的map方法的工作原理已经介绍完了，中间可能有些遗漏的细节，或者哪里有说的不明白的地方，欢迎大家和我一起讨论。大家在用到ModelMapper时一定要注意字段名，如果有相近的字段名，必须认真核对匹配是否正确，必要时就采用严格匹配策略。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>Buy me a coffee</div>
+  <button>
+    Donate
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/weixinpay.jpg" alt="Jackey Wang WeChat Pay">
+        <span>WeChat Pay</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Jackey Wang Alipay">
+        <span>Alipay</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="followme">
+  <span>Welcome to my other publishing channels</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <span class="social-link">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </span>
+
+          <img class="social-item-img" src="/images/wechat-qcode.jpg">
+      </div>
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Java/" rel="tag"><i class="fa fa-tag"></i> Java</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/09/08/%E4%BB%A3%E7%A0%81%E6%B4%81%E7%99%96%E7%B3%BB%E5%88%97%EF%BC%88%E5%85%AB%EF%BC%89%EF%BC%9A%E8%BF%AD%E4%BB%A3%E7%9A%84%E5%8E%9F%E5%88%99/" rel="prev" title="代码洁癖系列（八）：迭代的原则">
+                  <i class="fa fa-angle-left"></i> 代码洁癖系列（八）：迭代的原则
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/09/12/%E9%80%81%E7%BB%99%E4%BD%A0%E7%9A%84%E7%AE%97%E6%B3%95%E6%95%B2%E9%97%A8%E7%A0%96/" rel="next" title="送给你的算法敲门砖">
+                  送给你的算法敲门砖 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Jackey Wang</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Word count total">477k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">7:13</span>
+  </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/Jackeyzhe" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

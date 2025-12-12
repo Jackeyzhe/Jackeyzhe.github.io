@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"jackeyzhe.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"github-dark","dark":"github-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="警告：本文内容是入门级的，大佬请按秩序有序撤离。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【译】给小白准备的Web架构基础知识">
+<meta property="og:url" content="https://jackeyzhe.github.io/2019/04/21/%E3%80%90%E8%AF%91%E3%80%91Web%E6%9E%B6%E6%9E%84101/index.html">
+<meta property="og:site_name" content="Jackeyzhe&#39;s Blog">
+<meta property="og:description" content="警告：本文内容是入门级的，大佬请按秩序有序撤离。">
+<meta property="og:locale">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1555598840/Blog/Other/Web%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E6%A6%82%E8%A7%88.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1555736263/Blog/Other/user_user_address.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1555779106/Blog/Other/full_text_search.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1555779121/Blog/Other/cdn.png">
+<meta property="article:published_time" content="2019-04-20T16:55:05.000Z">
+<meta property="article:modified_time" content="2024-12-06T17:02:53.000Z">
+<meta property="article:author" content="Jackey Wang">
+<meta property="article:tag" content="技术杂谈">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1555598840/Blog/Other/Web%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E6%A6%82%E8%A7%88.png">
+
+
+<link rel="canonical" href="https://jackeyzhe.github.io/2019/04/21/%E3%80%90%E8%AF%91%E3%80%91Web%E6%9E%B6%E6%9E%84101/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-Hans","comments":true,"permalink":"https://jackeyzhe.github.io/2019/04/21/%E3%80%90%E8%AF%91%E3%80%91Web%E6%9E%B6%E6%9E%84101/","path":"2019/04/21/【译】Web架构101/","title":"【译】给小白准备的Web架构基础知识"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【译】给小白准备的Web架构基础知识 | Jackeyzhe's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script size="300" alpha="0.6" zIndex="1" src="https://cdnjs.cloudflare.com/ajax/libs/ribbon.js/1.0.2/ribbon.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Jackeyzhe's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Jackeyzhe's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">靠脸吃饭</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section">Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section">Tags<span class="badge">14</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section">Archives<span class="badge">109</span></a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section">About</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-DNS"><span class="nav-number">1.</span> <span class="nav-text">1. DNS</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-Load-Balancer"><span class="nav-number">2.</span> <span class="nav-text">2. Load Balancer</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-Web-Application-Servers"><span class="nav-number">3.</span> <span class="nav-text">3. Web Application Servers</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-Database-Servers"><span class="nav-number">4.</span> <span class="nav-text">4. Database Servers</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-Caching-Service"><span class="nav-number">5.</span> <span class="nav-text">5. Caching Service</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-Job-Queue-amp-Servers"><span class="nav-number">6.</span> <span class="nav-text">6. Job Queue &amp; Servers</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7-Full-text-Search-Service"><span class="nav-number">7.</span> <span class="nav-text">7. Full-text Search Service</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#8-Services"><span class="nav-number">8.</span> <span class="nav-text">8. Services</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#9-Data"><span class="nav-number">9.</span> <span class="nav-text">9. Data</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#10-Cloud-storage"><span class="nav-number">10.</span> <span class="nav-text">10. Cloud storage</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#11-CDN"><span class="nav-number">11.</span> <span class="nav-text">11. CDN</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">12.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Jackey Wang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">109</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Jackeyzhe" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:jackeyzhe59@gmail.com" title="E-Mail → mailto:jackeyzhe59@gmail.com" rel="noopener me" target="_blank"><i class="fas fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/jackeyzhe" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i>StackOverflow</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2019/04/21/%E3%80%90%E8%AF%91%E3%80%91Web%E6%9E%B6%E6%9E%84101/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Jackey Wang">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【译】给小白准备的Web架构基础知识 | Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【译】给小白准备的Web架构基础知识
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-04-21 00:55:05" itemprop="dateCreated datePublished" datetime="2019-04-21T00:55:05+08:00">2019-04-21</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>5.2k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>5 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>警告：本文内容是入门级的，大佬请按秩序有序撤离。<span id="more"></span></p>
+<p>原文地址：<a target="_blank" rel="noopener" href="https://engineering.videoblocks.com/web-architecture-101-a3224e126947">Web Architecture 101</a></p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1555598840/Blog/Other/Web%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E6%A6%82%E8%A7%88.png" alt="Web应用架构概览"></p>
+<p>上图很好的展示了我们在Storyblocks的架构。如果你是一个新手工程师，可能会觉得这个架构非常复杂。在我们深入研究每个组件的细节之前，首先应该对它们有个大概的了解。</p>
+<blockquote>
+<p>当一个用户在Google搜索“<em>Strong Beautiful Fog And Sunbeams In The Forest</em>”时，<a target="_blank" rel="noopener" href="https://www.storyblocks.com/stock-image/strong-beautiful-fog-and-sunbeams-in-the-forest-bxxg0dvxdzj6gt9ini">第一条结果</a>来自<em>Storyblocks</em>，我们主要的照片网站。用户点击结果就会在浏览器中跳转到图片详情页。在引擎下，用户的浏览器想DNS服务器发送一个请求，查询如何连接<em>Storyblocks</em>，然后向<em>Storyblocks</em>发送请求。</p>
+<p>请求会先到达我们的负载均衡器，负载均衡器会随机选择一个正在运行的服务器来处理请求。服务器先从缓存中查找一部分关于图片的信息，并从数据库查找剩余信息。我们注意到此时还没有对图片的颜色进行配置，因此我们发送“<em>color profile</em>”任务到我们的任务队列，处理任务的服务器会异步执行队列中的任务，并且将结果适时更新到数据库中。</p>
+<p>接下来，我们试图从使用照片标题在全文检索服务中找到与输入的照片相似的照片。如果登录用户是<em>Storyblocks</em>的会员，我们会去账号服务中查找用户的相关信息。最后，我们会把页面访问数据发送到数据“<em>firehose</em>”，以便存储到我们的云存储系统上，并最终落地到数据仓库中。数据分析师会使用数据仓库中的数据来解决商业问题。</p>
+<p>到这里，服务器已经呈现了一个HTML页面，并通过负载均衡器将它返回给用户。页面包含的JavaScript和CSS会放到连接了CDN的云存储系统中，所以用户的浏览器连接CDN取回数据。最后，由浏览器给用户呈现完整的页面。</p>
+</blockquote>
+<p>接下来，我会对每个组件挨个进行简单的介绍，以求给你建立一个良好的关于学习架构的思维模型。我会在另外一个系列的文章中分享我在Storyblocks这段时间的实践经验，给你提供良好的建议。</p>
+<h4 id="1-DNS"><a href="#1-DNS" class="headerlink" title="1. DNS"></a>1. DNS</h4><p>DNS是“Domain Name System”的缩写，它是使万维网成为可能的核心技术。最基础的DNS提供了域名（例如google.com）和IP地址的（例如85.129.83.120）的键值对以供查找，这是计算机路由请求到指定服务器所必需的。类别电话号码，域名和IP地址的区别就像是“打给哲少”和“拨打201-867–5309”。就像过去你需要一个电话本来查找哲少的电话号码，如今你需要DNS服务器来查找域名对应的IP地址。所以你可以认为DNS就是互联网上的电话本。</p>
+<p>关于DNS的细节我们还可以展开讲很多，但这里我们略过，因为这不是入门级介绍所关心的。</p>
+<h4 id="2-Load-Balancer"><a href="#2-Load-Balancer" class="headerlink" title="2. Load Balancer"></a>2. Load Balancer</h4><p>在介绍负载均衡器之前，我们先来讨论一下应用的水平和垂直扩展。它们有什么不同呢？<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/11707879/difference-between-scaling-horizontally-and-vertically-for-databases">这篇帖子</a>介绍的很明白，水平扩展是通过向资源池中增加更多的机器，垂直扩展是在已有的机器中增加更高的配置（CPU、内存等）。</p>
+<p>在Web开发中，为了应对服务器宕机，网络波动，数据中心不可用等突发情况，你一定经常使用横向扩展，因为它既简单又快捷。拥有一台以上的服务器使你的应用程序在部分服务器掉电时仍然可以正常运行。换句话说，你的程序具有较好的容错性。其次，横向扩展允许你通过让每个部分运行在不同的服务器上来解耦后端的依赖（Web服务器、数据库、服务 X等）。最后，当你的服务器达到一定规模时可能无法再进行垂直扩展。因为这个世界上没有任何一台计算机的性能好到可以支撑你所有应用的计算。举一个典型的栗子——Google的搜索平台。当然一原则对于多数规模较小的公司也适用，例如Storyblocks就部署了150到400个AWS EC2实例。对于这样的情况，要想通过垂直扩展来提供全部计算是一项艰难的挑战。</p>
+<p>我们再说回负载均衡器，它们使水平扩展成为可能。它们将传入进来的请求路由到众多服务器中的一个，并将响应结果返回给客户端。这些服务器通常是彼此的克隆或镜像，它们中的任何一个都应该以相同的方式处理，这样就通过分发请求的方式解决避免某台机器出现过载问题。</p>
+<p>负载均衡的概念非常简单，但是实现起来非常复杂。我们暂且不介绍。</p>
+<h4 id="3-Web-Application-Servers"><a href="#3-Web-Application-Servers" class="headerlink" title="3. Web Application Servers"></a>3. Web Application Servers</h4><p>在上层的Web应用服务描述起来非常简单。它们用来执行主要的业务逻辑，处理用户请求，并将HTML返回到用户的浏览器。为了完成任务，它们通常要与各种后端基础组件交互，比如数据库、缓存、任务队列、检索服务、其他微服务、数据/日志队列等等。如上所述，为了处理用户请求，你至少有两个，通常更多的负载均衡器。</p>
+<p>你应该知道应用服务的实现需要选择一种语言（Node.js、Ruby、PHP、 Scala、 Java、 C# 、.NET等）和对应MVC框架（Node.js的Express，Ruby的Rails，Scala的Play，PHP的Laravel等）。然而深挖这些语言和框架的细节也超出了本文的讨论范围。</p>
+<h4 id="4-Database-Servers"><a href="#4-Database-Servers" class="headerlink" title="4. Database Servers"></a>4. Database Servers</h4><p>每个Web应用项目都利用一个或多个数据库来存储信息。数据库提供了定义数据结构、对数据的增删改查、跨数据计算的方法。多数情况下，Web应用服务器和任务队列直接通信。另外每个后端服务可能都拥有独立的数据库。</p>
+<p>虽然我一直强调本文不会介绍某个组件的细节，但是如果不提SQL和NOSQL也是一种不负责任的行为。</p>
+<p>SQL的全称是“结构化查询语言”，它在18世纪70年代被发明。它给大家提供了查询关系型数据集的标准方法。SQL数据库将数据存储在通过公共ID（通常是整数）连接在一起的表中。让我们来看一个存储用户历史地址信息的例子。你可能需要两张表，用户表和用户地址表，它们通过用户ID连接在一起。下图展示了一个简化版本。两个表通过外键连接。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1555736263/Blog/Other/user_user_address.png" alt="SQL databases"></p>
+<p>如果你不是很了解SQL，我强烈推荐你学习一下Khan Academy的<a target="_blank" rel="noopener" href="https://www.khanacademy.org/computing/computer-programming/sql">一门课程</a>。SQL现在已经非常普及了，因此你至少要了解一些基础知识才能构建你的应用程序。</p>
+<p>NoSQL代表“非SQL”，是一种新的数据库技术集，用于处理大规模Web应用产生的大量数据（大多数SQL不支持水平扩展，并且垂直扩展也只能扩展到某个点）。如果你不了解NoSQL，可以看下面这些介绍：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.w3resource.com/mongodb/nosql.php">https://www.w3resource.com/mongodb/nosql.php</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.kdnuggets.com/2016/07/seven-steps-understanding-nosql-databases.html">http://www.kdnuggets.com/2016/07/seven-steps-understanding-nosql-databases.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://resources.mongodb.com/getting-started-with-mongodb/back-to-basics-1-introduction-to-nosql">https://resources.mongodb.com/getting-started-with-mongodb/back-to-basics-1-introduction-to-nosql</a></li>
+</ul>
+<p>但是总的来说，业界还是要将<a target="_blank" rel="noopener" href="https://blog.timescale.com/why-sql-beating-nosql-what-this-means-for-future-of-data-time-series-database-348b777b847a/">SQL作为数据库的统一接口</a>，即使是对菲关系型数据库，所以如果你还不了解SQL的话，就真的要赶快去学习一下了。</p>
+<h4 id="5-Caching-Service"><a href="#5-Caching-Service" class="headerlink" title="5. Caching Service"></a>5. Caching Service</h4><p>缓存服务提供了简单的kv存储数据，尽可能使保存和查找数据的时间复杂度接近O(1)。应用程序一般把计算比较复杂的结果保存到缓存服务中，以便再次取值时直接从缓存中读取而不用重新进行复杂的计算。应用可能缓存的信息包括，数据库查询的结果，调用外部服务的返回值，一个URL返回的HTML等等。下面是一些实际的例子：</p>
+<ul>
+<li>Google会将搜索结果缓存</li>
+<li>Facebook在你登录后会缓存你看到的大部分信息，比如帖子、好友等。关于Facebook的缓存技术缓存可以看<a target="_blank" rel="noopener" href="https://medium.com/@shagun/scaling-memcache-at-facebook-1ba77d71c082">这篇文章</a></li>
+<li>Storyblocks缓存来自服务器端React渲染，搜索结果和预输入结果等的HTML输出。</li>
+</ul>
+<p>目前应用最广泛的两种缓存服务是Redis和Memcache。我会在另一篇文章中对它们进行更深入的介绍。</p>
+<h4 id="6-Job-Queue-amp-Servers"><a href="#6-Job-Queue-amp-Servers" class="headerlink" title="6. Job Queue &amp; Servers"></a>6. Job Queue &amp; Servers</h4><p>很多应用程序需要在后台异步处理一些和返回结果无关的逻辑。比如，Google为了提供搜索服务，需要爬取网页并进行索引。它并不是在你每次搜索的时候都去做这件事，而是异步爬取，并更新索引。</p>
+<p>虽然现在有很多不同的架构都支持异步操作，但最普及的是我所说的“任务队列”架构。它包含两个组件：一个任务队列和至少一个任务服务器来执行队列中的任务。</p>
+<p>任务队列通常保存一系列需要异步执行的任务。最简单的规则是先进先出（FIFO），大多数应用按照优先级给任务排序。当应用需要执行一个任务时，无论是定时任务还是用户操作，都会把任务放到队列中去。</p>
+<p>还拿Storyblocks举例，我们使用一个后台的任务队列为我们的市场提供支持。我们会跑一些视频图片解码，处理CSV元数据标记，汇总用户统计信息，发送重置密码邮件等任务。我们一开始采用FIFO的原则，后来改为优先级队列，以保证有些具有时效性的任务能尽快完成，比如发送重置密码邮件。</p>
+<p>任务服务器用来处理任务。它们轮询任务队列以确定是否有任务要执行以及是否有任务，如果有，就从任务队列中弹出一个任务来执行。底层语言和框架的选择非常多，但它们不在本文讨论范围。</p>
+<h4 id="7-Full-text-Search-Service"><a href="#7-Full-text-Search-Service" class="headerlink" title="7. Full-text Search Service"></a>7. Full-text Search Service</h4><p>许多web应用支持某种搜索功能——用户输入文本，应用返回“相关”的结果。支撑这种功能的技术一般称为<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Full-text_search">全文检索</a>，它利用<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Inverted_index">反向索引</a>快速找到包含关键字的文档。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1555779106/Blog/Other/full_text_search.png" alt="Example showing how three document titles are converted into an inverted index to facilitate fast lookup from a specific keyword to the documents with that keyword in the title. Note, common words such as “in”, “the”, “with”, etc. (called stop words), are typically not included in an inverted index."></p>
+<p>现在某些数据库也支持检索功能（比如<a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/5.7/en/fulltext-search.html">MySQL已经支持全文检索</a>），通常是运行独立的搜索服务来计算和存储反向索引，并提供查询接口。目前最受欢迎的全文检索平台是<a target="_blank" rel="noopener" href="https://www.elastic.co/products/elasticsearch">Elasticsearch</a>，另外还有一些其他比较好的平台 例如<a target="_blank" rel="noopener" href="http://sphinxsearch.com/">Sphinx</a>和<a target="_blank" rel="noopener" href="http://lucene.apache.org/solr/features.html">Apache Solr</a>。</p>
+<h4 id="8-Services"><a href="#8-Services" class="headerlink" title="8. Services"></a>8. Services</h4><p>一旦一个APP达到一定的规模，就会有某些服务被独立出来运行。它们不会对外暴露，但是可以和应用内部的服务之间交互。Storyblocks有几个运营和计划的服务：</p>
+<ul>
+<li><strong>Account service</strong>存储我们所有网站上的用户数据，这使我们可以更轻松的提供交叉销售机会并创建更统一的用户体验</li>
+<li><strong>Content service</strong>存储我们所有的视频、音频和图片的元数据。也提供了下载接口和查看历史下载记录的接口。</li>
+<li><strong>Payment service</strong>提供对用户信用卡进行计费的接口</li>
+<li><strong>HTML → PDF service</strong>提供了一个简单的HTML转PDF的接口</li>
+</ul>
+<h4 id="9-Data"><a href="#9-Data" class="headerlink" title="9. Data"></a>9. Data</h4><p>当下，一家公司的生死由他们驾驭数据的能力决定。如今几乎每个APP一旦达到一定规模，就需要通过数据管道来收集、存储和分析数据。典型的管道有三个步骤：</p>
+<ol>
+<li>APP发送数据，典型的关于用户交互的事件，数据发送到“firehose”——提供获取和处理数据的接口。原始数据通常需要进行转换、增强并发送到另一个firehose。AWS Kinesis和Kafka是两个公共工具。</li>
+<li>原始数据和转换/增强后的数据都被保存到云端。AWS Kinesis提供了一个名为firehose的设置，可以将原始数据保存到其云存储（S3），配置起来非常容易。</li>
+<li>转换/增强后的数据通常会被加载进数据仓库用作数据分析。我们使用的是AWS Redshift，大部分创业公司和增长的部分也是如此，尽管大公司会使用Oracle或其他专有的仓库技术。</li>
+</ol>
+<p>另外一个没有在架构图中画出来的一个步骤：将数据从应用程序和服务的操作数据库加载到数据仓库中。例如在Storyblocks，我们每晚将VideoBlocks, AudioBlocks, Storyblocks, account service和贡献值门户网站的数据加载到Redshift。通过将核心业务数据与我们的用户交互事件数据放在一起，为我们的分析师提供了一整个数据集。</p>
+<h4 id="10-Cloud-storage"><a href="#10-Cloud-storage" class="headerlink" title="10. Cloud storage"></a>10. Cloud storage</h4><p>“云存储是一种简单、可靠且可扩展的存储、检索和共享数据的方法”——来自AWS。你可以使用它存储或多或少的存储和访问本地文件系统的任何内容，并且可以通过HTTP上的RESTful API与其进行交互。Amazon的S3是目前最流行的云存储产品，也是我们在Storyblocks广泛依赖的产品，用于存储我们的视频、照片和音频资产，我们的CSS和JavaScript，我们的用户数据等等。</p>
+<h4 id="11-CDN"><a href="#11-CDN" class="headerlink" title="11. CDN"></a>11. CDN</h4><p>CDN的全称是“Content Delivery Network”，该技术提供了通过Web获取静态HTML，CSS，JavaScript和图像资源的方式，比直接从单个源服务器提供服务要快得多。它的工作原理是在世界各地的许多“边缘”服务器上分发内容，以便用户从“边缘”服务器而不是源服务器下载资源。例如下图中，一个用户从西班牙请求源服务器在纽约的网站，但是静态资源会从在英国的CDN边缘服务器加载，防止许多缓慢的跨大西洋HTTP请求。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1555779121/Blog/Other/cdn.png" alt="cdn"></p>
+<p><a target="_blank" rel="noopener" href="https://www.creative-artworks.eu/why-use-a-content-delivery-network-cdn/">这篇文章</a>进行了更详尽的介绍。通常web应用应该始终使用CDN来提供CSS，JavaScript，图片，视频和其他资源。某些应用也可能利用CDN来提供静态HTML页面。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>这是一篇入门级的Web架构总结。希望能够对你有帮助。我希望发布一系列的进阶文章，在接下来一两年内我会对这些组件进行深入研究。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>Buy me a coffee</div>
+  <button>
+    Donate
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/weixinpay.jpg" alt="Jackey Wang WeChat Pay">
+        <span>WeChat Pay</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Jackey Wang Alipay">
+        <span>Alipay</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="followme">
+  <span>Welcome to my other publishing channels</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <span class="social-link">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </span>
+
+          <img class="social-item-img" src="/images/wechat-qcode.jpg">
+      </div>
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E6%8A%80%E6%9C%AF%E6%9D%82%E8%B0%88/" rel="tag"><i class="fa fa-tag"></i> 技术杂谈</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/04/18/%E8%B5%B0%E8%BF%91%E6%BA%90%E7%A0%81%EF%BC%9ARedis%E8%B7%B3%E8%B7%83%E5%88%97%E8%A1%A8%E7%A9%B6%E7%AB%9F%E6%80%8E%E4%B9%88%E8%B7%B3/" rel="prev" title="走近源码：Redis跳跃列表究竟怎么跳">
+                  <i class="fa fa-angle-left"></i> 走近源码：Redis跳跃列表究竟怎么跳
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/04/27/%E9%80%9F%E5%BA%A6%E4%B8%8D%E5%A4%9F%EF%BC%8C%E7%AE%A1%E9%81%93%E6%9D%A5%E5%87%91%E2%80%94%E2%80%94Redis%E7%AE%A1%E9%81%93%E6%8A%80%E6%9C%AF/" rel="next" title="速度不够，管道来凑——Redis管道技术">
+                  速度不够，管道来凑——Redis管道技术 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Jackey Wang</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Word count total">477k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">7:13</span>
+  </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/Jackeyzhe" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

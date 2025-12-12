@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"jackeyzhe.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"github-dark","dark":"github-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="Sorted Set（也称ZSET）和Set一样也是string类型的集合，你可以将它理解为Java中SortedSet和HashMap的集合体，一方面它是一个set，保证了元素的唯一性，另一方面它给每个value赋予了一个权重score，用来进行排序。集合中成员的最大个数为232-1个。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis命令详解：Sorted Sets">
+<meta property="og:url" content="https://jackeyzhe.github.io/2019/01/06/Redis%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%EF%BC%9ASorted-Sets/index.html">
+<meta property="og:site_name" content="Jackeyzhe&#39;s Blog">
+<meta property="og:description" content="Sorted Set（也称ZSET）和Set一样也是string类型的集合，你可以将它理解为Java中SortedSet和HashMap的集合体，一方面它是一个set，保证了元素的唯一性，另一方面它给每个value赋予了一个权重score，用来进行排序。集合中成员的最大个数为232-1个。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2019-01-06T11:41:10.000Z">
+<meta property="article:modified_time" content="2024-12-06T17:02:53.000Z">
+<meta property="article:author" content="Jackey Wang">
+<meta property="article:tag" content="Redis命令">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://jackeyzhe.github.io/2019/01/06/Redis%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%EF%BC%9ASorted-Sets/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-Hans","comments":true,"permalink":"https://jackeyzhe.github.io/2019/01/06/Redis%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%EF%BC%9ASorted-Sets/","path":"2019/01/06/Redis命令详解：Sorted-Sets/","title":"Redis命令详解：Sorted Sets"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Redis命令详解：Sorted Sets | Jackeyzhe's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script size="300" alpha="0.6" zIndex="1" src="https://cdnjs.cloudflare.com/ajax/libs/ribbon.js/1.0.2/ribbon.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Jackeyzhe's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Jackeyzhe's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">靠脸吃饭</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section">Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section">Tags<span class="badge">14</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section">Archives<span class="badge">109</span></a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section">About</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#BZPOPMAX"><span class="nav-number">1.</span> <span class="nav-text">BZPOPMAX</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#BZPOPMIN"><span class="nav-number">2.</span> <span class="nav-text">BZPOPMIN</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZADD"><span class="nav-number">3.</span> <span class="nav-text">ZADD</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%88%86%E6%95%B0%E7%9A%84%E8%8C%83%E5%9B%B4"><span class="nav-number">3.1.</span> <span class="nav-text">分数的范围</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%9B%B8%E5%90%8C%E5%88%86%E6%95%B0%E7%9A%84%E6%88%90%E5%91%98"><span class="nav-number">3.2.</span> <span class="nav-text">相同分数的成员</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZCARD"><span class="nav-number">4.</span> <span class="nav-text">ZCARD</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZCOUNT"><span class="nav-number">5.</span> <span class="nav-text">ZCOUNT</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZINCRBY"><span class="nav-number">6.</span> <span class="nav-text">ZINCRBY</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZINTERSTORE"><span class="nav-number">7.</span> <span class="nav-text">ZINTERSTORE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZLEXCOUNT"><span class="nav-number">8.</span> <span class="nav-text">ZLEXCOUNT</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZPOPMAX"><span class="nav-number">9.</span> <span class="nav-text">ZPOPMAX</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZPOPMIN"><span class="nav-number">10.</span> <span class="nav-text">ZPOPMIN</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZRANGE"><span class="nav-number">11.</span> <span class="nav-text">ZRANGE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZRANGEBYLEX"><span class="nav-number">12.</span> <span class="nav-text">ZRANGEBYLEX</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZRANGEBYSCORE"><span class="nav-number">13.</span> <span class="nav-text">ZRANGEBYSCORE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZRANK"><span class="nav-number">14.</span> <span class="nav-text">ZRANK</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZREM"><span class="nav-number">15.</span> <span class="nav-text">ZREM</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZREMRANGEBYLEX"><span class="nav-number">16.</span> <span class="nav-text">ZREMRANGEBYLEX</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZREMRANGEBYRANK"><span class="nav-number">17.</span> <span class="nav-text">ZREMRANGEBYRANK</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZREMRANGEBYSCORE"><span class="nav-number">18.</span> <span class="nav-text">ZREMRANGEBYSCORE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZREVRANGE"><span class="nav-number">19.</span> <span class="nav-text">ZREVRANGE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZREVRANGEBYLEX"><span class="nav-number">20.</span> <span class="nav-text">ZREVRANGEBYLEX</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZREVRANK"><span class="nav-number">21.</span> <span class="nav-text">ZREVRANK</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZSCAN"><span class="nav-number">22.</span> <span class="nav-text">ZSCAN</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZSCORE"><span class="nav-number">23.</span> <span class="nav-text">ZSCORE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZUNIONSTORE"><span class="nav-number">24.</span> <span class="nav-text">ZUNIONSTORE</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Jackey Wang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">109</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Jackeyzhe" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:jackeyzhe59@gmail.com" title="E-Mail → mailto:jackeyzhe59@gmail.com" rel="noopener me" target="_blank"><i class="fas fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/jackeyzhe" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i>StackOverflow</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2019/01/06/Redis%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%EF%BC%9ASorted-Sets/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Jackey Wang">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Redis命令详解：Sorted Sets | Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Redis命令详解：Sorted Sets
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-01-06 19:41:10" itemprop="dateCreated datePublished" datetime="2019-01-06T19:41:10+08:00">2019-01-06</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>5.6k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>5 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>Sorted Set（也称ZSET）和Set一样也是string类型的集合，你可以将它理解为Java中SortedSet和HashMap的集合体，一方面它是一个set，保证了元素的唯一性，另一方面它给每个value赋予了一个权重score，用来进行排序。集合中成员的最大个数为2<sup>32</sup>-1个。<span id="more"></span></p>
+<h4 id="BZPOPMAX"><a href="#BZPOPMAX" class="headerlink" title="BZPOPMAX"></a>BZPOPMAX</h4><p>最早可用版本：5.0.0</p>
+<p>时间复杂度：O(log(N))，N是元素个数</p>
+<p>用法：BZPOPMAX key [key …] timeout</p>
+<p>BZPOPMAX是ZPOPMAX的原始阻塞版。如果没有存在sorted set不能pop出元素，则连接会被阻塞。该命令会返回第一个非空的有序set的最高分的元素。</p>
+<p>timeout参数是用来指定最大的阻塞时间，如果是0，则无限阻塞。</p>
+<p>当没有元素被pop出，并且阻塞时间达到timeout时，返回nil。</p>
+<p>如果有元素被pop出，则返回三个值：第一个是该元素来自哪个zset，第二个是pop元素的score，第三个是pop元素的value。</p>
+<h4 id="BZPOPMIN"><a href="#BZPOPMIN" class="headerlink" title="BZPOPMIN"></a>BZPOPMIN</h4><p>最早可用版本：5.0.0</p>
+<p>时间复杂度：O(log(N))，N是元素个数</p>
+<p>用法：BZPOPMIN key [key …] timeout</p>
+<p>BZPOPMIN是ZPOPMIN的阻塞版本。它与BZPOPMAX相似，唯一不同的是它返回的是第一个非空有序set的最低分的元素。</p>
+<h4 id="ZADD"><a href="#ZADD" class="headerlink" title="ZADD"></a>ZADD</h4><p>最早可用版本：1.2.0</p>
+<p>时间复杂度：O(log(N))，N是元素个数</p>
+<p>用法：ZADD key [NX|XX][CH][INCR]score member [score member …]</p>
+<p>将所有指定的成员和它的score加入zset，如果要插入的成员已经存在，则会更新该成员的分数，并将它排到正确的位置。如果key不存在，则创建一个新的zset并且插入成员。如果key存在，但不是zset类型，就会报错。score是双精度的浮点数，+inf和-inf同样有效。</p>
+<p>在Redis3.2版本之后，ZADD命令支持了以下参数：</p>
+<ul>
+<li>XX：只更新已有的成员，不新增</li>
+<li>NX：只新增成员，不更新</li>
+<li>CH：将返回值从新增成员数修改为发生变化的成员总数</li>
+<li>INCR：当指定这个参数时，ZADD命令和ZINCRBY相似，但是只能接受一个成员的参数</li>
+</ul>
+<h5 id="分数的范围"><a href="#分数的范围" class="headerlink" title="分数的范围"></a>分数的范围</h5><p>Redis的Sorted Set的分数范围从-(2^53)到+(2^53)。或者说是-9007199254740992 到 9007199254740992。更大的整数在内部用指数表示。</p>
+<h5 id="相同分数的成员"><a href="#相同分数的成员" class="headerlink" title="相同分数的成员"></a>相同分数的成员</h5><p>由于所有的成员都是唯一的，当分数相同时，成员将按照字典序进行排序。它比较的是成员的字节数组，当所有成员的分数都相同时，范围查询可以用ZRANGEBYLEX命令（分数范围查询用ZRANGEBYSCORE命令）。</p>
+<p>该命令返回值是新增成员的数量，如果是INCR参数模式，就返回新增成员的分数。</p>
+<p>Redis2.4版本以后该命令才支持指定多个成员/分数对。</p>
+<h4 id="ZCARD"><a href="#ZCARD" class="headerlink" title="ZCARD"></a>ZCARD</h4><p>最早可用版本：1.2.0</p>
+<p>时间复杂度：O(1)</p>
+<p>当key存在时，返回zset的成员数量；否则返回0。</p>
+<h4 id="ZCOUNT"><a href="#ZCOUNT" class="headerlink" title="ZCOUNT"></a>ZCOUNT</h4><p>最早可用版本：2.0.0</p>
+<p>时间复杂度：O(log(N))，N是zset的成员个数</p>
+<p>用法：ZCOUNT key min max</p>
+<p>返回分数在min到max（默认包括min和max）之间的成员个数。</p>
+<p>ZCOUNT命令的时间复杂度为O(log(N))，因为它使用了ZRANK进行排序，然后获取范围的成员个数。</p>
+<h4 id="ZINCRBY"><a href="#ZINCRBY" class="headerlink" title="ZINCRBY"></a>ZINCRBY</h4><p>最早可用版本：1.2.0</p>
+<p>时间复杂度：O(log(N))，N是zset的成员个数</p>
+<p>用法：ZINCRBY key increment member</p>
+<p>给指定zset中的指定的成员加上increment分数。如果成员不存在，则新增成员，将分数置为increment。如果key不存在，则先创建一个zset，然后加入新的成员。命令的返回值是成员的新分数。</p>
+<h4 id="ZINTERSTORE"><a href="#ZINTERSTORE" class="headerlink" title="ZINTERSTORE"></a>ZINTERSTORE</h4><p>最早可用版本：2.0.0</p>
+<p>时间复杂度：O(N <em> K)+O(M </em> log(M))，N是输入的zset中的最小的成员数量，K为输入的zset的数量。M是结果中zset的成员数量</p>
+<p>用法：ZINTERSTORE destination numkeys key [key …][WEIGHTS weight [weight …]][AGGREGATE SUM|MIN|MAX]</p>
+<p>ZINTERSTORE命令用于计算给出的numkeys个zset的交集，并将结果保存到destination中。在给出要计算的key和其他参数之前，必须先给出numkeys。默认情况下，输出的zset成员的分数，会是输入的zset的成员的分数之和。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; ZADD myzset1 1 <span class="string">&quot;jackey&quot;</span></span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; ZADD myzset1 2 <span class="string">&quot;zhe&quot;</span></span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; ZADD myzset2 1 <span class="string">&quot;jackey&quot;</span></span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; ZADD myzset2 2 <span class="string">&quot;zhe&quot;</span></span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; ZADD myzset2 3 <span class="string">&quot;2018&quot;</span></span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; ZINTERSTORE deszset 2 myzset1 myzset2</span><br><span class="line">(<span class="built_in">integer</span>) 2</span><br><span class="line">127.0.0.1:6379&gt; ZRANGE deszset 0 -1 WITHSCORES</span><br><span class="line">1) <span class="string">&quot;jackey&quot;</span></span><br><span class="line">2) <span class="string">&quot;2&quot;</span></span><br><span class="line">3) <span class="string">&quot;zhe&quot;</span></span><br><span class="line">4) <span class="string">&quot;4&quot;</span></span><br></pre></td></tr></table></figure>
+<p>WEIGHTS用来对每一个zset设置一个乘数因子，在计算分数时乘以指定的数值，默认是1。</p>
+<p>AGGREGATE参数用来指定分数的聚合策略，默认是SUM，也就是相加。还可以选择取最大或最小的分数。</p>
+<p>如果destination已经存在，则覆盖原来的值。命令的返回值是结果的成员个数。</p>
+<h4 id="ZLEXCOUNT"><a href="#ZLEXCOUNT" class="headerlink" title="ZLEXCOUNT"></a>ZLEXCOUNT</h4><p>最早可用版本：2.8.9</p>
+<p>时间复杂度：O(log(N))，N是zset的成员个数</p>
+<p>用法：ZLEXCOUNT key min max</p>
+<p>当所有成员的分数都相同时，使用这个命令计算min和max之间的成员个数。</p>
+<p>关于min和max：</p>
+<ul>
+<li>成员名称前需要加上[，[符号和成员名称之间不能有空格</li>
+<li>可以使用-和+表示最大值和最小值</li>
+<li>计算数量时，包括min和max</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; ZADD myzset 0 a 0 b 0 e 0 d 0 i 0 f 0 k</span><br><span class="line">(<span class="built_in">integer</span>) 7</span><br><span class="line">127.0.0.1:6379&gt; ZLEXCOUNT myzset - +</span><br><span class="line">(<span class="built_in">integer</span>) 7</span><br><span class="line">127.0.0.1:6379&gt; ZLEXCOUNT myzset b e</span><br><span class="line">(error) ERR min or max not valid string range item</span><br><span class="line">127.0.0.1:6379&gt; ZLEXCOUNT myzset [b [e</span><br><span class="line">(<span class="built_in">integer</span>) 3</span><br><span class="line">127.0.0.1:6379&gt; ZRANGE myzset 0 -1</span><br><span class="line">1) <span class="string">&quot;a&quot;</span></span><br><span class="line">2) <span class="string">&quot;b&quot;</span></span><br><span class="line">3) <span class="string">&quot;d&quot;</span></span><br><span class="line">4) <span class="string">&quot;e&quot;</span></span><br><span class="line">5) <span class="string">&quot;f&quot;</span></span><br><span class="line">6) <span class="string">&quot;i&quot;</span></span><br><span class="line">7) <span class="string">&quot;k&quot;</span></span><br></pre></td></tr></table></figure>
+<h4 id="ZPOPMAX"><a href="#ZPOPMAX" class="headerlink" title="ZPOPMAX"></a>ZPOPMAX</h4><p>最早可用版本：5.0.0</p>
+<p>时间复杂度：O(log(N)*M)，N是zset的成员数量，M是弹出的成员数量</p>
+<p>用法：ZPOPMAX key [count]</p>
+<p>该命令用于移除并返回一定数量的分数最高的成员。count默认是1，count大于zset成员，当返回多个元素时，分数最高的最先被返回。</p>
+<h4 id="ZPOPMIN"><a href="#ZPOPMIN" class="headerlink" title="ZPOPMIN"></a>ZPOPMIN</h4><p>最早可用版本：5.0.0</p>
+<p>时间复杂度：O(log(N)*M)，N是zset的成员数量，M是弹出的成员数量</p>
+<p>该命令和ZPOPMAX相反，返回的是分数最低的元素。只有这点不同，其他都相同。</p>
+<h4 id="ZRANGE"><a href="#ZRANGE" class="headerlink" title="ZRANGE"></a>ZRANGE</h4><p>最早可用版本：1.2.0</p>
+<p>时间复杂度：O(log(N)+M)，N是zset的成员数量，M是返回的成员数量</p>
+<p>用法：ZRANGE key start stop [WITHSCORES]</p>
+<p>该命令返回指定范围的成员，按照分数从低到高的顺序排。start和stop都是从0开始，也可以是负数，-1表示倒数第一个。返回的时候包括start和stop位置的成员。</p>
+<p>如果start大于zset成员数量或者start大于stop，则返回空集合；如果stop大于最后一位，则返回start到最后一位的成员。</p>
+<p>WITHSCORES参数表示返回的结果中是否要带分数。</p>
+<h4 id="ZRANGEBYLEX"><a href="#ZRANGEBYLEX" class="headerlink" title="ZRANGEBYLEX"></a>ZRANGEBYLEX</h4><p>最早可用版本：2.8.9</p>
+<p>时间复杂度：O(log(N)+M)，N是zset的成员数量，M是返回的成员数量</p>
+<p>用法：ZRANGEBYLEX key min max [LIMIT offset count]</p>
+<p>前面我们提到过，当所有的成员的分数相同时，它们会按照字典顺序排列。对于中情况，ZRANGEBYLEX命令就是用来返回指定区间成员的。指定成员时可以使用(或者[，(表示不包含指定的成员，[表示包含。</p>
+<p>成员字符串作为二进制数组来排序，默认是ASCII字符集的顺序。</p>
+<p>LIMIT参数用于分页，类似于SQL中的LIMIT关键字。</p>
+<h4 id="ZRANGEBYSCORE"><a href="#ZRANGEBYSCORE" class="headerlink" title="ZRANGEBYSCORE"></a>ZRANGEBYSCORE</h4><p>最早可用版本：1.0.5</p>
+<p>时间复杂度：O(log(N)+M)，N是zset的成员数量，M是返回的成员数量</p>
+<p>用法：ZRANGEBYSCORE key min max [WITHSCORES][LIMIT offset count]</p>
+<p>这个命令用来返回指定分数范围的成员，包括min和max。如果分数相同，则按字典顺序排列。</p>
+<p>LIMIT参数用来分页。</p>
+<p>在Redis2.0以后，可用使用WITHSCORES参数，使返回值中带有分数。</p>
+<p>我们可以使用(表示不包括指定的分数，举个栗子：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ZRANGEBYSCORE zset (1 5</span><br></pre></td></tr></table></figure>
+<p>取的分数范围是1&lt;score&lt;=5</p>
+<h4 id="ZRANK"><a href="#ZRANK" class="headerlink" title="ZRANK"></a>ZRANK</h4><p>最早可用版本：2.0.0</p>
+<p>时间复杂度：O(log(N))</p>
+<p>该命令用于返回指定的成员从低到高的排名。返回值从0开始，第一个元素的rank是0，第二个是1……</p>
+<p>如果成员存在，返回它的rank值；如果不存在，返回nil。</p>
+<h4 id="ZREM"><a href="#ZREM" class="headerlink" title="ZREM"></a>ZREM</h4><p>最早可用版本：1.2.0</p>
+<p>时间复杂度：O(M*log(N))，N是zset的成员数量，M是要删除的成员数量</p>
+<p>从zset中删除指定的成员。返回值为实际删除的成员数量。</p>
+<p>Redis2.4版本以后支持一次指定多个成员。</p>
+<h4 id="ZREMRANGEBYLEX"><a href="#ZREMRANGEBYLEX" class="headerlink" title="ZREMRANGEBYLEX"></a>ZREMRANGEBYLEX</h4><p>最早可用版本：2.8.9</p>
+<p>时间复杂度：O(log(N)+M)，N是zset的成员数量，M是要删除的成员数量</p>
+<p>用法：ZREMRANGEBYLEX key min max</p>
+<p>该命令用于删除指定返回的成员，最好用于所有分数都相同的集合，否则结果会不准确。</p>
+<p>关于min和max的描述可以查看ZRANGEBYLEX命令。</p>
+<h4 id="ZREMRANGEBYRANK"><a href="#ZREMRANGEBYRANK" class="headerlink" title="ZREMRANGEBYRANK"></a>ZREMRANGEBYRANK</h4><p>最早可用版本：2.0.0</p>
+<p>时间复杂度：O(log(N)+M)，N是zset的成员数量，M是要删除的成员数量</p>
+<p>用法：ZREMRANGEBYRANK key start stop</p>
+<p>用于删除指定rank范围的成员。start和stop的介绍可以查看ZRANGE命令。</p>
+<h4 id="ZREMRANGEBYSCORE"><a href="#ZREMRANGEBYSCORE" class="headerlink" title="ZREMRANGEBYSCORE"></a>ZREMRANGEBYSCORE</h4><p>最早可用版本：1.2.0</p>
+<p>时间复杂度：O(log(N)+M)，N是zset的成员数量，M是要删除的成员数量</p>
+<p>用法：ZREMRANGEBYSCORE key min max</p>
+<p>删除指定分数范围的成员，默认包括min和max的分数，在2.1.6版本以后可以不包括min和max，具体可以查看ZRANGEBYSCORE命令。</p>
+<h4 id="ZREVRANGE"><a href="#ZREVRANGE" class="headerlink" title="ZREVRANGE"></a>ZREVRANGE</h4><p>最早可用版本：1.2.0</p>
+<p>时间复杂度：O(log(N)+M)，N是zset的成员数量，M是要返回的成员数量</p>
+<p>用法：ZREVRANGE key start stop [WITHSCORES]</p>
+<p>返回分数从高到低的成员，也就是说，顺序与ZRANGE相反。其他条件都相同。</p>
+<h4 id="ZREVRANGEBYLEX"><a href="#ZREVRANGEBYLEX" class="headerlink" title="ZREVRANGEBYLEX"></a>ZREVRANGEBYLEX</h4><p>最早可用版本：1.2.0</p>
+<p>时间复杂度：O(log(N)+M)，N是zset的成员数量，M是要返回的成员数量</p>
+<p>该命令是ZRANGEBYLEX命令的倒序版本。</p>
+<p>####ZREVRANGEBYSCORE</p>
+<p>最早可用版本：2.2.0</p>
+<p>时间复杂度：O(log(N)+M)，N是zset的成员数量，M是要返回的成员数量</p>
+<p>是ZRANGEBYSCORE命令的倒序。</p>
+<h4 id="ZREVRANK"><a href="#ZREVRANK" class="headerlink" title="ZREVRANK"></a>ZREVRANK</h4><p>最早可用版本：2.0.0</p>
+<p>时间复杂度：O(log(N))</p>
+<p>是ZRANK的倒序。</p>
+<h4 id="ZSCAN"><a href="#ZSCAN" class="headerlink" title="ZSCAN"></a>ZSCAN</h4><p>最早可用版本：2.8.0</p>
+<p>时间复杂度：每次调用为O(1)</p>
+<p>用法：ZSCAN key cursor [MATCH pattern][COUNT count]</p>
+<p>这是一个SCAN类的命令，可以看<a href="https://jackeyzhe.github.io/2018/09/26/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Redis%E7%9A%84scan%E5%91%BD%E4%BB%A4/">这里</a>进行更深入的了解。</p>
+<h4 id="ZSCORE"><a href="#ZSCORE" class="headerlink" title="ZSCORE"></a>ZSCORE</h4><p>最早可用版本：1.2.0</p>
+<p>时间复杂度：O(1)</p>
+<p>该命令用于返回指定成员的分数。如果指定成员不存在或者key不存在，则返回nil。</p>
+<h4 id="ZUNIONSTORE"><a href="#ZUNIONSTORE" class="headerlink" title="ZUNIONSTORE"></a>ZUNIONSTORE</h4><p>最早可用版本：2.0.0</p>
+<p>时间复杂度：O(N)+O(M log(M))，N是输入的zset的大小之和，M是结果的zset的大小</p>
+<p>用法：ZUNIONSTORE destination numkeys key [key …][WEIGHTS weight [weight …]][AGGREGATE SUM|MIN|MAX]</p>
+<p>计算给出的zset的并集，并把结果存到destination，在给定要计算的key和其他参数之前，要给出numkeys，也就是key的数量。默认情况下，结果中的成员的分数，是输入的zset的该成员分数的和。</p>
+<p>关于WEIGHTS和AGGREGATE参数，可以查看ZINTERSTORE命令中的介绍。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>Buy me a coffee</div>
+  <button>
+    Donate
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/weixinpay.jpg" alt="Jackey Wang WeChat Pay">
+        <span>WeChat Pay</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Jackey Wang Alipay">
+        <span>Alipay</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="followme">
+  <span>Welcome to my other publishing channels</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <span class="social-link">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </span>
+
+          <img class="social-item-img" src="/images/wechat-qcode.jpg">
+      </div>
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Redis%E5%91%BD%E4%BB%A4/" rel="tag"><i class="fa fa-tag"></i> Redis命令</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/01/05/%E8%B5%B0%E8%BF%91%E6%BA%90%E7%A0%81%EF%BC%9ARedis%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4/" rel="prev" title="走近源码：Redis如何执行命令">
+                  <i class="fa fa-angle-left"></i> 走近源码：Redis如何执行命令
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/01/12/%E8%B5%B0%E8%BF%91%E6%BA%90%E7%A0%81%EF%BC%9ARedis%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E8%BF%87%E7%A8%8B%EF%BC%88%E5%AE%A2%E6%88%B7%E7%AB%AF%EF%BC%89/" rel="next" title="走近源码：Redis命令执行过程（客户端）">
+                  走近源码：Redis命令执行过程（客户端） <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Jackey Wang</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Word count total">477k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">7:13</span>
+  </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/Jackeyzhe" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

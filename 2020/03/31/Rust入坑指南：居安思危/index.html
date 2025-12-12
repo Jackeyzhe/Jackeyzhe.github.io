@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"jackeyzhe.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"github-dark","dark":"github-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="任何事情都是相对的，就像Rust给我们的印象一直是安全、快速，但实际上，完全的安全是不可能实现的。因此，Rust中也是会有不安全的代码的。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Rust入坑指南：居安思危">
+<meta property="og:url" content="https://jackeyzhe.github.io/2020/03/31/Rust%E5%85%A5%E5%9D%91%E6%8C%87%E5%8D%97%EF%BC%9A%E5%B1%85%E5%AE%89%E6%80%9D%E5%8D%B1/index.html">
+<meta property="og:site_name" content="Jackeyzhe&#39;s Blog">
+<meta property="og:description" content="任何事情都是相对的，就像Rust给我们的印象一直是安全、快速，但实际上，完全的安全是不可能实现的。因此，Rust中也是会有不安全的代码的。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2020-03-31T10:17:48.000Z">
+<meta property="article:modified_time" content="2024-12-06T17:02:53.000Z">
+<meta property="article:author" content="Jackey Wang">
+<meta property="article:tag" content="Rust">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://jackeyzhe.github.io/2020/03/31/Rust%E5%85%A5%E5%9D%91%E6%8C%87%E5%8D%97%EF%BC%9A%E5%B1%85%E5%AE%89%E6%80%9D%E5%8D%B1/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-Hans","comments":true,"permalink":"https://jackeyzhe.github.io/2020/03/31/Rust%E5%85%A5%E5%9D%91%E6%8C%87%E5%8D%97%EF%BC%9A%E5%B1%85%E5%AE%89%E6%80%9D%E5%8D%B1/","path":"2020/03/31/Rust入坑指南：居安思危/","title":"Rust入坑指南：居安思危"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Rust入坑指南：居安思危 | Jackeyzhe's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script size="300" alpha="0.6" zIndex="1" src="https://cdnjs.cloudflare.com/ajax/libs/ribbon.js/1.0.2/ribbon.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Jackeyzhe's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Jackeyzhe's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">靠脸吃饭</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section">Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section">Tags<span class="badge">14</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section">Archives<span class="badge">109</span></a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section">About</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">基础语法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A3%E5%BC%95%E7%94%A8%E5%8E%9F%E7%94%9F%E6%8C%87%E9%92%88"><span class="nav-number">2.</span> <span class="nav-text">解引用原生指针</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B0%83%E7%94%A8unsafe%E7%9A%84%E5%87%BD%E6%95%B0%E6%88%96%E6%96%B9%E6%B3%95"><span class="nav-number">3.</span> <span class="nav-text">调用unsafe的函数或方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BF%E9%97%AE%E6%88%96%E4%BF%AE%E6%94%B9%E5%8F%AF%E5%8F%98%E7%9A%84%E9%9D%99%E6%80%81%E5%8F%98%E9%87%8F"><span class="nav-number">4.</span> <span class="nav-text">访问或修改可变的静态变量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0unsafe%E7%9A%84trait"><span class="nav-number">5.</span> <span class="nav-text">实现unsafe的trait</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%BB%E5%86%99%E8%81%94%E5%90%88%E4%BD%93%E4%B8%AD%E7%9A%84%E5%AD%97%E6%AE%B5"><span class="nav-number">6.</span> <span class="nav-text">读写联合体中的字段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">7.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Jackey Wang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">109</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Jackeyzhe" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:jackeyzhe59@gmail.com" title="E-Mail → mailto:jackeyzhe59@gmail.com" rel="noopener me" target="_blank"><i class="fas fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/jackeyzhe" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i>StackOverflow</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2020/03/31/Rust%E5%85%A5%E5%9D%91%E6%8C%87%E5%8D%97%EF%BC%9A%E5%B1%85%E5%AE%89%E6%80%9D%E5%8D%B1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Jackey Wang">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Rust入坑指南：居安思危 | Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Rust入坑指南：居安思危
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2020-03-31 18:17:48" itemprop="dateCreated datePublished" datetime="2020-03-31T18:17:48+08:00">2020-03-31</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>2.7k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>2 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>任何事情都是相对的，就像Rust给我们的印象一直是安全、快速，但实际上，完全的安全是不可能实现的。因此，Rust中也是会有不安全的代码的。<span id="more"></span></p>
+<p>严格来讲，Rust语言可以分为<strong>Safe Rust</strong>和<strong>Unsafe Rust</strong>。Unsafe Rust是Safe Rust的超集。在Unsafe Rust中并不会禁用任何的安全检查，Unsafe Rust出现的原因是为了让开发者可以做一些更加底层的操作。这些事情本身也是不安全的，如果仍然要进行Rust的安全检查，那么就无法进行这些操作。</p>
+<p>在进行下面这5种操作时，Unsafe Rust不会进行安全检查。</p>
+<ul>
+<li>解引用原生指针</li>
+<li>调用unsafe的函数或方法</li>
+<li>访问或修改可变的静态变量</li>
+<li>实现unsafe的trait</li>
+<li>读写联合体中的字段</li>
+</ul>
+<h3 id="基础语法"><a href="#基础语法" class="headerlink" title="基础语法"></a>基础语法</h3><p>Unsafe Rust的关键字是unsafe，它可以用来修饰函数、方法和trait，也可以用来标记代码块。</p>
+<p>标准库中也有不少函数是unsafe的。例如String中的<code>from_utf8_unchecked()</code>函数。它的定义如下：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">pub</span> <span class="keyword">unsafe</span> <span class="keyword">fn</span> <span class="title function_">from_utf8_unchecked</span>(bytes: <span class="type">Vec</span>&lt;<span class="type">u8</span>&gt;) <span class="punctuation">-&gt;</span> <span class="type">String</span> &#123;</span><br><span class="line">  <span class="type">String</span> &#123; vec: bytes &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个函数被标记为unsafe的原因是函数并没有检查传入参数是否是合法的UTF-8序列。也就是提醒使用者注意，使用这个函数要自己保证参数的合法性。</p>
+<p>用unsafe标记的trait也比较常见，在前面我们见过的Send和Sync都是unsafe的trait。它们被用来保证线程安全， 将其标记为unsafe是告诉开发者，如果自己实现这两个trait，那么代码就会有安全风险。</p>
+<p>我们在调用unsafe函数或方法时，需要使用unsafe代码块。</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">sparkle_heart</span> = <span class="built_in">vec!</span>[<span class="number">240</span>, <span class="number">159</span>, <span class="number">146</span>, <span class="number">150</span>];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> <span class="variable">sparkle_heart</span> = <span class="keyword">unsafe</span> &#123;</span><br><span class="line">        <span class="type">String</span>::<span class="title function_ invoke__">from_utf8_unchecked</span>(sparkle_heart)</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="string">&quot;💖&quot;</span>, sparkle_heart);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在了解了unsafe的基础语法之后，我们再来具体看看前面提到的5种操作。</p>
+<h3 id="解引用原生指针"><a href="#解引用原生指针" class="headerlink" title="解引用原生指针"></a>解引用原生指针</h3><p>Rust的原生指针分为两种：可变类型<code>*mut T</code>和不可变类型<code>*const T</code>。</p>
+<p>与引用和智能指针不同，原生指针具有以下特性：</p>
+<ul>
+<li>可以不遵循借用规则，在同一代码块中可以同时出现可变和不可变指针，也可以同时有多个可变指针</li>
+<li>不保证指向有效内存</li>
+<li>允许是null</li>
+<li>不会自动清理内存</li>
+</ul>
+<p>由这些特性可以看出，原生指针并不受Rust那一套安全规则的限制，因此，解引用原生指针是一种不安全的操作。换句话说，我们应该把这种操作放在unsafe代码块中。下面这段代码就展示了原生指针的第一条特性，以及如何解引用原生指针。</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">num</span> = <span class="number">5</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="variable">r1</span> = &amp;num <span class="keyword">as</span> *<span class="keyword">const</span> <span class="type">i32</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">r2</span> = &amp;<span class="keyword">mut</span> num <span class="keyword">as</span> *<span class="keyword">mut</span> <span class="type">i32</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">unsafe</span> &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;r1 is: &#123;&#125;&quot;</span>, *r1);</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;r2 is: &#123;&#125;&quot;</span>, *r2);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在Rust编程中，原生指针常被用作和C语言打交道，原生指针有一些特有的方法，例如可以用<code>is_null()</code>来判断原生指针是否是空指针，用<code>offset()</code>来获取指定偏移量的内存地址的内容，使用<code>read()/write()</code>方法来读写内存等。</p>
+<h3 id="调用unsafe的函数或方法"><a href="#调用unsafe的函数或方法" class="headerlink" title="调用unsafe的函数或方法"></a>调用unsafe的函数或方法</h3><p>调用unsafe的函数或方法必须放到unsafe代码块中，这点我们在基础知识中已经介绍过。因为函数本身被标记为unsafe，也就意味着调用它可能存在风险。这点无需赘述。</p>
+<h3 id="访问或修改可变的静态变量"><a href="#访问或修改可变的静态变量" class="headerlink" title="访问或修改可变的静态变量"></a>访问或修改可变的静态变量</h3><p>对于不可变的静态变量，我们访问它不会存在任何安全问题，但是对于可变的静态变量而言，如果我们在多线程中都访问同一个变量，那么就会造成数据竞争。这当然也是一种不安全的操作。所以要放到unsafe代码块中，此时线程安全应由开发者自己来保证。</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">mut</span> COUNTER: <span class="type">u32</span> = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">add_to_count</span>(inc: <span class="type">u32</span>) &#123;</span><br><span class="line">    <span class="keyword">unsafe</span> &#123;</span><br><span class="line">        COUNTER += inc;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="title function_ invoke__">add_to_count</span>(<span class="number">3</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">unsafe</span> &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;COUNTER: &#123;&#125;&quot;</span>, COUNTER);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在这个例子中我们没有使用多线程，这里只是想展示一下如何访问和修改可变静态变量。</p>
+<h3 id="实现unsafe的trait"><a href="#实现unsafe的trait" class="headerlink" title="实现unsafe的trait"></a>实现unsafe的trait</h3><p>当trait中包含一个或多个编译器无法验证其安全性的方法时，这个trait就必须被标记为unsafe。而想要实现unsafe的trait，首先在实现代码块的关键字<code>impl</code>前也要加上unsafe标记。其次，无法被编译器验证安全性的方法，其安全性必须由开发者自己来保证。</p>
+<p>前面我们也提到了，常见的unsafe的trait有Send和Sync这两个。</p>
+<h3 id="读写联合体中的字段"><a href="#读写联合体中的字段" class="headerlink" title="读写联合体中的字段"></a>读写联合体中的字段</h3><p>Rust中的Union联合体和Enum相似。我们可以使用union关键字来定义一个联合体。</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">union</span> <span class="title class_">MyUnion</span> &#123;</span><br><span class="line">    i: <span class="type">i32</span>,</span><br><span class="line">    f: <span class="type">f32</span>,</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">my_union</span> = MyUnion&#123;i: <span class="number">3</span>&#125;;</span><br><span class="line">    <span class="keyword">unsafe</span> &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, my_union.i);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在初始化时，我们每次只能指定一个字段的值。这就造成我们在访问联合体中的字段时，有可能会访问到未定义的字段。因此，Rust让我们把访问操作放到unsafe代码块中，以此来警示我们必须自己保证程序的安全性。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>本文我们聊了Unsafe Rust的一些使用场景和使用方法。你只需要记住Unsafe的5种操作就好，在遇到这些操作时，一定要使用unsafe代码块。unsafe代码块不光是为了“骗”过编译器，要时刻提醒自己，<strong>unsafe代码块中的程序要由开发者自己保证其正确性</strong>。</p>
+<ul>
+<li>解引用原生指针</li>
+<li>调用unsafe的函数或方法</li>
+<li>访问或修改可变的静态变量</li>
+<li>实现unsafe的trait</li>
+<li>读写联合体中的字段</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>Buy me a coffee</div>
+  <button>
+    Donate
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/weixinpay.jpg" alt="Jackey Wang WeChat Pay">
+        <span>WeChat Pay</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Jackey Wang Alipay">
+        <span>Alipay</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="followme">
+  <span>Welcome to my other publishing channels</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <span class="social-link">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </span>
+
+          <img class="social-item-img" src="/images/wechat-qcode.jpg">
+      </div>
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Rust/" rel="tag"><i class="fa fa-tag"></i> Rust</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/03/30/%E8%B5%B0%E8%BF%91%E6%BA%90%E7%A0%81%EF%BC%9ARedis%E5%A6%82%E4%BD%95%E6%B8%85%E9%99%A4%E8%BF%87%E6%9C%9Fkey/" rel="prev" title="走近源码：Redis如何清除过期key">
+                  <i class="fa fa-angle-left"></i> 走近源码：Redis如何清除过期key
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/04/08/Rust%E5%85%A5%E5%9D%91%E6%8C%87%E5%8D%97%EF%BC%9A%E4%B8%87%E7%89%A9%E5%88%9D%E5%A7%8B/" rel="next" title="Rust入坑指南：万物初始">
+                  Rust入坑指南：万物初始 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Jackey Wang</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Word count total">477k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">7:13</span>
+  </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/Jackeyzhe" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

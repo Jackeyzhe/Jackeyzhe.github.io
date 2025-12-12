@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"jackeyzhe.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"github-dark","dark":"github-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta property="og:type" content="website">
+<meta property="og:title" content="Jackeyzhe&#39;s Blog">
+<meta property="og:url" content="https://jackeyzhe.github.io/index.html">
+<meta property="og:site_name" content="Jackeyzhe&#39;s Blog">
+<meta property="og:locale">
+<meta property="article:author" content="Jackey Wang">
+<meta property="article:tag" content="Java,Rust,Flink">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://jackeyzhe.github.io/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":true,"isPost":false,"lang":"zh-Hans","comments":"","permalink":"","path":"index.html","title":""}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Jackeyzhe's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script size="300" alpha="0.6" zIndex="1" src="https://cdnjs.cloudflare.com/ajax/libs/ribbon.js/1.0.2/ribbon.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Jackeyzhe's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">Jackeyzhe's Blog</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">靠脸吃饭</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section">Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section">Tags<span class="badge">14</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section">Archives<span class="badge">109</span></a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section">About</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Jackey Wang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">109</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Jackeyzhe" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:jackeyzhe59@gmail.com" title="E-Mail → mailto:jackeyzhe59@gmail.com" rel="noopener me" target="_blank"><i class="fas fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/jackeyzhe" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i>StackOverflow</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2025/12/09/Flink%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%9ACheckpoint%E6%9C%BA%E5%88%B6%EF%BC%88%E4%B8%8A%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Jackey Wang">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/12/09/Flink%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%9ACheckpoint%E6%9C%BA%E5%88%B6%EF%BC%88%E4%B8%8A%EF%BC%89/" class="post-title-link" itemprop="url">Flink源码阅读：Checkpoint机制（上）</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-12-09 15:14:59" itemprop="dateCreated datePublished" datetime="2025-12-09T15:14:59+08:00">2025-12-09</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>4.5k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>4 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>前文我们梳理了 Flink 状态管理相关的源码，我们知道，状态是要与 Checkpoint 配合使用的。因此，本文我们就一起来看一下 Checkpoint 相关的源码。
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2025/12/09/Flink%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%9ACheckpoint%E6%9C%BA%E5%88%B6%EF%BC%88%E4%B8%8A%EF%BC%89/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2025/12/03/Flink%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%9A%E7%8A%B6%E6%80%81%E7%AE%A1%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Jackey Wang">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/12/03/Flink%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%9A%E7%8A%B6%E6%80%81%E7%AE%A1%E7%90%86/" class="post-title-link" itemprop="url">Flink源码阅读：状态管理</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-12-03 11:11:28" itemprop="dateCreated datePublished" datetime="2025-12-03T11:11:28+08:00">2025-12-03</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>9.3k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>8 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>前面我们介绍了 Flink 状态的分类和应用。今天从源码层面再看一下 Flink 是如何管理状态的。</p>
+<h3 id="State-概述"><a href="#State-概述" class="headerlink" title="State 概述"></a>State 概述</h3><p>关于 State 的详细介绍可以参考 <a href="https://jackeyzhe.github.io/2025/08/04/Flink%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%9A%E7%8A%B6%E6%80%81%E7%B1%BB%E5%9E%8B%E5%92%8C%E5%BA%94%E7%94%A8/">Flink学习笔记：状态类型和应用</a> 和 <a href="https://jackeyzhe.github.io/2025/08/24/Flink%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%9A%E7%8A%B6%E6%80%81%E5%90%8E%E7%AB%AF/">Flink学习笔记：状态后端</a>这两篇文章，为了方面阅读，这里我们再简单介绍一下。</p>
+<h4 id="State-使用"><a href="#State-使用" class="headerlink" title="State 使用"></a>State 使用</h4><p>State 是 Flink 做复杂逻辑所依赖的核心组件。它的分类如下</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1754928263/Blog/flink/4/%E7%8A%B6%E6%80%81%E5%88%86%E7%B1%BB.png" alt="State 分类"></p>
+<p>常见的是 Keyed State 和 Operator State，Keyed State 作用于 KeyedStream 上，Operator State 可以作用于所有的 Operator 上。Keyed State 使用时，需要先创建 StateDescriptor，然后再调用 getState 获取。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">ValueStateDescriptor&lt;Tuple2&lt;Long, Long&gt;&gt; descriptor =</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">ValueStateDescriptor</span>&lt;&gt;(</span><br><span class="line">                <span class="string">&quot;average&quot;</span>,</span><br><span class="line">                TypeInformation.of(<span class="keyword">new</span> <span class="title class_">TypeHint</span>&lt;Tuple2&lt;Long, Long&gt;&gt;() &#123;&#125;));</span><br><span class="line">ValueState&lt;Tuple2&lt;Long, Long&gt;&gt; sum = getRuntimeContext().getState(descriptor);</span><br></pre></td></tr></table></figure>
+<p>Opeartor State 的获取方式与 Keyed State 类似，都需要 StateDescriptor。Operator State 在定义时需要实现 CheckpointedFunction。</p>
+<h4 id="State-存储"><a href="#State-存储" class="headerlink" title="State 存储"></a>State 存储</h4><p>State Backend 用来管理 State 存储，根据存储格式和存储类型的组合，可以分为三类：</p>
+<ol>
+<li><p>MemoryStateBackend：HashMapStateBackend 和 JobManagerCheckpointStorage 的组合，即将 State 以 Java 对象的形式存储在 JobManager 内存中。</p>
+</li>
+<li><p>FsStateBackend：HashMapStateBackend 和 FileSystemCheckpointStorage 的组合，将 State 以 Java 对象的形式存储在远端文件系统中。</p>
+</li>
+<li><p>RocksDBStateBackend：EmbeddedRocksDBStateBackend 和 FileSystemCheckpointStorage 的组合，State 序列化后存储在 RocksDB。</p>
+</li>
+</ol>
+<h3 id="创建-State-Backend"><a href="#创建-State-Backend" class="headerlink" title="创建 State Backend"></a>创建 State Backend</h3><p>创建 State Backend 的入口在 StreamTask，StreamTask 是 Flink 部署和运行在 TaskManager 的基本单元。</p>
+<p>在 StreamTask 的 invoke 方法中，会先调用 restoreStateAndGates 方法去创建 State Backend。完整的调用链路如下图所示。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1764852973/Blog/flink/12/statebackend.png" alt="stateBackend"></p>
+<p>在 streamOperatorStateContext 方法中，分别调用了 keyedStatedBackend 和 operatorStateBackend 来创建两种 State Backend。</p>
+<p>我们先来看 keyedStateBackend 的逻辑。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> &lt;K, R <span class="keyword">extends</span> <span class="title class_">Disposable</span> &amp; Closeable&gt; R <span class="title function_">keyedStatedBackend</span><span class="params">(</span></span><br><span class="line"><span class="params">        TypeSerializer&lt;K&gt; keySerializer,</span></span><br><span class="line"><span class="params">        String operatorIdentifierText,</span></span><br><span class="line"><span class="params">        PrioritizedOperatorSubtaskState prioritizedOperatorSubtaskStates,</span></span><br><span class="line"><span class="params">        CloseableRegistry backendCloseableRegistry,</span></span><br><span class="line"><span class="params">        MetricGroup metricGroup,</span></span><br><span class="line"><span class="params">        <span class="type">double</span> managedMemoryFraction,</span></span><br><span class="line"><span class="params">        StateObject.StateObjectSizeStatsCollector statsCollector,</span></span><br><span class="line"><span class="params">        KeyedStateBackendCreator&lt;K, R&gt; keyedStateBackendCreator)</span></span><br><span class="line">        <span class="keyword">throws</span> Exception &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (keySerializer == <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ......</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> <span class="type">KeyGroupRange</span> <span class="variable">keyGroupRange</span> <span class="operator">=</span></span><br><span class="line">            KeyGroupRangeAssignment.computeKeyGroupRangeForOperatorIndex(</span><br><span class="line">                    taskInfo.getMaxNumberOfParallelSubtasks(),</span><br><span class="line">                    taskInfo.getNumberOfParallelSubtasks(),</span><br><span class="line">                    taskInfo.getIndexOfThisSubtask());</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Now restore processing is included in backend building/constructing process, so we need</span></span><br><span class="line">    <span class="comment">// to make sure</span></span><br><span class="line">    <span class="comment">// each stream constructed in restore could also be closed in case of task cancel, for</span></span><br><span class="line">    <span class="comment">// example the data</span></span><br><span class="line">    <span class="comment">// input stream opened for serDe during restore.</span></span><br><span class="line">    <span class="type">CloseableRegistry</span> <span class="variable">cancelStreamRegistryForRestore</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">CloseableRegistry</span>();</span><br><span class="line">    backendCloseableRegistry.registerCloseable(cancelStreamRegistryForRestore);</span><br><span class="line">    BackendRestorerProcedure&lt;R, KeyedStateHandle&gt; backendRestorer =</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">BackendRestorerProcedure</span>&lt;&gt;(</span><br><span class="line">                    (stateHandles) -&gt; &#123;</span><br><span class="line">                        KeyedStateBackendParametersImpl&lt;K&gt; parameters =</span><br><span class="line">                                <span class="keyword">new</span> <span class="title class_">KeyedStateBackendParametersImpl</span>&lt;&gt;(...);</span><br><span class="line">                        <span class="keyword">return</span> keyedStateBackendCreator.create(...),</span><br><span class="line">                                parameters);</span><br><span class="line">                    &#125;,</span><br><span class="line">                    backendCloseableRegistry,</span><br><span class="line">                    logDescription);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> backendRestorer.createAndRestore(</span><br><span class="line">                prioritizedOperatorSubtaskStates.getPrioritizedManagedKeyedState(),</span><br><span class="line">                statsCollector);</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (backendCloseableRegistry.unregisterCloseable(cancelStreamRegistryForRestore)) &#123;</span><br><span class="line">            IOUtils.closeQuietly(cancelStreamRegistryForRestore);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里的创建过程也比较简单，先是获取 KeyGroupRange，它表示的是当前 Operator 上处理的 key 的范围。然后就是创建 StateBackend 实例，这里通过 BackendRestorerProcedure 封装统一的恢复、异常处理和资源清理逻辑。operatorStateBackend 方法的逻辑相比较来说，只是少了 KeyGroupRange 的处理，直接创建 StateBackend 实例。</p>
+<h3 id="创建和使用-State"><a href="#创建和使用-State" class="headerlink" title="创建和使用 State"></a>创建和使用 State</h3><h4 id="创建-KeyedState"><a href="#创建-KeyedState" class="headerlink" title="创建 KeyedState"></a>创建 KeyedState</h4><p>KeyedState 是通过调用 StreamingRuntimeContext.getState 方法获取的。我们先来看完整的调用流程。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1765164156/Blog/flink/12/getstate.png" alt="getState"></p>
+<p>在调用 getState 这些方法时，都会先调用 keyedStateStore 提供的方法，它是 Flink 提供的一个封装 keyedStateBackend 的接口。调用流程的最后，是调用 keyedStateBackend 中的 createOrUpdateInternalState 方法（这里我们以 HeapStateBackend 为例）。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> &lt;N, SV, SEV, S <span class="keyword">extends</span> <span class="title class_">State</span>, IS <span class="keyword">extends</span> <span class="title class_">S</span>&gt; IS <span class="title function_">createOrUpdateInternalState</span><span class="params">(</span></span><br><span class="line"><span class="params">        <span class="meta">@Nonnull</span> TypeSerializer&lt;N&gt; namespaceSerializer,</span></span><br><span class="line"><span class="params">        <span class="meta">@Nonnull</span> StateDescriptor&lt;S, SV&gt; stateDesc,</span></span><br><span class="line"><span class="params">        <span class="meta">@Nonnull</span> StateSnapshotTransformFactory&lt;SEV&gt; snapshotTransformFactory,</span></span><br><span class="line"><span class="params">        <span class="type">boolean</span> allowFutureMetadataUpdates)</span></span><br><span class="line">        <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">    StateTable&lt;K, N, SV&gt; stateTable =</span><br><span class="line">            tryRegisterStateTable(</span><br><span class="line">                    namespaceSerializer,</span><br><span class="line">                    stateDesc,</span><br><span class="line">                    getStateSnapshotTransformFactory(stateDesc, snapshotTransformFactory),</span><br><span class="line">                    allowFutureMetadataUpdates);</span><br><span class="line"></span><br><span class="line">    <span class="meta">@SuppressWarnings(&quot;unchecked&quot;)</span></span><br><span class="line">    <span class="type">IS</span> <span class="variable">createdState</span> <span class="operator">=</span> (IS) createdKVStates.get(stateDesc.getName());</span><br><span class="line">    <span class="keyword">if</span> (createdState == <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="type">StateCreateFactory</span> <span class="variable">stateCreateFactory</span> <span class="operator">=</span> STATE_CREATE_FACTORIES.get(stateDesc.getType());</span><br><span class="line">        <span class="keyword">if</span> (stateCreateFactory == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">FlinkRuntimeException</span>(stateNotSupportedMessage(stateDesc));</span><br><span class="line">        &#125;</span><br><span class="line">        createdState =</span><br><span class="line">                stateCreateFactory.createState(stateDesc, stateTable, getKeySerializer());</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="type">StateUpdateFactory</span> <span class="variable">stateUpdateFactory</span> <span class="operator">=</span> STATE_UPDATE_FACTORIES.get(stateDesc.getType());</span><br><span class="line">        <span class="keyword">if</span> (stateUpdateFactory == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">FlinkRuntimeException</span>(stateNotSupportedMessage(stateDesc));</span><br><span class="line">        &#125;</span><br><span class="line">        createdState = stateUpdateFactory.updateState(stateDesc, stateTable, createdState);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    createdKVStates.put(stateDesc.getName(), createdState);</span><br><span class="line">    <span class="keyword">return</span> createdState;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Map&lt;StateDescriptor.Type, StateCreateFactory&gt; STATE_CREATE_FACTORIES =</span><br><span class="line">        Stream.of(</span><br><span class="line">                        Tuple2.of(</span><br><span class="line">                                StateDescriptor.Type.VALUE,</span><br><span class="line">                                (StateCreateFactory) HeapValueState::create),</span><br><span class="line">                        Tuple2.of(</span><br><span class="line">                                StateDescriptor.Type.LIST,</span><br><span class="line">                                (StateCreateFactory) HeapListState::create),</span><br><span class="line">                        Tuple2.of(</span><br><span class="line">                                StateDescriptor.Type.MAP,</span><br><span class="line">                                (StateCreateFactory) HeapMapState::create),</span><br><span class="line">                        Tuple2.of(</span><br><span class="line">                                StateDescriptor.Type.AGGREGATING,</span><br><span class="line">                                (StateCreateFactory) HeapAggregatingState::create),</span><br><span class="line">                        Tuple2.of(</span><br><span class="line">                                StateDescriptor.Type.REDUCING,</span><br><span class="line">                                (StateCreateFactory) HeapReducingState::create))</span><br><span class="line">                .collect(Collectors.toMap(t -&gt; t.f0, t -&gt; t.f1));</span><br></pre></td></tr></table></figure>
+<p>这里首先是注册了一个 StateTable，这个是 State 中一个非常重要的成员变量，它内部是一个类似 Map 的结构，用来保存 key 和 key 的状态。</p>
+<p>STATE_CREATE_FACTORIES 这个变量保存了不同类型的 State 和它对应的创建方法，同理 STATE_UPDATE_FACTORIES 保存的是不同 State 对应的 更新方法。</p>
+<h4 id="创建-OperatorState"><a href="#创建-OperatorState" class="headerlink" title="创建 OperatorState"></a>创建 OperatorState</h4><p>看完了 KeyedState 的创建过程后，我们再来看下 OperatorState 的创建过程。</p>
+<p>OperatorState 的创建方法是通过 FunctionInitializationContext 先获取到 OperatorStateStore，它与 KeyedStateStore 类似，都是对 StateBackend 的方法进行了封装。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">initializeState</span><span class="params">(FunctionInitializationContext context)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">    ListStateDescriptor&lt;Tuple2&lt;String, Integer&gt;&gt; descriptor =</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">ListStateDescriptor</span>&lt;&gt;(</span><br><span class="line">                    <span class="string">&quot;buffered-elements&quot;</span>,</span><br><span class="line">                    TypeInformation.of(<span class="keyword">new</span> <span class="title class_">TypeHint</span>&lt;Tuple2&lt;String, Integer&gt;&gt;() &#123;&#125;));</span><br><span class="line"></span><br><span class="line">    checkpointedState = context.getOperatorStateStore().getListState(descriptor);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (context.isRestored()) &#123;</span><br><span class="line">        <span class="keyword">for</span> (Tuple2&lt;String, Integer&gt; element : checkpointedState.get()) &#123;</span><br><span class="line">            bufferedElements.add(element);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>OperatorStateStore 的 getListState 方法中，直接创建出了 PartitionableListState，同时也做了一些缓存操作。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> &lt;S&gt; ListState&lt;S&gt; <span class="title function_">getListState</span><span class="params">(</span></span><br><span class="line"><span class="params">        ListStateDescriptor&lt;S&gt; stateDescriptor, OperatorStateHandle.Mode mode)</span></span><br><span class="line">        <span class="keyword">throws</span> StateMigrationException &#123;</span><br><span class="line"></span><br><span class="line">    ......</span><br><span class="line">    PartitionableListState&lt;S&gt; partitionableListState =</span><br><span class="line">            (PartitionableListState&lt;S&gt;) registeredOperatorStates.get(name);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="literal">null</span> == partitionableListState) &#123;</span><br><span class="line">        <span class="comment">// no restored state for the state name; simply create new state holder</span></span><br><span class="line"></span><br><span class="line">        partitionableListState =</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">PartitionableListState</span>&lt;&gt;(</span><br><span class="line">                        <span class="keyword">new</span> <span class="title class_">RegisteredOperatorStateBackendMetaInfo</span>&lt;&gt;(</span><br><span class="line">                                name, partitionStateSerializer, mode));</span><br><span class="line"></span><br><span class="line">        registeredOperatorStates.put(name, partitionableListState);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        ......</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    accessedStatesByName.put(name, partitionableListState);</span><br><span class="line">    <span class="keyword">return</span> partitionableListState;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>PartitionableListState 内部有一个 ArrayList 用于保存数据。</p>
+<h4 id="使用-KeyedState"><a href="#使用-KeyedState" class="headerlink" title="使用 KeyedState"></a>使用 KeyedState</h4><p>了解完 State 的创建之后，接下来就是 State 的使用了。我们以 HeapValueState 为例来看如何获取 State。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// HeapValueState 类</span></span><br><span class="line"><span class="keyword">public</span> V <span class="title function_">value</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="type">V</span> <span class="variable">result</span> <span class="operator">=</span> stateTable.get(currentNamespace);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (result == <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> getDefaultValue();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在 HeapValueState 类的 value 方法中，直接调用 StateTable 的 get 方法，最终调用的是 CopyOnWriteStateMap 的 get 方法，这个方法与 HashMap 的 get 方法比较类似。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> S <span class="title function_">get</span><span class="params">(K key, N namespace)</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> <span class="type">int</span> <span class="variable">hash</span> <span class="operator">=</span> computeHashForOperationAndDoIncrementalRehash(key, namespace);</span><br><span class="line">    <span class="keyword">final</span> <span class="type">int</span> <span class="variable">requiredVersion</span> <span class="operator">=</span> highestRequiredSnapshotVersion;</span><br><span class="line">    <span class="keyword">final</span> StateMapEntry&lt;K, N, S&gt;[] tab = selectActiveTable(hash);</span><br><span class="line">    <span class="type">int</span> <span class="variable">index</span> <span class="operator">=</span> hash &amp; (tab.length - <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (StateMapEntry&lt;K, N, S&gt; e = tab[index]; e != <span class="literal">null</span>; e = e.next) &#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="type">K</span> <span class="variable">eKey</span> <span class="operator">=</span> e.key;</span><br><span class="line">        <span class="keyword">final</span> <span class="type">N</span> <span class="variable">eNamespace</span> <span class="operator">=</span> e.namespace;</span><br><span class="line">        <span class="keyword">if</span> ((e.hash == hash &amp;&amp; key.equals(eKey) &amp;&amp; namespace.equals(eNamespace))) &#123;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// copy-on-write check for state</span></span><br><span class="line">            <span class="keyword">if</span> (e.stateVersion &lt; requiredVersion) &#123;</span><br><span class="line">                <span class="comment">// copy-on-write check for entry</span></span><br><span class="line">                <span class="keyword">if</span> (e.entryVersion &lt; requiredVersion) &#123;</span><br><span class="line">                    e = handleChainedEntryCopyOnWrite(tab, hash &amp; (tab.length - <span class="number">1</span>), e);</span><br><span class="line">                &#125;</span><br><span class="line">                e.stateVersion = stateMapVersion;</span><br><span class="line">                e.state = getStateSerializer().copy(e.state);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> e.state;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="使用-OperatorState"><a href="#使用-OperatorState" class="headerlink" title="使用 OperatorState"></a>使用 OperatorState</h4><p>OperatorState 底层使用的是 PartitionableListState，前面也提到了，它的内部用了一个 ArrayList 来保存数据，对于 OperatorState 的各种操作也都是来操作这个 ArrayList。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">clear</span><span class="params">()</span> &#123;</span><br><span class="line">    internalList.clear();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> Iterable&lt;S&gt; <span class="title function_">get</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> internalList;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">add</span><span class="params">(S value)</span> &#123;</span><br><span class="line">    Preconditions.checkNotNull(value, <span class="string">&quot;You cannot add null to a ListState.&quot;</span>);</span><br><span class="line">    internalList.add(value);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">update</span><span class="params">(List&lt;S&gt; values)</span> &#123;</span><br><span class="line">    internalList.clear();</span><br><span class="line"></span><br><span class="line">    addAll(values);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">addAll</span><span class="params">(List&lt;S&gt; values)</span> &#123;</span><br><span class="line">    Preconditions.checkNotNull(values, <span class="string">&quot;List of values to add cannot be null.&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (!values.isEmpty()) &#123;</span><br><span class="line">        <span class="keyword">for</span> (S value : values) &#123;</span><br><span class="line">            checkNotNull(value, <span class="string">&quot;Any value to add to a list cannot be null.&quot;</span>);</span><br><span class="line">            add(value);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>本文对 State 的相关代码进行了梳理。包括 StateBackend 的创建，KeyedState 和 OperatorState 的创建和使用。State 和 Checkpoint 两者需要结合使用，因此后面我们会再梳理 Checkpoint 的相关代码。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2025/11/27/Flink%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%9A%E9%9B%86%E7%BE%A4%E5%90%AF%E5%8A%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Jackey Wang">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/11/27/Flink%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%9A%E9%9B%86%E7%BE%A4%E5%90%AF%E5%8A%A8/" class="post-title-link" itemprop="url">Flink源码阅读：集群启动</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-11-27 16:35:40" itemprop="dateCreated datePublished" datetime="2025-11-27T16:35:40+08:00">2025-11-27</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>6.2k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>6 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>前文中，我们已经了解了 Flink 的三种执行图是怎么生成的。今天继续看一下 Flink 集群是如何启动的。
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2025/11/27/Flink%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%9A%E9%9B%86%E7%BE%A4%E5%90%AF%E5%8A%A8/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2025/11/08/Flink%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%9A%E5%A6%82%E4%BD%95%E7%94%9F%E6%88%90ExecutionGraph/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Jackey Wang">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/11/08/Flink%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%9A%E5%A6%82%E4%BD%95%E7%94%9F%E6%88%90ExecutionGraph/" class="post-title-link" itemprop="url">Flink源码阅读：如何生成ExecutionGraph</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-11-08 23:23:57" itemprop="dateCreated datePublished" datetime="2025-11-08T23:23:57+08:00">2025-11-08</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>15k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>13 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>今天我们一起来了解 Flink 最后一种执行图，ExecutionGraph 的执行过程。
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2025/11/08/Flink%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%9A%E5%A6%82%E4%BD%95%E7%94%9F%E6%88%90ExecutionGraph/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2025/09/18/Flink%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%9A%E5%A6%82%E4%BD%95%E7%94%9F%E6%88%90JobGraph/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Jackey Wang">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/09/18/Flink%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%9A%E5%A6%82%E4%BD%95%E7%94%9F%E6%88%90JobGraph/" class="post-title-link" itemprop="url">Flink源码阅读：如何生成JobGraph</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-09-18 22:02:40" itemprop="dateCreated datePublished" datetime="2025-09-18T22:02:40+08:00">2025-09-18</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>13k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>12 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>前文我们介绍了 Flink 的四种执行图，并且通过源码了解了 Flink 的 StreamGraph 是怎么生成的，本文我们就一起来看下 Flink 的另一种执行图——JobGraph 是如何生成的。
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2025/09/18/Flink%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%9A%E5%A6%82%E4%BD%95%E7%94%9F%E6%88%90JobGraph/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2025/09/10/Flink%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%9A%E5%A6%82%E4%BD%95%E7%94%9F%E6%88%90StreamGraph/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Jackey Wang">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/09/10/Flink%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%9A%E5%A6%82%E4%BD%95%E7%94%9F%E6%88%90StreamGraph/" class="post-title-link" itemprop="url">Flink源码阅读：如何生成StreamGraph</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-09-10 21:55:59" itemprop="dateCreated datePublished" datetime="2025-09-10T21:55:59+08:00">2025-09-10</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>11k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>10 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>Flink 中有四种执行图，分别是 StreamGraph、JobGraph、ExecutionGraph 和 Physical Graph。今天我们来看下我们编写的 Flink 程序代码是如何生成 StreamGraph 的。
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2025/09/10/Flink%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%9A%E5%A6%82%E4%BD%95%E7%94%9F%E6%88%90StreamGraph/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2025/08/26/Flink%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%9A%E5%8F%8D%E5%8E%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Jackey Wang">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/08/26/Flink%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%9A%E5%8F%8D%E5%8E%8B/" class="post-title-link" itemprop="url">Flink学习笔记：反压</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-08-26 23:13:46" itemprop="dateCreated datePublished" datetime="2025-08-26T23:13:46+08:00">2025-08-26</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>1.6k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>1 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>今天来聊在 Flink 运维过程中比较常见的一个问题：反压。
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2025/08/26/Flink%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%9A%E5%8F%8D%E5%8E%8B/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2025/08/24/Flink%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%9A%E7%8A%B6%E6%80%81%E5%90%8E%E7%AB%AF/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Jackey Wang">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/08/24/Flink%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%9A%E7%8A%B6%E6%80%81%E5%90%8E%E7%AB%AF/" class="post-title-link" itemprop="url">Flink学习笔记：状态后端</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-08-24 00:16:42" itemprop="dateCreated datePublished" datetime="2025-08-24T00:16:42+08:00">2025-08-24</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>4.9k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>4 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>我们继续来聊 Flink 容错相关的内容。前面在介绍 Checkpoint 和 Savepoint 时提到了 State 的稳定存储，那究竟如何存储以及存储在什么地方呢？相信通过读完本文之后，你会有答案。
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2025/08/24/Flink%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%9A%E7%8A%B6%E6%80%81%E5%90%8E%E7%AB%AF/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2025/08/17/Flink%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%9A%E5%A6%82%E4%BD%95%E5%81%9A%E5%AE%B9%E9%94%99/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Jackey Wang">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/08/17/Flink%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%9A%E5%A6%82%E4%BD%95%E5%81%9A%E5%AE%B9%E9%94%99/" class="post-title-link" itemprop="url">Flink学习笔记：如何做容错</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-08-17 11:29:28" itemprop="dateCreated datePublished" datetime="2025-08-17T11:29:28+08:00">2025-08-17</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>3.9k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>4 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>现在我们已经了解了 Flink 的状态如何定义和使用，那 Flink 是如何做容错的呢？今天我们一起来了解一下。
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2025/08/17/Flink%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%9A%E5%A6%82%E4%BD%95%E5%81%9A%E5%AE%B9%E9%94%99/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2025/08/04/Flink%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%9A%E7%8A%B6%E6%80%81%E7%B1%BB%E5%9E%8B%E5%92%8C%E5%BA%94%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Jackey Wang">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/08/04/Flink%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%9A%E7%8A%B6%E6%80%81%E7%B1%BB%E5%9E%8B%E5%92%8C%E5%BA%94%E7%94%A8/" class="post-title-link" itemprop="url">Flink学习笔记：状态类型和应用</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-08-04 23:33:44" itemprop="dateCreated datePublished" datetime="2025-08-04T23:33:44+08:00">2025-08-04</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>6.3k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>6 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>Flink 被广泛应用的原因，除了我们前面提到的对时间以及窗口的应用之外，另一点就是它强大的容错机制，以及对 Exactly Once 的支持。
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2025/08/04/Flink%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%9A%E7%8A%B6%E6%80%81%E7%B1%BB%E5%9E%8B%E5%92%8C%E5%BA%94%E7%94%A8/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" title="Next page" aria-label="Next page" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+  </nav>
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Jackey Wang</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Word count total">477k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">7:13</span>
+  </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/Jackeyzhe" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

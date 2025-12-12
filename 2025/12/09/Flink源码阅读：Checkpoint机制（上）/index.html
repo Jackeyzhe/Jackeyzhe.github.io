@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"jackeyzhe.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"github-dark","dark":"github-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="前文我们梳理了 Flink 状态管理相关的源码，我们知道，状态是要与 Checkpoint 配合使用的。因此，本文我们就一起来看一下 Checkpoint 相关的源码。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flink源码阅读：Checkpoint机制（上）">
+<meta property="og:url" content="https://jackeyzhe.github.io/2025/12/09/Flink%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%9ACheckpoint%E6%9C%BA%E5%88%B6%EF%BC%88%E4%B8%8A%EF%BC%89/index.html">
+<meta property="og:site_name" content="Jackeyzhe&#39;s Blog">
+<meta property="og:description" content="前文我们梳理了 Flink 状态管理相关的源码，我们知道，状态是要与 Checkpoint 配合使用的。因此，本文我们就一起来看一下 Checkpoint 相关的源码。">
+<meta property="og:locale">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1765450882/Blog/flink/13/checkpoint.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1765506339/Blog/flink/13/triggerTaskCheckpoint.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1765508196/Blog/flink/13/tmCheckpoint.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1765524276/Blog/flink/13/snapshotState.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1765526479/Blog/flink/13/tmReport.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1765530817/Blog/flink/13/processBarrier.png">
+<meta property="article:published_time" content="2025-12-09T07:14:59.000Z">
+<meta property="article:modified_time" content="2025-12-12T14:23:46.079Z">
+<meta property="article:author" content="Jackey Wang">
+<meta property="article:tag" content="Flink">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1765450882/Blog/flink/13/checkpoint.png">
+
+
+<link rel="canonical" href="https://jackeyzhe.github.io/2025/12/09/Flink%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%9ACheckpoint%E6%9C%BA%E5%88%B6%EF%BC%88%E4%B8%8A%EF%BC%89/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-Hans","comments":true,"permalink":"https://jackeyzhe.github.io/2025/12/09/Flink%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%9ACheckpoint%E6%9C%BA%E5%88%B6%EF%BC%88%E4%B8%8A%EF%BC%89/","path":"2025/12/09/Flink源码阅读：Checkpoint机制（上）/","title":"Flink源码阅读：Checkpoint机制（上）"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Flink源码阅读：Checkpoint机制（上） | Jackeyzhe's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script size="300" alpha="0.6" zIndex="1" src="https://cdnjs.cloudflare.com/ajax/libs/ribbon.js/1.0.2/ribbon.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Jackeyzhe's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Jackeyzhe's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">靠脸吃饭</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section">Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section">Tags<span class="badge">14</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section">Archives<span class="badge">109</span></a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section">About</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%99%E5%9C%A8%E5%89%8D%E9%9D%A2"><span class="nav-number">1.</span> <span class="nav-text">写在前面</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JobManager-%E7%AB%AF%E8%A7%A6%E5%8F%91%E6%B5%81%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">JobManager 端触发流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TaskManager-%E7%AB%AF%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B"><span class="nav-number">3.</span> <span class="nav-text">TaskManager 端执行流程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Barrier-%E6%B6%88%E6%81%AF"><span class="nav-number">3.1.</span> <span class="nav-text">Barrier 消息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%8A%B6%E6%80%81%E5%86%99%E5%85%A5"><span class="nav-number">3.2.</span> <span class="nav-text">状态写入</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JobManager-%E7%AB%AF%E7%A1%AE%E8%AE%A4%E6%B5%81%E7%A8%8B"><span class="nav-number">4.</span> <span class="nav-text">JobManager 端确认流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9D%9E-Source-%E8%8A%82%E7%82%B9%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B"><span class="nav-number">5.</span> <span class="nav-text">非 Source 节点处理流程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#EXACTLY-ONCE"><span class="nav-number">5.1.</span> <span class="nav-text">EXACTLY_ONCE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#AT-LEAST-ONCE"><span class="nav-number">5.2.</span> <span class="nav-text">AT_LEAST_ONCE</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Jackey Wang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">109</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Jackeyzhe" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:jackeyzhe59@gmail.com" title="E-Mail → mailto:jackeyzhe59@gmail.com" rel="noopener me" target="_blank"><i class="fas fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/jackeyzhe" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i>StackOverflow</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2025/12/09/Flink%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%9ACheckpoint%E6%9C%BA%E5%88%B6%EF%BC%88%E4%B8%8A%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Jackey Wang">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Flink源码阅读：Checkpoint机制（上） | Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Flink源码阅读：Checkpoint机制（上）
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-12-09 15:14:59" itemprop="dateCreated datePublished" datetime="2025-12-09T15:14:59+08:00">2025-12-09</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>4.5k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>4 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>前文我们梳理了 Flink 状态管理相关的源码，我们知道，状态是要与 Checkpoint 配合使用的。因此，本文我们就一起来看一下 Checkpoint 相关的源码。<span id="more"></span></p>
+<h3 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h3><p>在<a href="https://jackeyzhe.github.io/2025/08/17/Flink%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%9A%E5%A6%82%E4%BD%95%E5%81%9A%E5%AE%B9%E9%94%99/">Flink学习笔记：如何做容错</a>一文中，我们介绍了 Flink 的 Checkpoint 机制。Checkpoint 分为 EXACTLY_ONCE 和 AT_LEAST_ONCE 两种模式。</p>
+<p>我们一起回顾一下一次完整的 Checkpoint 具体流程：Checkpoint 是由 CheckpointCoordinator 触发，Source 节点收到触发请求后，会将 State 进行持久化，同时向下游发送 Barrier 消息，下游节点收到 Barrier 消息后，也同样对 State 进行持久化和发送 Barrier 消息。当所有节点都完成持久化过程后 CheckpointCoordinator 会将一些元数据进行持久化。</p>
+<p>带着这些背景知识，我们再来梳理一下 Checkpoint 相关的代码。</p>
+<h3 id="JobManager-端触发流程"><a href="#JobManager-端触发流程" class="headerlink" title="JobManager 端触发流程"></a>JobManager 端触发流程</h3><p>JobManager 在调用 <code>DefaultExecutionGraphBuilder.buildGraph</code> 生成 ExecutionGraph 之后，会调用 <code>executionGraph.enableCheckpointing</code> 方法来设置 Checkpoint 相关的配置，这个方法中创建了 CheckpointCoordinator 并注册了 CheckpointCoordinatorDeActivator 这个监听，它负责启动和停止 Checkpoint 的调度。</p>
+<p>当作业变成 RUNNING 状态时，CheckpointCoordinator 会部署一个定时任务 ScheduledTrigger，这个定时任务就是用来周期性的触发 Checkpoint。</p>
+<p>触发 Checkpoint 的核心逻辑在  <code>CheckpointCoordinator.startTriggeringCheckpoint</code> 这个方法中。这个方法中使用了多个 CompletableFuture 来完成整个流程的编排。具体流程见下图（图中不同颜色代表着使用不同线程池执行）。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1765450882/Blog/flink/13/checkpoint.png" alt="checkpoint"></p>
+<ul>
+<li><p>checkpointPlanFuture：这是生成 Checkpoint 执行计划的 Future，Checkpoint Plan 中维护了三个关键的集合：tasksToTrigger、tasksToWaitFor 和 tasksToCommitTo。tasksToTrigger 是所有的 Source 节点，表示触发 Checkpoint 的节点，另外两个集合都包含了全部节点，分别表示等待进行 Checkpoint 的节点和等待提交的节点。</p>
+</li>
+<li><p>pendingCheckpointCompletableFuture：生成完 Checkpoint Plan 之后，会创建 pendingCheckpointCompletableFuture，这个 Future 中有两个执行任务，分别是生成自增的 CheckpointID 和 创建 PendingCheckpoint。PendingCheckpoint 中维护了等待完成的 task 列表，当所有 task 都确认完成之后，PendingCheckpoint 会变成 CompletedCheckpoint。</p>
+</li>
+<li><p>coordinatorCheckpointsComplete：这个 Future 也有两个任务，第一个是初始化存储路径，第二个是触发所有 OperatorCoordinator Checkpoint，并确认它们的状态。</p>
+</li>
+<li><p>masterStatesComplete：触发快照所有的 Master Hook，这一步主要是 CheckpointCoordinator 用来收集 JobManager 级别状态。</p>
+</li>
+<li><p>masterTriggerCompletionPromise：在 masterStatesComplete 和 coordinatorCheckpointsComplete 都执行完成后，会开始执行 masterTriggerCompletionPromise。masterTriggerCompletionPromise 的任务是调用 triggerCheckpointRequest 来产生 Barrier 消息。具体的触发流程见下图。</p>
+</li>
+</ul>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1765506339/Blog/flink/13/triggerTaskCheckpoint.png" alt="triggerTask"></p>
+<p>至此，JobManager 端的触发流程就完成了，接下来就到了 TaskManager 端了。</p>
+<h3 id="TaskManager-端执行流程"><a href="#TaskManager-端执行流程" class="headerlink" title="TaskManager 端执行流程"></a>TaskManager 端执行流程</h3><p>进入 TaskExecutor 后，具体调用过程如下图。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1765508196/Blog/flink/13/tmCheckpoint.png" alt="TaskManagerCheckpoint"></p>
+<p>TaskManager 的核心逻辑在 <code>SubtaskCheckpointCoordinatorImpl.checkpointState</code> 方法中。这个方法中的注释也很详细，整体上分为6个步骤：</p>
+<ol start="0">
+<li><p>判断是否是需要终止的 Checkpoint，如果是，则向下游发送取消 Checkpoint 的广播消息。</p>
+</li>
+<li><p>做一些前置的准备工作，这一步通常情况下是一个空实现。</p>
+</li>
+<li><p>向下游发送 Barrier 消息。</p>
+</li>
+<li><p>注册 Alignment timer，当 aligned 超时时，转换为 unaligned。</p>
+</li>
+<li><p>通知 StateWriter，当前 Subtask 对输出通道的写入已经完成，并提交状态句柄。</p>
+</li>
+<li><p>异步执行状态写入并完成上报。</p>
+</li>
+</ol>
+<p>下面我们来关注几个重点的步骤。</p>
+<h4 id="Barrier-消息"><a href="#Barrier-消息" class="headerlink" title="Barrier 消息"></a>Barrier 消息</h4><p>在步骤2中，首先是创建 Barrier，Barrier 消息包括三个部分</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// checkpointId</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="type">long</span> id;</span><br><span class="line"><span class="comment">// 时间戳</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="type">long</span> timestamp;</span><br><span class="line"><span class="comment">// checkpoint 相关参数，包括对齐类型、checkpoint 类型、目前地址</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> CheckpointOptions checkpointOptions;</span><br></pre></td></tr></table></figure>
+<p>生成 Barrier 之后，会调用 <code>operatorChain.broadcastEvent</code> 进行广播消息。这里广播消息就是向下游所有的节点的所有 ResultSubpartition 发送。</p>
+<h4 id="状态写入"><a href="#状态写入" class="headerlink" title="状态写入"></a>状态写入</h4><p><code>SubtaskCheckpointCoordinatorImpl.takeSnapshotSync</code> 方法用来构建 OperatorSnapshotFutures 中的四个 Future，每个 Future 的任务是为不同类型的 State 提供写入逻辑。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Nonnull</span> <span class="keyword">private</span> RunnableFuture&lt;SnapshotResult&lt;KeyedStateHandle&gt;&gt; keyedStateManagedFuture;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Nonnull</span> <span class="keyword">private</span> RunnableFuture&lt;SnapshotResult&lt;KeyedStateHandle&gt;&gt; keyedStateRawFuture;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Nonnull</span> <span class="keyword">private</span> RunnableFuture&lt;SnapshotResult&lt;OperatorStateHandle&gt;&gt; operatorStateManagedFuture;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Nonnull</span> <span class="keyword">private</span> RunnableFuture&lt;SnapshotResult&lt;OperatorStateHandle&gt;&gt; operatorStateRawFuture;</span><br></pre></td></tr></table></figure>
+<p>在底层逻辑中，会为每个 Operator 设置对应的 State 的 Future。具体调用流程如下</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1765524276/Blog/flink/13/snapshotState.png" alt="snapshotState"></p>
+<p>设置好这些 Future 之后，会在 <code>finishAndReportAsync</code> 方法中创建 AsyncCheckpointRunnable 线程调用 get 来获取执行结果，拿到执行结果后会将 Checkpoint 信息上报给 CheckpointCoordinator。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1765526479/Blog/flink/13/tmReport.png" alt="TaskManagerReport"></p>
+<h3 id="JobManager-端确认流程"><a href="#JobManager-端确认流程" class="headerlink" title="JobManager 端确认流程"></a>JobManager 端确认流程</h3><p>TaskManager 通过调用 <code>checkpointCoordinatorGateway.acknowledgeCheckpoint</code> 上报 Checkpoint 信息后，流程就又回到 JobManager 了。</p>
+<p>JobManager 的确认流程主要做了两件事：</p>
+<ol>
+<li><p>将 pendingCheckpoint 转换成 completedCheckpoint，在这个转换过程中，还做了清理过期 Checkpoint 和持久化元数据等操作。</p>
+</li>
+<li><p>向所有 commit 的 Task 发送 Checkpoint 完成的通知。收到这个通知后，大部分 Task 没有什么特殊逻辑，也有一部分 Source 或者 Sink 会做提交事务等操作。</p>
+</li>
+</ol>
+<p>至此，JobManager 和 Source 端算子的一次 Checkpoint 就完成了。接下来我们再看一下非 Source 节点是如何做 Checkpoint 的。</p>
+<h3 id="非-Source-节点处理流程"><a href="#非-Source-节点处理流程" class="headerlink" title="非 Source 节点处理流程"></a>非 Source 节点处理流程</h3><p>非 Source 节点处理 Barrier 的入口和处理业务数据的入口相同，都是 <code>StreamTask.processInput</code> 方法。我们还是先来看具体的调用流程。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1765530817/Blog/flink/13/processBarrier.png" alt="processBarrier"></p>
+<p>跟着调用链路，我们一路找到了 processBarrier 方法，这里区分了两个 barrierHandler。SingleCheckpointBarrierHandler 负责处理 EXACTLY_ONCE 语义，CheckpointBarrierTracker 负责处理 AT_LEAST_ONCE 语义。</p>
+<h4 id="EXACTLY-ONCE"><a href="#EXACTLY-ONCE" class="headerlink" title="EXACTLY_ONCE"></a>EXACTLY_ONCE</h4><p>EXACTLY_ONCE 在处理 Barrier 的逻辑如下：</p>
+<ol>
+<li><p>如果只有一个 channel，就立即触发 Checkpoint。</p>
+</li>
+<li><p>如果有多个 channel，分为三种情况</p>
+<p>a) 如果收到的是第一个 channel，标记开始进行 barrier 对齐，并阻塞 channel。</p>
+<p>b) 如果不是第一个 channel，也不是最后一个 channel，只对 channel 进行阻塞。</p>
+<p>c) 如果收到最后一个 channel，就会触发 Checkpoint，并取消所有 channel 阻塞状态。</p>
+</li>
+</ol>
+<p>这里触发的逻辑与 Source 节点相同，通过调用链路可以一直找到 performCheckpoint。</p>
+<h4 id="AT-LEAST-ONCE"><a href="#AT-LEAST-ONCE" class="headerlink" title="AT_LEAST_ONCE"></a>AT_LEAST_ONCE</h4><p>AT_LEAST_ONCE 处理 Barrier 的逻辑如下：</p>
+<ol>
+<li><p>如果只有一个 channel，就立即触发 Checkpoint。</p>
+</li>
+<li><p>如果有多个 channel，同样分为三种情况</p>
+<p>a) 如果收到的是第一个 channel，则更新当前 checkpointID，标记开始 barrier 对齐。</p>
+<p>b) 如果收到的不是第一个 channel，也不是最后一个 channel，就只做计数。</p>
+<p>c) 如果收到的是最后一个 channel，就会开始触发 Checkpoint。</p>
+</li>
+</ol>
+<p>这里触发逻辑也是调用 performCheckpoint，与 Source 节点逻辑相同。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>本文我们梳理了 Checkpoint 的源码逻辑。最开始由 JobManager 中的 CheckpointCoordinator 进行调度，并向 TaskManager 发送触发请求。Source 节点收到请求后会向下游发送 Barrier 消息然后写入状态数据和上报 Checkpoint 信息。CheckpointCoordinator 收集完确认消息后，会持久化元数据并通知所有 Task 完成 commit。最后还分别介绍了 EXACTLY_ONCE 和 AT_LEAST_ONCE 模式下非 Source 节点的处理逻辑。</p>
+<p>这里埋一个 Hook，状态数据写入逻辑的细节我们没有深入了解，会在下篇进行深入分析。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>Buy me a coffee</div>
+  <button>
+    Donate
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/weixinpay.jpg" alt="Jackey Wang WeChat Pay">
+        <span>WeChat Pay</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Jackey Wang Alipay">
+        <span>Alipay</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="followme">
+  <span>Welcome to my other publishing channels</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <span class="social-link">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </span>
+
+          <img class="social-item-img" src="/images/wechat-qcode.jpg">
+      </div>
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Flink/" rel="tag"><i class="fa fa-tag"></i> Flink</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/12/03/Flink%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%9A%E7%8A%B6%E6%80%81%E7%AE%A1%E7%90%86/" rel="prev" title="Flink源码阅读：状态管理">
+                  <i class="fa fa-angle-left"></i> Flink源码阅读：状态管理
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Jackey Wang</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Word count total">477k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">7:13</span>
+  </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/Jackeyzhe" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

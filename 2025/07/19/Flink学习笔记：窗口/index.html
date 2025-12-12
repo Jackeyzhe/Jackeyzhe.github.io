@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"jackeyzhe.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"github-dark","dark":"github-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在前文中，我们已经了解了 Flink 时间和 Watermark 两个概念，今天就来聊一下 Flink 实时数据处理的另一个核心概念：窗口。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flink学习笔记：窗口">
+<meta property="og:url" content="https://jackeyzhe.github.io/2025/07/19/Flink%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%9A%E7%AA%97%E5%8F%A3/index.html">
+<meta property="og:site_name" content="Jackeyzhe&#39;s Blog">
+<meta property="og:description" content="在前文中，我们已经了解了 Flink 时间和 Watermark 两个概念，今天就来聊一下 Flink 实时数据处理的另一个核心概念：窗口。">
+<meta property="og:locale">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1752334267/Blog/flink/2/windows_1.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1752599153/Blog/flink/2/sliding_window.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1752600673/Blog/flink/2/Tumbling_Window.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1752682681/Blog/flink/2/session_window.png">
+<meta property="article:published_time" content="2025-07-18T17:23:29.000Z">
+<meta property="article:modified_time" content="2025-07-18T17:26:38.649Z">
+<meta property="article:author" content="Jackey Wang">
+<meta property="article:tag" content="Flink">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1752334267/Blog/flink/2/windows_1.png">
+
+
+<link rel="canonical" href="https://jackeyzhe.github.io/2025/07/19/Flink%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%9A%E7%AA%97%E5%8F%A3/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-Hans","comments":true,"permalink":"https://jackeyzhe.github.io/2025/07/19/Flink%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%9A%E7%AA%97%E5%8F%A3/","path":"2025/07/19/Flink学习笔记：窗口/","title":"Flink学习笔记：窗口"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Flink学习笔记：窗口 | Jackeyzhe's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script size="300" alpha="0.6" zIndex="1" src="https://cdnjs.cloudflare.com/ajax/libs/ribbon.js/1.0.2/ribbon.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Jackeyzhe's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Jackeyzhe's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">靠脸吃饭</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section">Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section">Tags<span class="badge">14</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section">Archives<span class="badge">109</span></a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section">About</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AA%97%E5%8F%A3%E5%88%86%E7%B1%BB"><span class="nav-number">1.</span> <span class="nav-text">窗口分类</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Sliding-Windows"><span class="nav-number">1.1.</span> <span class="nav-text">Sliding Windows</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Tumbling-Windows"><span class="nav-number">1.2.</span> <span class="nav-text">Tumbling Windows</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Session-Windows"><span class="nav-number">1.3.</span> <span class="nav-text">Session Windows</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Global-Windows"><span class="nav-number">1.4.</span> <span class="nav-text">Global Windows</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AA%97%E5%8F%A3%E5%87%BD%E6%95%B0"><span class="nav-number">2.</span> <span class="nav-text">窗口函数</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#ReduceFunction"><span class="nav-number">2.1.</span> <span class="nav-text">ReduceFunction</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#AggregateFunction"><span class="nav-number">2.2.</span> <span class="nav-text">AggregateFunction</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ProcessWindowFunction"><span class="nav-number">2.3.</span> <span class="nav-text">ProcessWindowFunction</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Triggers"><span class="nav-number">3.</span> <span class="nav-text">Triggers</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Evictors"><span class="nav-number">4.</span> <span class="nav-text">Evictors</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Jackey Wang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">109</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Jackeyzhe" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:jackeyzhe59@gmail.com" title="E-Mail → mailto:jackeyzhe59@gmail.com" rel="noopener me" target="_blank"><i class="fas fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/jackeyzhe" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i>StackOverflow</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2025/07/19/Flink%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%9A%E7%AA%97%E5%8F%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Jackey Wang">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Flink学习笔记：窗口 | Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Flink学习笔记：窗口
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-07-19 01:23:29" itemprop="dateCreated datePublished" datetime="2025-07-19T01:23:29+08:00">2025-07-19</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>10k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>9 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在前文中，我们已经了解了 Flink 时间和 Watermark 两个概念，今天就来聊一下 Flink 实时数据处理的另一个核心概念：窗口。<span id="more"></span></p>
+<p>所谓窗口，可以理解为是对数据流中的一段数据进行处理的方法。那我们为什么需要窗口呢？在生产环境中，数据流中的数据往往是源源不断的，如果我们想要获取一段时间内数据的一些统计指标（最大值/最小值/平均值），这时就需要利用窗口来将数据收集起来，然后再进行计算。</p>
+<p>如果按照处理的数据流的类型来划分，Flink 中的窗口可以分为 Keyed Window 和 Non-Keyed Window，其中 Keyed Window 是用来处理按照 key 分片之后的数据流，也就是需要先调用 keyBy 方法，再调用 window 方法。而 Non-Keyed Window 处理的则是未按照 key 分片的数据流，在使用的时候直接调用 windowAll 方法。</p>
+<p>在官方文档中，列举了两种窗口的使用方法。</p>
+<p><strong>Keyed Window</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">stream</span><br><span class="line">       .keyBy(...)               &lt;-  仅 keyed 窗口需要</span><br><span class="line">       .window(...)              &lt;-  必填项：<span class="string">&quot;assigner&quot;</span></span><br><span class="line">      [.trigger(...)]            &lt;-  可选项：<span class="string">&quot;trigger&quot;</span> (省略则使用默认 trigger)</span><br><span class="line">      [.evictor(...)]            &lt;-  可选项：<span class="string">&quot;evictor&quot;</span> (省略则不使用 evictor)</span><br><span class="line">      [.allowedLateness(...)]    &lt;-  可选项：<span class="string">&quot;lateness&quot;</span> (省略则为 <span class="number">0</span>)</span><br><span class="line">      [.sideOutputLateData(...)] &lt;-  可选项：<span class="string">&quot;output tag&quot;</span> (省略则不对迟到数据使用 side output)</span><br><span class="line">       .reduce/aggregate/apply()      &lt;-  必填项：<span class="string">&quot;function&quot;</span></span><br><span class="line">      [.getSideOutput(...)]      &lt;-  可选项：<span class="string">&quot;output tag&quot;</span></span><br></pre></td></tr></table></figure>
+<p><strong>Non-Keyed Window</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">stream</span><br><span class="line">       .windowAll(...)           &lt;-  必填项：<span class="string">&quot;assigner&quot;</span></span><br><span class="line">      [.trigger(...)]            &lt;-  可选项：<span class="string">&quot;trigger&quot;</span> (<span class="keyword">else</span> <span class="keyword">default</span> trigger)</span><br><span class="line">      [.evictor(...)]            &lt;-  可选项：<span class="string">&quot;evictor&quot;</span> (<span class="keyword">else</span> no evictor)</span><br><span class="line">      [.allowedLateness(...)]    &lt;-  可选项：<span class="string">&quot;lateness&quot;</span> (<span class="keyword">else</span> zero)</span><br><span class="line">      [.sideOutputLateData(...)] &lt;-  可选项：<span class="string">&quot;output tag&quot;</span> (<span class="keyword">else</span> no side output <span class="keyword">for</span> late data)</span><br><span class="line">       .reduce/aggregate/apply()      &lt;-  必填项：<span class="string">&quot;function&quot;</span></span><br><span class="line">      [.getSideOutput(...)]      &lt;-  可选项：<span class="string">&quot;output tag&quot;</span></span><br></pre></td></tr></table></figure>
+<h3 id="窗口分类"><a href="#窗口分类" class="headerlink" title="窗口分类"></a>窗口分类</h3><p>在上面的示例中，调用 window 和 windowAll 方法时，需要传入 assigner 参数，Window Assigner 是用来定义如何将数据流中的元素划分到各个窗口中。</p>
+<p>下面我们再对窗口进行一次分类，首先是根据划分依据，可以分为 time window 和 count window，time window 是根据处理数据的时间来划分，count window 则是根据处理数据的数量来划分。接着，我们再根据划分规则来分类，这里又可以将窗口分为滚动窗口（Tumbling Windows）、滑动窗口（Sliding Windows）、会话窗口（Session Windows）和全局窗口（Global Windows），需要注意的是，后面两种窗口不支持 count window。我们用一张图来表示窗口的分类会更加清晰。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1752334267/Blog/flink/2/windows_1.png" alt="窗口分类"></p>
+<p>我们在日常数据处理中，最常用的就是时间窗口，接下来就来详细了解下时间窗口的四种类型。</p>
+<h4 id="Sliding-Windows"><a href="#Sliding-Windows" class="headerlink" title="Sliding Windows"></a>Sliding Windows</h4><p>滑动窗口是以一个固定的步长不断向前滑动的窗口，滑动过程中，窗口的大小是保持不变的。在滑动窗口中，一个元素是可以被多个窗口计算的。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1752599153/Blog/flink/2/sliding_window.png" alt="sliding_window"></p>
+<p>在代码中，可以通过 SlidingEventTimeWindows 类来定义滑动窗口，具体使用方法可以参考下面这个简单的 demo（这里多说一句，旧版本 Flink 传的是参数是 Time，新版本传的是 Duration）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">DataStream&lt;T&gt; input = ...;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 滑动 event-time 窗口</span></span><br><span class="line">input</span><br><span class="line">    .keyBy(&lt;key selector&gt;)</span><br><span class="line">    .window(SlidingEventTimeWindows.of(Duration.ofSeconds(<span class="number">10</span>), Duration.ofSeconds(<span class="number">5</span>)))</span><br><span class="line">    .&lt;windowed transformation&gt;(&lt;window function&gt;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 滑动 processing-time 窗口</span></span><br><span class="line">input</span><br><span class="line">    .keyBy(&lt;key selector&gt;)</span><br><span class="line">    .window(SlidingProcessingTimeWindows.of(Duration.ofSeconds(<span class="number">10</span>), Duration.ofSeconds(<span class="number">5</span>)))</span><br><span class="line">    .&lt;windowed transformation&gt;(&lt;window function&gt;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 滑动 processing-time 窗口，偏移量为 -8 小时</span></span><br><span class="line">input</span><br><span class="line">    .keyBy(&lt;key selector&gt;)</span><br><span class="line">    .window(SlidingProcessingTimeWindows.of(Duration.ofHours(<span class="number">12</span>), Duration.ofHours(<span class="number">1</span>), Duration.ofHours(-<span class="number">8</span>)))</span><br><span class="line">    .&lt;windowed transformation&gt;(&lt;window function&gt;);</span><br></pre></td></tr></table></figure>
+<p>上面代码中，如果不传 offset 参数的话，窗口开始时间会和 Linux 的 epoch 对齐，如果想要一些偏移量的话，就可以通过 offset 参数来控制（第二种方法）。在 demo 中，偏移量设置为 -8 小时，也就是使用东 8 区时间。</p>
+<h4 id="Tumbling-Windows"><a href="#Tumbling-Windows" class="headerlink" title="Tumbling Windows"></a>Tumbling Windows</h4><p>了解了滑动窗口之后，我们再来看滚动窗口。滚动窗口可以认为是一种特殊的滑动窗口（Window Size = Window Slide）。滚动窗口之间是没有重叠的，也就是说，每个元素只能落到一个窗口中。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1752600673/Blog/flink/2/Tumbling_Window.png" alt="tumbling_window"></p>
+<p>在代码中通过使用 TumblingEventTimeWindows 来定义。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">DataStream&lt;T&gt; input = ...;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 滚动 event-time 窗口</span></span><br><span class="line">input</span><br><span class="line">    .keyBy(&lt;key selector&gt;)</span><br><span class="line">    .window(TumblingEventTimeWindows.of(Duration.ofSeconds(<span class="number">5</span>)))</span><br><span class="line">    .&lt;windowed transformation&gt;(&lt;window function&gt;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 滚动 processing-time 窗口</span></span><br><span class="line">input</span><br><span class="line">    .keyBy(&lt;key selector&gt;)</span><br><span class="line">    .window(TumblingProcessingTimeWindows.of(Duration.ofSeconds(<span class="number">5</span>)))</span><br><span class="line">    .&lt;windowed transformation&gt;(&lt;window function&gt;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 长度为一天的滚动 event-time 窗口， 偏移量为 -8 小时。</span></span><br><span class="line">input</span><br><span class="line">    .keyBy(&lt;key selector&gt;)</span><br><span class="line">    .window(TumblingEventTimeWindows.of(Duration.ofDays(<span class="number">1</span>), Duration.ofHours(-<span class="number">8</span>)))</span><br><span class="line">    .&lt;windowed transformation&gt;(&lt;window function&gt;);</span><br></pre></td></tr></table></figure>
+<h4 id="Session-Windows"><a href="#Session-Windows" class="headerlink" title="Session Windows"></a>Session Windows</h4><p>会话窗口和前两种不同，它的窗口大小是不固定的，也没有固定的开始和结束时间。当一个窗口超过 Seesion gap 没有收到数据之后，窗口就会关闭。Flink 也支持动态定义判断会话窗口不活跃的条件。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1752682681/Blog/flink/2/session_window.png" alt="session_window"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">DataStream&lt;T&gt; input = ...;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 设置了固定间隔的 event-time 会话窗口</span></span><br><span class="line">input</span><br><span class="line">    .keyBy(&lt;key selector&gt;)</span><br><span class="line">    .window(EventTimeSessionWindows.withGap(Duration.ofMinutes(<span class="number">10</span>)))</span><br><span class="line">    .&lt;windowed transformation&gt;(&lt;window function&gt;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 设置了动态间隔的 event-time 会话窗口</span></span><br><span class="line">input</span><br><span class="line">    .keyBy(&lt;key selector&gt;)</span><br><span class="line">    .window(EventTimeSessionWindows.withDynamicGap((element) -&gt; &#123;</span><br><span class="line">        <span class="comment">// 决定并返回会话间隔</span></span><br><span class="line">    &#125;))</span><br><span class="line">    .&lt;windowed transformation&gt;(&lt;window function&gt;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 设置了固定间隔的 processing-time session 窗口</span></span><br><span class="line">input</span><br><span class="line">    .keyBy(&lt;key selector&gt;)</span><br><span class="line">    .window(ProcessingTimeSessionWindows.withGap(Duration.ofMinutes(<span class="number">10</span>)))</span><br><span class="line">    .&lt;windowed transformation&gt;(&lt;window function&gt;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 设置了动态间隔的 processing-time 会话窗口</span></span><br><span class="line">input</span><br><span class="line">    .keyBy(&lt;key selector&gt;)</span><br><span class="line">    .window(ProcessingTimeSessionWindows.withDynamicGap((element) -&gt; &#123;</span><br><span class="line">        <span class="comment">// 决定并返回会话间隔</span></span><br><span class="line">    &#125;))</span><br><span class="line">    .&lt;windowed transformation&gt;(&lt;window function&gt;);</span><br></pre></td></tr></table></figure>
+<h4 id="Global-Windows"><a href="#Global-Windows" class="headerlink" title="Global Windows"></a>Global Windows</h4><p>最后是全局窗口，它将所有的key都写到一个窗口，并且必须要指定 trigger 才能触发窗口的计算。</p>
+<h3 id="窗口函数"><a href="#窗口函数" class="headerlink" title="窗口函数"></a>窗口函数</h3><p>现在我们已经知道如何划分窗口，或者说如何把指定元素放入对应的窗口中了。接下来的问题就是窗口中的数据要怎么处理。这就是窗口函数的职责了。Flink 支持三种窗口函数，分别是：ReduceFunction、AggregateFunction 和 ProcessWindowFunction。</p>
+<h4 id="ReduceFunction"><a href="#ReduceFunction" class="headerlink" title="ReduceFunction"></a>ReduceFunction</h4><p>ReduceFunction 定义了如何把两条数据合并为一条。例如最常见的对 key 进行求和。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">DataStream&lt;Tuple2&lt;String, Long&gt;&gt; input = ...;</span><br><span class="line"></span><br><span class="line">input</span><br><span class="line">    .keyBy(&lt;key selector&gt;)</span><br><span class="line">    .window(&lt;window assigner&gt;)</span><br><span class="line">    .reduce(<span class="keyword">new</span> <span class="title class_">ReduceFunction</span>&lt;Tuple2&lt;String, Long&gt;&gt;() &#123;</span><br><span class="line">      <span class="keyword">public</span> Tuple2&lt;String, Long&gt; <span class="title function_">reduce</span><span class="params">(Tuple2&lt;String, Long&gt; v1, Tuple2&lt;String, Long&gt; v2)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Tuple2</span>&lt;&gt;(v1.f0, v1.f1 + v2.f1);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br></pre></td></tr></table></figure>
+<p>窗口输出的数据就是将多条相同 key 的数据求和后的数据。</p>
+<h4 id="AggregateFunction"><a href="#AggregateFunction" class="headerlink" title="AggregateFunction"></a>AggregateFunction</h4><p>ReduceFunction 其实是一种特殊的 AggregateFunction，AggregateFunction 的定义更加宽泛。它接收三个类型：IN（输入数据的类型）、ACC（累加器的类型）、OUT（输出数据的类型）。同时定义了四个方法：createAccumulator（创建一个累加器）、add（将一条数据加进累加器）、getResult（获取累加器结果）、merge（将两个累加器合并）</p>
+<p>下面这个例子展示了如何对输入数据进行求平均值。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">AverageAggregate</span></span><br><span class="line">    <span class="keyword">implements</span> <span class="title class_">AggregateFunction</span>&lt;Tuple2&lt;String, Long&gt;, Tuple2&lt;Long, Long&gt;, Double&gt; &#123;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">public</span> Tuple2&lt;Long, Long&gt; <span class="title function_">createAccumulator</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Tuple2</span>&lt;&gt;(<span class="number">0L</span>, <span class="number">0L</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">public</span> Tuple2&lt;Long, Long&gt; <span class="title function_">add</span><span class="params">(Tuple2&lt;String, Long&gt; value, Tuple2&lt;Long, Long&gt; accumulator)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Tuple2</span>&lt;&gt;(accumulator.f0 + value.f1, accumulator.f1 + <span class="number">1L</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">public</span> Double <span class="title function_">getResult</span><span class="params">(Tuple2&lt;Long, Long&gt; accumulator)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> ((<span class="type">double</span>) accumulator.f0) / accumulator.f1;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">public</span> Tuple2&lt;Long, Long&gt; <span class="title function_">merge</span><span class="params">(Tuple2&lt;Long, Long&gt; a, Tuple2&lt;Long, Long&gt; b)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Tuple2</span>&lt;&gt;(a.f0 + b.f0, a.f1 + b.f1);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">DataStream&lt;Tuple2&lt;String, Long&gt;&gt; input = ...;</span><br><span class="line"></span><br><span class="line">input</span><br><span class="line">    .keyBy(&lt;key selector&gt;)</span><br><span class="line">    .window(&lt;window assigner&gt;)</span><br><span class="line">    .aggregate(<span class="keyword">new</span> <span class="title class_">AverageAggregate</span>());</span><br></pre></td></tr></table></figure>
+<h4 id="ProcessWindowFunction"><a href="#ProcessWindowFunction" class="headerlink" title="ProcessWindowFunction"></a>ProcessWindowFunction</h4><p>ProcessWindowFunction 执行效率不如前两者，因为它要获取窗口内所有的数据进行计算。但它也有另外两个窗口没有的能力，那就是在 ProcessWindowFunction 中可以通过 Context 获取到时间和状态信息。这样的能力带来的代价是大量的资源消耗，因此，为了减少不必要的资源消耗，我们通常将 ProcessWindowFunction 与 ReduceFunction 或 AggregateFunction 配合使用。我们来看一个例子。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">DataStream&lt;SensorReading&gt; input = ...;</span><br><span class="line"></span><br><span class="line">input</span><br><span class="line">  .keyBy(&lt;key selector&gt;)</span><br><span class="line">  .window(&lt;window assigner&gt;)</span><br><span class="line">  .reduce(<span class="keyword">new</span> <span class="title class_">MyReduceFunction</span>(), <span class="keyword">new</span> <span class="title class_">MyProcessWindowFunction</span>());</span><br><span class="line"></span><br><span class="line"><span class="comment">// Function definitions</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">MyReduceFunction</span> <span class="keyword">implements</span> <span class="title class_">ReduceFunction</span>&lt;SensorReading&gt; &#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> SensorReading <span class="title function_">reduce</span><span class="params">(SensorReading r1, SensorReading r2)</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> r1.value() &gt; r2.value() ? r2 : r1;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">MyProcessWindowFunction</span></span><br><span class="line">    <span class="keyword">extends</span> <span class="title class_">ProcessWindowFunction</span>&lt;SensorReading, Tuple2&lt;Long, SensorReading&gt;, String, TimeWindow&gt; &#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">process</span><span class="params">(String key,</span></span><br><span class="line"><span class="params">                    Context context,</span></span><br><span class="line"><span class="params">                    Iterable&lt;SensorReading&gt; minReadings,</span></span><br><span class="line"><span class="params">                    Collector&lt;Tuple2&lt;Long, SensorReading&gt;&gt; out)</span> &#123;</span><br><span class="line">      <span class="type">SensorReading</span> <span class="variable">min</span> <span class="operator">=</span> minReadings.iterator().next();</span><br><span class="line">      out.collect(<span class="keyword">new</span> <span class="title class_">Tuple2</span>&lt;Long, SensorReading&gt;(context.window().getStart(), min));</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在这个例子中，我们返回了窗口中最小的元素和窗口的开始时间。因为我们先做了聚合，所以在 ProcessFunction 中就不用把所有的数据都存储在 State 中，而是只存储聚合后的数据即可。</p>
+<h3 id="Triggers"><a href="#Triggers" class="headerlink" title="Triggers"></a>Triggers</h3><p>Trigger 决定何时触发窗口计算，每个 Window Assigner 都有一个默认的 trigger。当然，Flink 也提供自定义 trigger，自定义 trigger 只需要实现 Trigger 接口，并且在 .trigger() 方法中调用即可（在文章开头的示例中提到过）。</p>
+<p>Trigger 接口提供了 5 个方法，分别是：</p>
+<ul>
+<li><p>onElement() 方法在接收到元素时调用</p>
+</li>
+<li><p>onProcessingTime() 方法是在一个基于 ProcessTime 的 timer 触发时调用</p>
+</li>
+<li><p>onEventTime() 方法是在一个基于 EventTime 的 timer 触发时调用</p>
+</li>
+<li><p>onMerge() 方法在多个窗口合并时调用</p>
+</li>
+<li><p>clear() 方法是在窗口被移除时调用</p>
+</li>
+</ul>
+<p>前三个方法都会返回一个 TriggerResult，而这个 TriggerResult 的值就决定了窗口是否触发。TriggerResult 的值有以下四种：</p>
+<ul>
+<li><p>CONTINUE：什么也不做</p>
+</li>
+<li><p>FIRE_AND_PURGE：触发计算并清空窗口内的元素</p>
+</li>
+<li><p>FIRE：只触发计算，不清空窗口内元素</p>
+</li>
+<li><p>PURGE：清空窗口内元素</p>
+</li>
+</ul>
+<p>Flink 内置了多个 trigger，常见的有 EventTimeTrigger、ProcessingTimeTrigger、CountTrigger 和 PurgingTrigger。</p>
+<h3 id="Evictors"><a href="#Evictors" class="headerlink" title="Evictors"></a>Evictors</h3><p>Evictor 可以用于在 trigger 触发后、调用窗口函数之前或之后删除窗口内的元素。Evictor 接口提供了两个方法：</p>
+<ul>
+<li><p>evictBefore() 方法是在调用窗口函数之前调用</p>
+</li>
+<li><p>evictAfter() 方法是在调用窗口函数之后调用</p>
+</li>
+</ul>
+<p>Flink 内置了三种 Evictor：</p>
+<ul>
+<li><p>CountEvictor：记录用户设置的最大元素数量，当窗口内元素数量大于最大元素数量时，删除开头的元素</p>
+</li>
+<li><p>DeltaEvictor：用户需要设置计算差值的方法，evictor 会计算最后一个元素与窗口内每个元素的差值差值，并将大于用户设置的 threshold 的元素删除</p>
+</li>
+<li><p>TimeEvictor：用户需要指定窗口大小 windowSize，evictor 会计算窗口内元素最大的时间戳 maxTimestamp，将时间戳小于等于 maxTimestamp - windowSize 的元素清除</p>
+</li>
+</ul>
+<p>关于 Trigger 和 Evictor，只看概念可能还比较迷惑。我们来看一个具体的例子：假设我们需要一个实时监控系统，当连续收到 5 个大于阈值的数据时，发送告警。最终窗口中只保留 10 条数据。</p>
+<p>trigger 的实现应该是</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> TriggerResult <span class="title function_">onElement</span><span class="params">(Tuple2&lt;String, Double&gt; item, <span class="type">long</span> l, TimeWindow timeWindow, TriggerContext triggerContext)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">    ValueState&lt;Integer&gt; state = triggerContext.getPartitionedState(<span class="keyword">new</span> <span class="title class_">ValueStateDescriptor</span>&lt;&gt;(stateName, Integer.class, <span class="number">0</span>));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (item.f1 &gt; threshold) &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">count</span> <span class="operator">=</span> state.value() + <span class="number">1</span>;</span><br><span class="line">        state.update(count);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (count &gt;= countThreshold) &#123;</span><br><span class="line">            state.clear();</span><br><span class="line">            <span class="keyword">return</span> TriggerResult.FIRE;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        state.clear();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> TriggerResult.CONTINUE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>evictor 的实现为</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">evictAfter</span><span class="params">(Iterable&lt;TimestampedValue&lt;Tuple2&lt;String, Double&gt;&gt;&gt; elements, <span class="type">int</span> size, TimeWindow timeWindow, EvictorContext evictorContext)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (size &lt;= maxSize) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    List&lt;TimestampedValue&lt;Tuple2&lt;String, Double&gt;&gt;&gt; elementList = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">    elements.forEach(elementList::add);</span><br><span class="line">    <span class="type">int</span> <span class="variable">toEvict</span> <span class="operator">=</span> size - maxSize;</span><br><span class="line">    List&lt;TimestampedValue&lt;Tuple2&lt;String, Double&gt;&gt;&gt; toRemove = elementList.subList(maxSize, size);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 4. 通过迭代器删除需要移除的元素（关键：遍历原始迭代器，匹配并删除）</span></span><br><span class="line">    Iterator&lt;TimestampedValue&lt;Tuple2&lt;String, Double&gt;&gt;&gt; iterator = elements.iterator();</span><br><span class="line">    <span class="keyword">while</span> (iterator.hasNext()) &#123;</span><br><span class="line">        TimestampedValue&lt;Tuple2&lt;String, Double&gt;&gt; element = iterator.next();</span><br><span class="line">        <span class="keyword">if</span> (toRemove.contains(element)) &#123; <span class="comment">// 匹配需要删除的元素</span></span><br><span class="line">            iterator.remove(); <span class="comment">// 实际删除</span></span><br><span class="line">            toEvict--;</span><br><span class="line">            <span class="keyword">if</span> (toEvict &lt;= <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    System.out.println(<span class="string">&quot;Evictor finished: 保留了 &quot;</span> + maxSize + <span class="string">&quot; 个元素&quot;</span>);</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>完整代码我放到 <a target="_blank" rel="noopener" href="https://github.com/Jackeyzhe/flink-training/blob/feature/wz-demo/common/src/main/java/org/apache/flink/training/examples/trigger/TriggerAndEvictorDemo.java">GitHub</a> 了，感兴趣的可以看一下。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>最后总结一下，今天我们了解了 Flink 中窗口相关的概念，首先是窗口分类，然后是 Window Assginer（分别介绍了滑动窗口、滚动窗口、会话窗口和全局窗口）。接着又了解窗口处理函数，即怎么计算窗口中的数据。最后学习的 trigger 和 evictor 的作用和用法。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>Buy me a coffee</div>
+  <button>
+    Donate
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/weixinpay.jpg" alt="Jackey Wang WeChat Pay">
+        <span>WeChat Pay</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Jackey Wang Alipay">
+        <span>Alipay</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="followme">
+  <span>Welcome to my other publishing channels</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <span class="social-link">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </span>
+
+          <img class="social-item-img" src="/images/wechat-qcode.jpg">
+      </div>
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Flink/" rel="tag"><i class="fa fa-tag"></i> Flink</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/06/30/Flink%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%9A%E6%97%B6%E9%97%B4%E4%B8%8EWatermark/" rel="prev" title="Flink学习笔记：时间与Watermark">
+                  <i class="fa fa-angle-left"></i> Flink学习笔记：时间与Watermark
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/07/19/Flink%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%9A%E5%A4%9A%E6%B5%81join/" rel="next" title="Flink学习笔记：多流 Join">
+                  Flink学习笔记：多流 Join <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Jackey Wang</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Word count total">477k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">7:13</span>
+  </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/Jackeyzhe" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

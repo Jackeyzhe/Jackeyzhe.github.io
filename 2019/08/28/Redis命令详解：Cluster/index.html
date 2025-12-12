@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"jackeyzhe.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"github-dark","dark":"github-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="前文中我们介绍过了Redis的三种集群方案，没有了解过的同学可以自行前往。今天要介绍的Redis的亲儿子Cluster相关的命令。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis命令详解：Cluster">
+<meta property="og:url" content="https://jackeyzhe.github.io/2019/08/28/Redis%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%EF%BC%9ACluster/index.html">
+<meta property="og:site_name" content="Jackeyzhe&#39;s Blog">
+<meta property="og:description" content="前文中我们介绍过了Redis的三种集群方案，没有了解过的同学可以自行前往。今天要介绍的Redis的亲儿子Cluster相关的命令。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2019-08-27T17:15:56.000Z">
+<meta property="article:modified_time" content="2024-12-06T17:02:53.000Z">
+<meta property="article:author" content="Jackey Wang">
+<meta property="article:tag" content="Redis命令">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://jackeyzhe.github.io/2019/08/28/Redis%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%EF%BC%9ACluster/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-Hans","comments":true,"permalink":"https://jackeyzhe.github.io/2019/08/28/Redis%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%EF%BC%9ACluster/","path":"2019/08/28/Redis命令详解：Cluster/","title":"Redis命令详解：Cluster"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Redis命令详解：Cluster | Jackeyzhe's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script size="300" alpha="0.6" zIndex="1" src="https://cdnjs.cloudflare.com/ajax/libs/ribbon.js/1.0.2/ribbon.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Jackeyzhe's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Jackeyzhe's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">靠脸吃饭</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section">Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section">Tags<span class="badge">14</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section">Archives<span class="badge">109</span></a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section">About</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#CLUSTER-ADDSLOTS"><span class="nav-number">1.</span> <span class="nav-text">CLUSTER ADDSLOTS</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CLUSTER-COUNT-FAILURE-REPORTS"><span class="nav-number">2.</span> <span class="nav-text">CLUSTER COUNT-FAILURE-REPORTS</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CLUSTER-COUNTKEYSINSLOT"><span class="nav-number">3.</span> <span class="nav-text">CLUSTER COUNTKEYSINSLOT</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CLUSTER-DELSLOTS"><span class="nav-number">4.</span> <span class="nav-text">CLUSTER DELSLOTS</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CLUSTER-FAILOVER"><span class="nav-number">5.</span> <span class="nav-text">CLUSTER FAILOVER</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CLUSTER-FORGET"><span class="nav-number">6.</span> <span class="nav-text">CLUSTER FORGET</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CLUSTER-GETKEYSINSLOT"><span class="nav-number">7.</span> <span class="nav-text">CLUSTER GETKEYSINSLOT</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CLUSTER-INFO"><span class="nav-number">8.</span> <span class="nav-text">CLUSTER INFO</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CLUSTER-KEYSLOT"><span class="nav-number">9.</span> <span class="nav-text">CLUSTER KEYSLOT</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CLUSTER-MEET"><span class="nav-number">10.</span> <span class="nav-text">CLUSTER MEET</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CLUSTER-NODES"><span class="nav-number">11.</span> <span class="nav-text">CLUSTER NODES</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CLUSTER-REPLICAS"><span class="nav-number">12.</span> <span class="nav-text">CLUSTER REPLICAS</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CLUSTER-REPLICATE"><span class="nav-number">13.</span> <span class="nav-text">CLUSTER REPLICATE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CLUSTER-RESET"><span class="nav-number">14.</span> <span class="nav-text">CLUSTER RESET</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CLUSTER-SAVECONFIG"><span class="nav-number">15.</span> <span class="nav-text">CLUSTER SAVECONFIG</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CLUSTER-SET-CONFIG-EPOCH"><span class="nav-number">16.</span> <span class="nav-text">CLUSTER SET-CONFIG-EPOCH</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CLUSTER-SETSLOT"><span class="nav-number">17.</span> <span class="nav-text">CLUSTER SETSLOT</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CLUSTER-SLAVES"><span class="nav-number">18.</span> <span class="nav-text">CLUSTER SLAVES</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CLUSTER-SLOTS"><span class="nav-number">19.</span> <span class="nav-text">CLUSTER SLOTS</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#READONLY"><span class="nav-number">20.</span> <span class="nav-text">READONLY</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#READWRITE"><span class="nav-number">21.</span> <span class="nav-text">READWRITE</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Jackey Wang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">109</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Jackeyzhe" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:jackeyzhe59@gmail.com" title="E-Mail → mailto:jackeyzhe59@gmail.com" rel="noopener me" target="_blank"><i class="fas fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/jackeyzhe" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i>StackOverflow</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2019/08/28/Redis%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%EF%BC%9ACluster/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Jackey Wang">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Redis命令详解：Cluster | Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Redis命令详解：Cluster
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-08-28 01:15:56" itemprop="dateCreated datePublished" datetime="2019-08-28T01:15:56+08:00">2019-08-28</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>6.8k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>6 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>前文中我们介绍过了Redis的三种集群方案，没有了解过的同学可以自行前往。今天要介绍的Redis的亲儿子Cluster相关的命令。<span id="more"></span></p>
+<p><a href="https://jackeyzhe.github.io/2018/11/04/%E7%8E%A9%E8%BD%ACRedis%E9%9B%86%E7%BE%A4%E4%B9%8BSentinel/">玩转Redis集群之Sentinel</a></p>
+<p><a href="https://jackeyzhe.github.io/2018/11/14/%E7%8E%A9%E8%BD%ACRedis%E9%9B%86%E7%BE%A4%E4%B9%8BCodis/">玩转Redis集群之Codis</a></p>
+<p><a href="https://jackeyzhe.github.io/2018/11/27/%E7%8E%A9%E8%BD%ACRedis%E9%9B%86%E7%BE%A4%E4%B9%8BCluster/">玩转Redis集群之Cluster</a></p>
+<h4 id="CLUSTER-ADDSLOTS"><a href="#CLUSTER-ADDSLOTS" class="headerlink" title="CLUSTER ADDSLOTS"></a>CLUSTER ADDSLOTS</h4><p>最早可用版本：3.0.0</p>
+<p>时间复杂度：O(N)，N是参数中hash的slot总数</p>
+<p>这个命令是用来将指定的slot分配给接收命令的机器。如果执行成功，该机器就拥有这些slot，并会在集群中进行广播。</p>
+<p>需要注意的是：</p>
+<ol>
+<li>该命令只有在当所有指定的slot在接收命令的节点上没有被分配时生效。节点将拒绝接纳已经分配到其他节点的slot。</li>
+<li>如果相同的slot被多次指定，命令就会执行失败。</li>
+<li>如果一个slot作为参数被设置为importing，一旦节点向自己分配该slot，这个状态将会被清除。</li>
+</ol>
+<p>这个命令的应用场景有两种：</p>
+<ol>
+<li>创建新的集群时，ADDSLOTS用于主节点初始化分配可用的hash slots</li>
+<li>修复有未分配slots的坏集群</li>
+</ol>
+<p>如果一个节点为自己分配了一个slot集合，它会将这个信息在心跳包的header里传播出去。然而其他节点只有在他们的slot没有被其他节点绑定或者没有作为新节点传播时才会接收这个信息。</p>
+<p>这意味着这个命令应该仅通过redis集群应用管理客户端，例如redis-trib。如果这个命令使用了错误的上下文会导致集群处于错误的状态或者导致数据丢失，因此这个命令需要谨慎使用。</p>
+<h4 id="CLUSTER-COUNT-FAILURE-REPORTS"><a href="#CLUSTER-COUNT-FAILURE-REPORTS" class="headerlink" title="CLUSTER COUNT-FAILURE-REPORTS"></a>CLUSTER COUNT-FAILURE-REPORTS</h4><p>最早可用版本：3.0.0</p>
+<p>时间复杂度：O(N)，N是故障报告的数量</p>
+<p>这个命令返回指定节点的故障报告。故障报告是Redis Cluster用来将节点从PFAIL状态转换到FAIL状态的方式。</p>
+<p>更多的细节：</p>
+<ul>
+<li>一个节点会用PFAIL标记一个不可达时间超过超时时间，这个超时时间是Redis Cluster配置中的基本选项</li>
+<li>处于PFAIL状态的节点会将状态信息提供在心跳包的gossip部分。</li>
+<li>每当一个节点处理来自其他节点的gossip信息时，该节点会建立故障报告，并且会记住发送消息包的节点说的其他节点是在PFAIL状态的消息。</li>
+<li>每个故障报告的生存时间是节点超时时间的两倍</li>
+<li>如果在一段时间一个节点被另一个节点标记为PFAIL状态，并且在同一时间收到大多数主节点关于该节点的故障报告，那么该节点的故障状态会从PFAIL变成FAIL，并且广播这个信息，让所有可达的节点将这个节点标记为FAIL。</li>
+</ul>
+<p>该节点返回当前节点的故障报告数，该计数值不包括当前节点。</p>
+<h4 id="CLUSTER-COUNTKEYSINSLOT"><a href="#CLUSTER-COUNTKEYSINSLOT" class="headerlink" title="CLUSTER COUNTKEYSINSLOT"></a>CLUSTER COUNTKEYSINSLOT</h4><p>最早可用版本：3.0.0</p>
+<p>时间复杂度：O(1)</p>
+<p>这个命令返回指定Redis集群的slot的key的数量。该命令只查询连接节点的本地数据集，如果指定的slot被分配在别的节点上，就会返回0。</p>
+<h4 id="CLUSTER-DELSLOTS"><a href="#CLUSTER-DELSLOTS" class="headerlink" title="CLUSTER DELSLOTS"></a>CLUSTER DELSLOTS</h4><p>最早可用版本：3.0.0</p>
+<p>时间复杂度：O(N)，N是slot参数的数量</p>
+<p>在Redis Cluster中，每个节点都会知道哪些主节点正在负责哪些slot。</p>
+<p>DELSLOTS命令使一个特定的节点忘记主节点负责的hash slot。在这之后，这些hash slot就被认为是未绑定状态的。需要注意的是：</p>
+<ol>
+<li>命令只在参数指定的hash slot和某些节点绑定时有效</li>
+<li>如果同一个hash slot被指定多次，该命令会失效</li>
+<li>节点可能因为没有覆盖全部slot而变成下线状态</li>
+</ol>
+<h4 id="CLUSTER-FAILOVER"><a href="#CLUSTER-FAILOVER" class="headerlink" title="CLUSTER FAILOVER"></a>CLUSTER FAILOVER</h4><p>最早可用版本：3.0.0</p>
+<p>时间复杂度：O(1)</p>
+<p>用法：CLUSTER FAILOVER [FORCE|TAKEOVER]</p>
+<p>该命令只能再集群slave节点执行，让slave节点进行一次人工的故障切换。</p>
+<p>人工故障切换时一种常规操作，而不是真的出了故障。当我们希望当前的master和它的slave进行一次安全的主备切换时，流程如下：</p>
+<ol>
+<li>当前slave节点告知其master停止处理来自客户端的请求。</li>
+<li>master节点将当前replication offset回复给slave</li>
+<li>该slave节点在未应用至replication offset之前不做任何操作，以保证master传来的数据均被处理</li>
+<li>该slave节点进行故障转移，从集群中大多数master获取一个新的配置，并广播自己的最新配置</li>
+<li>旧的master更新配置，解除客户端阻塞，回复重定向信息，以便客户端可以和新的master通信。</li>
+</ol>
+<p>该命令有两个选项：FORCE和TAKEOVER，下面我们来解释一下这两个选项的作用。</p>
+<p>FORCE选项：slave节点不会和master做协商，直接从上述第4步开始进行故障切换</p>
+<p>TAKEOVER选项：忽略集群一致验证的人工故障切换。有时会出现集群中master节点不够的情况，此时我们就需要使用TAKEOVER选项将slave批量切换为master节点。</p>
+<p>TAKEOVER选项实现了FORCE选项的所有功能，当一个slave节点收到CLUSTER FAILOVER TAKEOVER命令时会有如下操作：</p>
+<ol>
+<li>生成一个新的configEpoch，如果本地配置的epoch不是最大的，就需要将其配置为最大。</li>
+<li>将原master节点管理的所有slot分配给自己，同时尽快分发最新的配置给所有可达节点。</li>
+</ol>
+<h4 id="CLUSTER-FORGET"><a href="#CLUSTER-FORGET" class="headerlink" title="CLUSTER FORGET"></a>CLUSTER FORGET</h4><p>最早可用版本：3.0.0</p>
+<p>时间复杂度：O(1)</p>
+<p>这个命令用于移除指定node-id的node。如果一个node属于某个集群，那么集群中其他节点都会知道它的存在，因此CLUSTER FORGET命令会发送给集群中剩下的所有节点。</p>
+<p>然而这个命令并不是简单的把node从node表中删除，它还禁止这个节点再次被添加进集群。</p>
+<p>假设我们有4个节点：A、B、C、D，此时我们删除D，如果不把D加入禁用列表，就会发生以下情况：</p>
+<ol>
+<li>把D负责的slot重新分配给A、B、C</li>
+<li>此时D没有负责的slot了，但仍然在node表中</li>
+<li>给A发送命令CLUSTER FORGET D</li>
+<li>B给A发送一个心跳包，其中包含了D的信息</li>
+<li>A不知道D的信息，就又开始联系D</li>
+<li>D又被重新加入到A的node表中</li>
+</ol>
+<p>这样我们的删除命令就无效了，除非我们在各个节点没有互相发送心跳包的时候同时给他们发送CLUSTER FORGET命令。但这显然不合理，所以我们实际上应该这样做：</p>
+<ol>
+<li>指定的节点从node表中删除</li>
+<li>被删除的节点的node-id加入禁用列表一分钟</li>
+<li>node在处理心跳消息时会忽略禁用列表中的所有node-id的节点</li>
+</ol>
+<p>在一些特殊情况下，这个命令会无法执行并返回一个错误。</p>
+<ol>
+<li>指定的node-id没有在node表中</li>
+<li>收到命令的节点是从节点，而要删除的节点是它的主节点</li>
+<li>收到命令的节点和待删除的节点是同一个节点</li>
+</ol>
+<h4 id="CLUSTER-GETKEYSINSLOT"><a href="#CLUSTER-GETKEYSINSLOT" class="headerlink" title="CLUSTER GETKEYSINSLOT"></a>CLUSTER GETKEYSINSLOT</h4><p>最早可用版本：3.0.0</p>
+<p>时间复杂度：O(log(N))，N是请求的key的数量</p>
+<p>用法：CLUSTER GETKEYSINSLOT slot count</p>
+<p>这个命令返回连接节点指定的slot里key的列表。key的最大数量由count指定。所以这个API可以用作key的批处理。这个命令的主要用途是在做rehash的过程中，把slot从一个节点移动到另外一个节点。</p>
+<h4 id="CLUSTER-INFO"><a href="#CLUSTER-INFO" class="headerlink" title="CLUSTER INFO"></a>CLUSTER INFO</h4><p>最早可用版本：3.0.0</p>
+<p>时间复杂度：O(1)</p>
+<p>提供Redis集群的相关信息。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">cluster_state:ok</span><br><span class="line">cluster_slots_assigned:16384</span><br><span class="line">cluster_slots_ok:16384</span><br><span class="line">cluster_slots_pfail:0</span><br><span class="line">cluster_slots_fail:0</span><br><span class="line">cluster_known_nodes:6</span><br><span class="line">cluster_size:3</span><br><span class="line">cluster_current_epoch:6</span><br><span class="line">cluster_my_epoch:2</span><br><span class="line">cluster_stats_messages_sent:1483972</span><br><span class="line">cluster_stats_messages_received:1483968</span><br></pre></td></tr></table></figure>
+<ul>
+<li>cluster_state：ok状态表示节点可以接收查询请求，fail表示至少有一个slot没有分配或者在error状态。</li>
+<li>cluster_slots_assigned：已经分配到集群节点的slot。16384个slot全部被分配到集群节点是集群节点正常运行的必要条件</li>
+<li>cluster_slots_ok：slot不是FAIL或PFAIL状态的数量</li>
+<li>cluster_slots_pfail：slot状态是PFAIL的数量</li>
+<li>cluster_slots_fail：slot状态是FAIL的数量，如果不是0，那么集群节点将无法提供服务，除非cluster-require-full-coverage被设置为no</li>
+<li>cluster_known_nodes：集群中的节点数量</li>
+<li>cluster_size：至少包含一个slot且能够提供服务的master节点数量</li>
+<li>cluster_current_epoch：集群本地Current Epoch的值</li>
+<li>cluster_my_epoch：当前正在使用节点的Config Epoch值</li>
+<li>cluster_stats_messages_sent：通过点到点总线发送消息的数量</li>
+<li>cluster_stats_messages_received：通过点到点总线接收消息的数量</li>
+</ul>
+<h4 id="CLUSTER-KEYSLOT"><a href="#CLUSTER-KEYSLOT" class="headerlink" title="CLUSTER KEYSLOT"></a>CLUSTER KEYSLOT</h4><p>最早可用版本：3.0.0</p>
+<p>时间复杂度：O(N)，N是key的字节数</p>
+<p>返回一个整数，用于标识指定键所散列到的slot。这个命令主要是用于调试和测试。因为它通过一个API来暴露Redis底层hash算法的实现。</p>
+<h4 id="CLUSTER-MEET"><a href="#CLUSTER-MEET" class="headerlink" title="CLUSTER MEET"></a>CLUSTER MEET</h4><p>最早可用版本：3.0.0</p>
+<p>时间复杂度：O(1)</p>
+<p>CLUSTER MEET命令用来连接不同Redis节点，以进入工作集群。</p>
+<p>有一点基本的共识是节点之间互相都是不信任的，并且被认为是未知节点。以避免因为系统管理错误或者网络地址被修改而导致多个集群的节点混合成一个。</p>
+<p>因此，为了使给定的节点能接收另一个节点到Redis Cluster中，有两种方法：</p>
+<ol>
+<li>系统管理员发送CLUSTER MEET命令强制一个节点会面另一个节点</li>
+<li>一个已知节点发送一个保存在gossip部分的节点列表，包含着未知节点。如果接收的节点已经将发送节点标记为已知节点，那么它会处理gossip中的位置节点信息，并给它发送一个握手消息。</li>
+</ol>
+<p>Redis Cluster是一个完整的网络，在创建网络时，并不需要给所有节点发送CLUSTER MEET命令，只要发送了足够的命令，保证每个节点都有已知节点，其他的事情就交给gossip来处理了。</p>
+<h4 id="CLUSTER-NODES"><a href="#CLUSTER-NODES" class="headerlink" title="CLUSTER NODES"></a>CLUSTER NODES</h4><p>最早可用版本：3.0.0</p>
+<p>时间复杂度：O(N)，N是集群中的节点数</p>
+<p>该命令提供了当前连接节点所属集群的配置信息。信息格式和Redis集群在磁盘上存储使用的序列化格式完全一样。</p>
+<p>通常，如果你想知道hash slot与节点的关联关系，你应该使用CLUSTER SLOTS命令。CLUSTER NODES主要用于管理任务，调试和配置监控。redis-trib也会使用该命令管理集群。</p>
+<p>命令的结构如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;<span class="built_in">id</span>&gt; &lt;ip:port&gt; &lt;flags&gt; &lt;master&gt; &lt;ping-sent&gt; &lt;pong-recv&gt; &lt;config-epoch&gt; &lt;link-state&gt; &lt;slot&gt; &lt;slot&gt; ... &lt;slot&gt;</span><br></pre></td></tr></table></figure>
+<h4 id="CLUSTER-REPLICAS"><a href="#CLUSTER-REPLICAS" class="headerlink" title="CLUSTER REPLICAS"></a>CLUSTER REPLICAS</h4><p>最早可用版本：5.0.0</p>
+<p>时间复杂度：O(1)</p>
+<p>该命令会列出主节点的从节点列表。输出格式与CLUSTER NODES格式相同。</p>
+<p>若特定节点状态未知，或在接收命令节点不是主节点，则命令失败。</p>
+<h4 id="CLUSTER-REPLICATE"><a href="#CLUSTER-REPLICATE" class="headerlink" title="CLUSTER REPLICATE"></a>CLUSTER REPLICATE</h4><p>最早可用版本：3.0.0</p>
+<p>时间复杂度：O(1)</p>
+<p>该命令重新配置一个节点成为指定master的从节点。如果收到命令的节点是empty master，那么该节点的角色将由master转换为slave。</p>
+<p>一旦一个节点变成另一个master的slave，不需要将这一变化告知集群内的其他节点，心跳消息会把最新配置同步给其他节点。</p>
+<p>一个从节点接收这个命令需要满足以下条件：</p>
+<ol>
+<li>指定节点存在它的节点列表中</li>
+<li>指定节点对接收命令的节点未知</li>
+<li>指定节点是master</li>
+</ol>
+<p>如果收到命令的节点不是slave而是master，只有在如下情况下，命令才会执行成功：</p>
+<ol>
+<li>该节点不保存任何hash slot</li>
+<li>该节点是空的，key空间没有任何key</li>
+</ol>
+<h4 id="CLUSTER-RESET"><a href="#CLUSTER-RESET" class="headerlink" title="CLUSTER RESET"></a>CLUSTER RESET</h4><p>最早可用版本：3.0.0</p>
+<p>时间复杂度：O(N)，N是已知节点的数量</p>
+<p>根据reset类型（hard或soft）重置一个集群的节点。当主节点hold住一个或多个key时，这个命令无法执行，必须先使用FLUSHALL命令删除所有的key。该命令的影响是：</p>
+<ol>
+<li>集群中的节点都被忽略</li>
+<li>所有已分配的slot会被reset，slots-to-nodes关系被完全清除</li>
+<li>如果节点是slave，它会被切换成空master。</li>
+<li>Hard模式：生成新的节点ID</li>
+<li>Hard模式：currentEpoch和configEpoch被置为0</li>
+<li>新配置被持久化到节点磁盘上的集群配置信息文件中</li>
+</ol>
+<h4 id="CLUSTER-SAVECONFIG"><a href="#CLUSTER-SAVECONFIG" class="headerlink" title="CLUSTER SAVECONFIG"></a>CLUSTER SAVECONFIG</h4><p>最早可用版本：3.0.0</p>
+<p>时间复杂度：O(1)</p>
+<p>强制保存配置nodes.conf到磁盘。该命令主要用于nodes.conf文件丢失或删除时重新生成文件。</p>
+<h4 id="CLUSTER-SET-CONFIG-EPOCH"><a href="#CLUSTER-SET-CONFIG-EPOCH" class="headerlink" title="CLUSTER SET-CONFIG-EPOCH"></a>CLUSTER SET-CONFIG-EPOCH</h4><p>最早可用版本：3.0.0</p>
+<p>时间复杂度：O(1)</p>
+<p>该命令为一个全新的节点设置config epoch，只在以下情况有效：</p>
+<ol>
+<li>节点的节点信息表是空的</li>
+<li>节点的config epoch是0</li>
+</ol>
+<p>人工修改一个节点的config epoch是不安全的，但是当epoch产生冲突时，自动解决又非常慢，这时可以使用这个命令进行人工干预。</p>
+<h4 id="CLUSTER-SETSLOT"><a href="#CLUSTER-SETSLOT" class="headerlink" title="CLUSTER SETSLOT"></a>CLUSTER SETSLOT</h4><p>最早可用版本：3.0.0</p>
+<p>时间复杂度：O(1)</p>
+<p>用法：CLUSTER SETSLOTslot IMPORTING|MIGRATING|STABLE|NODE [node-id]</p>
+<p>CLUSTER SETSLOT根据子命令修改节点的hash slot状态：</p>
+<ol>
+<li>MIGRATING：将一个hash slot设置为migrating状态</li>
+<li>IMPORTING：将一个hash slot设置为importing状态</li>
+<li>STABLE：清除migrating或importing状态</li>
+<li>NODE：把hash slot绑定到其他节点</li>
+</ol>
+<p>该命令通常在rehash时使用，将源节点的hash slot置为migrating状态，目标节点的hash slot置为importing状态。</p>
+<ul>
+<li>CLUSTER SETSLOT <slot> MIGRATING <destination-node-id></li>
+</ul>
+<p>该命令将slot设置为migrating状态，接下来要处理的key如果存在，命令正常执行。如果不存在，则节点发出ASK重定向，让客户端去请求destination-node节点。对于批量key处理，如果只有部分节点存在，则返回TRYAGAIN错误。</p>
+<ul>
+<li>CLUSTER SETSLOT <slot> IMPORTING <source-node-id></li>
+</ul>
+<p>这是MIGRATING的反操作，接下来涉及该slot的命令都被拒绝，并产生一个MOVED重定向，除非命令跟着一个ASK重定向。</p>
+<h4 id="CLUSTER-SLAVES"><a href="#CLUSTER-SLAVES" class="headerlink" title="CLUSTER SLAVES"></a>CLUSTER SLAVES</h4><p>最早可用版本：3.0.0</p>
+<p>时间复杂度：O(1)</p>
+<p>该命令会列出指定master节点的所有slave节点，格式和CLUSTER NODES相同。当指定节点未知或不是master时，命令返回一个错误。</p>
+<h4 id="CLUSTER-SLOTS"><a href="#CLUSTER-SLOTS" class="headerlink" title="CLUSTER SLOTS"></a>CLUSTER SLOTS</h4><p>最早可用版本：3.0.0</p>
+<p>时间复杂度：O(N)，N是slot的总数</p>
+<p>该命令返回slot和Redis实例的映射关系。这个命令对客户端很有用，在执行命令时，客户端会根据这个命令返回的信息去连接正确的节点执行命令。</p>
+<p>每个节点的信息结构如下：</p>
+<ul>
+<li>起始slot编号</li>
+<li>结束slot编号</li>
+<li>slot对应的master节点，用IP/Port表示</li>
+<li>master节点的第一个副本</li>
+<li>第二个副本</li>
+</ul>
+<h4 id="READONLY"><a href="#READONLY" class="headerlink" title="READONLY"></a>READONLY</h4><p>最早可用版本：3.0.0</p>
+<p>时间复杂度：O(1)</p>
+<p>开启与Redis Cluster从节点连接的读请求</p>
+<p>通常从节点将重定向客户端到认证过的主节点，以获取在指定命令中所涉及的slot，然而客户端可以通过READONLY命令将从节点设置为只读模式。</p>
+<p>READONLY告诉Redis Cluster从节点愿意读取可能过时的数据。</p>
+<p>当连接处于只读模式，只有操作涉及到该从节点的主节点不服务的键时，集群将会发送一个重定向给客户端，这可能是因为：</p>
+<ol>
+<li>客户端发送一个有关这个从节点的主节点不服务hash slot的命令</li>
+<li>集群被重新配置并且从节点不在服务给定hash slot的命令</li>
+</ol>
+<h4 id="READWRITE"><a href="#READWRITE" class="headerlink" title="READWRITE"></a>READWRITE</h4><p>最早可用版本：3.0.0</p>
+<p>时间复杂度：O(1)</p>
+<p>禁止与Redis Cluster从节点连接的读请求。</p>
+<p>默认情况下禁止Redis Cluster从节点的读请求，但是可以使用READONLY去在每一个连接的基础上改变这个行为，READWRITE命令将连接的只读模式重置为读写模式。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>Buy me a coffee</div>
+  <button>
+    Donate
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/weixinpay.jpg" alt="Jackey Wang WeChat Pay">
+        <span>WeChat Pay</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Jackey Wang Alipay">
+        <span>Alipay</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="followme">
+  <span>Welcome to my other publishing channels</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <span class="social-link">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </span>
+
+          <img class="social-item-img" src="/images/wechat-qcode.jpg">
+      </div>
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Redis%E5%91%BD%E4%BB%A4/" rel="tag"><i class="fa fa-tag"></i> Redis命令</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/08/28/Redis%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%EF%BC%9APub-Sub/" rel="prev" title="Redis命令详解：Pub&#x2F;Sub">
+                  <i class="fa fa-angle-left"></i> Redis命令详解：Pub/Sub
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/09/06/Redis%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%EF%BC%9AGeo/" rel="next" title="Redis命令详解：Geo">
+                  Redis命令详解：Geo <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Jackey Wang</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Word count total">477k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">7:13</span>
+  </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/Jackeyzhe" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

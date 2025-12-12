@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"jackeyzhe.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"github-dark","dark":"github-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="欢迎大家和我一起入坑Rust，以后我就是坑主，我主要负责在前面挖坑，各位可以在上面看，有手痒的也可以和我一起挖。这个坑到底有多深？我也不知道，我是抱着有多深就挖多深的心态来的，下面我先跳了，各位请随意。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Rust入坑指南：坑主驾到">
+<meta property="og:url" content="https://jackeyzhe.github.io/2019/09/21/Rust%E5%85%A5%E5%9D%91%E6%8C%87%E5%8D%97%EF%BC%9A%E5%9D%91%E4%B8%BB%E9%A9%BE%E5%88%B0/index.html">
+<meta property="og:site_name" content="Jackeyzhe&#39;s Blog">
+<meta property="og:description" content="欢迎大家和我一起入坑Rust，以后我就是坑主，我主要负责在前面挖坑，各位可以在上面看，有手痒的也可以和我一起挖。这个坑到底有多深？我也不知道，我是抱着有多深就挖多深的心态来的，下面我先跳了，各位请随意。">
+<meta property="og:locale">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1569055727/Blog/rust/01/rust01.png">
+<meta property="article:published_time" content="2019-09-21T13:41:35.000Z">
+<meta property="article:modified_time" content="2024-12-06T17:02:53.000Z">
+<meta property="article:author" content="Jackey Wang">
+<meta property="article:tag" content="Rust">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1569055727/Blog/rust/01/rust01.png">
+
+
+<link rel="canonical" href="https://jackeyzhe.github.io/2019/09/21/Rust%E5%85%A5%E5%9D%91%E6%8C%87%E5%8D%97%EF%BC%9A%E5%9D%91%E4%B8%BB%E9%A9%BE%E5%88%B0/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-Hans","comments":true,"permalink":"https://jackeyzhe.github.io/2019/09/21/Rust%E5%85%A5%E5%9D%91%E6%8C%87%E5%8D%97%EF%BC%9A%E5%9D%91%E4%B8%BB%E9%A9%BE%E5%88%B0/","path":"2019/09/21/Rust入坑指南：坑主驾到/","title":"Rust入坑指南：坑主驾到"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Rust入坑指南：坑主驾到 | Jackeyzhe's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script size="300" alpha="0.6" zIndex="1" src="https://cdnjs.cloudflare.com/ajax/libs/ribbon.js/1.0.2/ribbon.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Jackeyzhe's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Jackeyzhe's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">靠脸吃饭</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section">Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section">Tags<span class="badge">14</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section">Archives<span class="badge">109</span></a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section">About</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Rust%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">Rust简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85Rust"><span class="nav-number">2.</span> <span class="nav-text">安装Rust</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#IDEA%E9%9B%86%E6%88%90Rust"><span class="nav-number">2.1.</span> <span class="nav-text">IDEA集成Rust</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Hello-World"><span class="nav-number">3.</span> <span class="nav-text">Hello World</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%8E%E8%AE%B0"><span class="nav-number">4.</span> <span class="nav-text">后记</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Jackey Wang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">109</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Jackeyzhe" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:jackeyzhe59@gmail.com" title="E-Mail → mailto:jackeyzhe59@gmail.com" rel="noopener me" target="_blank"><i class="fas fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/jackeyzhe" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i>StackOverflow</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2019/09/21/Rust%E5%85%A5%E5%9D%91%E6%8C%87%E5%8D%97%EF%BC%9A%E5%9D%91%E4%B8%BB%E9%A9%BE%E5%88%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Jackey Wang">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Rust入坑指南：坑主驾到 | Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Rust入坑指南：坑主驾到
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-09-21 21:41:35" itemprop="dateCreated datePublished" datetime="2019-09-21T21:41:35+08:00">2019-09-21</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>2.3k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>2 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>欢迎大家和我一起入坑Rust，以后我就是坑主，我主要负责在前面挖坑，各位可以在上面看，有手痒的也可以和我一起挖。这个坑到底有多深？我也不知道，我是抱着有多深就挖多深的心态来的，下面我先跳了，各位请随意。<span id="more"></span></p>
+<h3 id="Rust简介"><a href="#Rust简介" class="headerlink" title="Rust简介"></a>Rust简介</h3><p>众所周知，在编程语言中，更易读的高级语言和控制底层资源的低级语言是一对矛盾体。Rust想要挑战这一现状，它尝试为开发者提供更好的体验的同时给予开发者控制底层细节的权限（比如内存使用）。</p>
+<p>低级语言在开发过程中很容易出现各种细微的错误，它们难以发现但是可能影响巨大。其他大部分低级语言只能靠覆盖面更广的测试用例和经验丰富的开发者来解决这些问题。而Rust则依靠严格的编译器来杜绝这些问题。</p>
+<p><em>Ps：以后会见识到Rust编译器的「厉害」</em></p>
+<p>Rust的一些工具：</p>
+<ul>
+<li>Cargo，依赖包的管理和构建工具，可以帮你减轻添加、编译和管理依赖包的痛苦</li>
+<li>Rustfmt，用于保证开发者代码风格的一致性</li>
+<li>Rust语言服务器支持集成IDE（我用的是IDEA）</li>
+</ul>
+<h3 id="安装Rust"><a href="#安装Rust" class="headerlink" title="安装Rust"></a>安装Rust</h3><p>如果你的操作系统是Linux或macOS，在终端执行命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ curl https://sh.rustup.rs -sSf | sh</span><br></pre></td></tr></table></figure>
+<p>安装过程中的选项使用默认就好（一路回车），直到出现以下信息时，表示安装成功。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Rust is installed now. Great!</span><br></pre></td></tr></table></figure>
+<p>安装脚本会自动把Rust添加到环境变量PATH中，可以重启终端或者手动执行命令使添加生效。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">source</span> <span class="variable">$HOME</span>/.cargo/env</span><br></pre></td></tr></table></figure>
+<p>当然也可以添加到你的.bash_profile文件中：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">export</span> PATH=<span class="string">&quot;<span class="variable">$HOME</span>/.cargo/bin:<span class="variable">$PATH</span>&quot;</span></span><br></pre></td></tr></table></figure>
+<p>最后，执行以下命令来检查Rust是否安装成功</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ rustc --version</span><br></pre></td></tr></table></figure>
+<p>另外，当你尝试编译Rust代码，但报了linker不可执行的错误时，你需要手动安装一个linker，C编译器通常会包含正确的linker。Rust的一些公共包也会依赖C语言代码和编译器。所以最好现在安装一个。</p>
+<h4 id="IDEA集成Rust"><a href="#IDEA集成Rust" class="headerlink" title="IDEA集成Rust"></a>IDEA集成Rust</h4><p>IDEA中集成Rust也很简单，只需要在Preference-&gt;Plugins中搜索Rust，安装Rust插件后重启IDEA就可以了。</p>
+<h3 id="Hello-World"><a href="#Hello-World" class="headerlink" title="Hello World"></a>Hello World</h3><p>又到了经典的Hello World时间，这次我不想直接一个简单的print就结束了，我们一开始提到了Cargo是Rust依赖包的管理工具，所以我想体验一下Cargo的用法。</p>
+<p>首先新建一个项目，可以直接用在IDEA中new project，也可以使用Cargo命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cargo new hello-world</span><br><span class="line"><span class="built_in">cd</span> hello-world</span><br></pre></td></tr></table></figure>
+<p>新建好项目以后，它的结构长这样子</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1569055727/Blog/rust/01/rust01.png" alt="rust-new-project"></p>
+<p>其中</p>
+<ul>
+<li>main.rs是我们代码的入口文件</li>
+<li>Cargo.toml是记录Rust元数据的文件，包括依赖。</li>
+<li>Cargo.lock是记录增加依赖log的文件，不能手动修改。</li>
+</ul>
+<p>接着我们在Cargo.toml文件中添加我们需要的依赖</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[dependencies]</span><br><span class="line">ferris-says = <span class="string">&quot;0.1&quot;</span></span><br></pre></td></tr></table></figure>
+<p>这时IDEA会自动安装依赖包，如果没有安装，也可以手动执行命令来安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cargo build</span><br></pre></td></tr></table></figure>
+<p>依赖安装好以后，就可以开始写代码了：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> ferris_says::say;</span><br><span class="line"><span class="keyword">use</span> std::io::&#123;stdout, BufWriter&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">stdout</span> = <span class="title function_ invoke__">stdout</span>();</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">out</span> = <span class="string">b&quot;Hello World!&quot;</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">width</span> = <span class="number">12</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">writer</span> = BufWriter::<span class="title function_ invoke__">new</span>(stdout.<span class="title function_ invoke__">lock</span>());</span><br><span class="line">    <span class="title function_ invoke__">say</span>(out, width, &amp;<span class="keyword">mut</span> writer).<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行结果</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">----------------</span><br><span class="line">| Hello World! |</span><br><span class="line">----------------</span><br><span class="line">              \</span><br><span class="line">               \</span><br><span class="line">                  _~^~^~_</span><br><span class="line">              \) /  o o  \ (/</span><br><span class="line">                <span class="string">&#x27;_   -   _&#x27;</span></span><br><span class="line">                / <span class="string">&#x27;-----&#x27;</span> \</span><br></pre></td></tr></table></figure>
+<p>没错，这是一个小螃蟹，至于它是谁，来看看官方解释</p>
+<blockquote>
+<p>Ferris is the unofficial mascot of the Rust Community. Many Rust programmers call themselves “Rustaceans,” a play on the word “<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Crustacean">crustacean</a>.” We refer to Ferris with the pronouns “they,” “them,” etc., rather than with gendered pronouns.</p>
+<p>Ferris is a name playing off of the adjective, “ferrous,” meaning of or pertaining to iron. Since Rust often forms on iron, it seemed like a fun origin for our mascot’s name!</p>
+<p>You can find more images of Ferris on <a target="_blank" rel="noopener" href="http://rustacean.net/">http://rustacean.net/</a>.</p>
+</blockquote>
+<p>关于toml文件可能有些读者不太熟悉（其实我自己也不太熟），这里简单介绍一下吧，它的全称是「Tom’s Obvious, Minimal Language」，是一种配置文件格式。它的语义是比较明显的，因此易于阅读。同时格式可以明确的映射到hash表，所以也可以被多种语言轻松解析。</p>
+<p>GitHub地址是：<a target="_blank" rel="noopener" href="https://github.com/toml-lang/toml">https://github.com/toml-lang/toml</a></p>
+<p>有兴趣的同学可以做更深入的了解。</p>
+<h3 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h3><p>至此，我确信自己已经跳进来了，有想跟进的朋友记得关注我哦。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>Buy me a coffee</div>
+  <button>
+    Donate
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/weixinpay.jpg" alt="Jackey Wang WeChat Pay">
+        <span>WeChat Pay</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Jackey Wang Alipay">
+        <span>Alipay</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="followme">
+  <span>Welcome to my other publishing channels</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <span class="social-link">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </span>
+
+          <img class="social-item-img" src="/images/wechat-qcode.jpg">
+      </div>
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Rust/" rel="tag"><i class="fa fa-tag"></i> Rust</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/09/19/Elasticsearch%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83%EF%BC%9A%E4%BA%BA%E7%94%9F%E8%8B%A5%E5%8F%AA%E5%A6%82%E5%88%9D%E8%A7%81/" rel="prev" title="Elasticsearch从入门到放弃：人生若只如初见">
+                  <i class="fa fa-angle-left"></i> Elasticsearch从入门到放弃：人生若只如初见
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/09/22/%E3%80%90%E8%AF%91%E3%80%91%E5%A6%82%E4%BD%95%E6%8F%90%E5%87%BA%E5%A5%BD%E7%9A%84Code-Review%E5%8F%8D%E9%A6%88/" rel="next" title="【译】如何提出好的Code Review反馈">
+                  【译】如何提出好的Code Review反馈 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Jackey Wang</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Word count total">477k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">7:13</span>
+  </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/Jackeyzhe" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"jackeyzhe.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"github-dark","dark":"github-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="最近学习了一些关于架构设计的知识想分享给大家。俗话说得好，不想当架构师的程序员不是好厨子。那么如何成为一名架构师呢？接下来就聊一聊我的一些想法。 什么是架构师之前有同学问我，做了几年技术，应该转管理还是转架构师？对于这位同学，我给他的答案是，你要先踏踏实实做好现在的工作。因为就他提的问题来看，应该是刚入行不久或者是在校学生。 专心做技术的，都想做架构师。但架构师并不是说技术做时间长了可以转的。随着">
+<meta property="og:type" content="article">
+<meta property="og:title" content="敲开通往架构师的门">
+<meta property="og:url" content="https://jackeyzhe.github.io/2019/11/14/%E6%95%B2%E5%BC%80%E9%80%9A%E5%BE%80%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9A%84%E9%97%A8/index.html">
+<meta property="og:site_name" content="Jackeyzhe&#39;s Blog">
+<meta property="og:description" content="最近学习了一些关于架构设计的知识想分享给大家。俗话说得好，不想当架构师的程序员不是好厨子。那么如何成为一名架构师呢？接下来就聊一聊我的一些想法。 什么是架构师之前有同学问我，做了几年技术，应该转管理还是转架构师？对于这位同学，我给他的答案是，你要先踏踏实实做好现在的工作。因为就他提的问题来看，应该是刚入行不久或者是在校学生。 专心做技术的，都想做架构师。但架构师并不是说技术做时间长了可以转的。随着">
+<meta property="og:locale">
+<meta property="article:published_time" content="2019-11-13T17:12:52.000Z">
+<meta property="article:modified_time" content="2024-12-06T17:02:53.000Z">
+<meta property="article:author" content="Jackey Wang">
+<meta property="article:tag" content="架构">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://jackeyzhe.github.io/2019/11/14/%E6%95%B2%E5%BC%80%E9%80%9A%E5%BE%80%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9A%84%E9%97%A8/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-Hans","comments":true,"permalink":"https://jackeyzhe.github.io/2019/11/14/%E6%95%B2%E5%BC%80%E9%80%9A%E5%BE%80%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9A%84%E9%97%A8/","path":"2019/11/14/敲开通往架构师的门/","title":"敲开通往架构师的门"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>敲开通往架构师的门 | Jackeyzhe's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script size="300" alpha="0.6" zIndex="1" src="https://cdnjs.cloudflare.com/ajax/libs/ribbon.js/1.0.2/ribbon.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Jackeyzhe's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Jackeyzhe's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">靠脸吃饭</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section">Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section">Tags<span class="badge">14</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section">Archives<span class="badge">109</span></a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section">About</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E6%9E%B6%E6%9E%84%E5%B8%88"><span class="nav-number">1.</span> <span class="nav-text">什么是架构师</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E7%9A%84%E7%9C%9F%E6%AD%A3%E7%9B%AE%E7%9A%84%EF%BC%9F"><span class="nav-number">2.</span> <span class="nav-text">架构设计的真正目的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99"><span class="nav-number">3.</span> <span class="nav-text">架构设计原则</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%90%88%E9%80%82%E5%8E%9F%E5%88%99"><span class="nav-number">3.1.</span> <span class="nav-text">合适原则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%BC%94%E5%8C%96%E5%8E%9F%E5%88%99"><span class="nav-number">3.2.</span> <span class="nav-text">演化原则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AE%80%E5%8D%95%E5%8E%9F%E5%88%99"><span class="nav-number">3.3.</span> <span class="nav-text">简单原则</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Jackey Wang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">109</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Jackeyzhe" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:jackeyzhe59@gmail.com" title="E-Mail → mailto:jackeyzhe59@gmail.com" rel="noopener me" target="_blank"><i class="fas fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/jackeyzhe" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i>StackOverflow</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2019/11/14/%E6%95%B2%E5%BC%80%E9%80%9A%E5%BE%80%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9A%84%E9%97%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Jackey Wang">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="敲开通往架构师的门 | Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          敲开通往架构师的门
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-11-14 01:12:52" itemprop="dateCreated datePublished" datetime="2019-11-14T01:12:52+08:00">2019-11-14</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>2.7k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>2 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>最近学习了一些关于架构设计的知识想分享给大家。俗话说得好，不想当架构师的程序员不是好厨子。那么如何成为一名架构师呢？接下来就聊一聊我的一些想法。<!--- more --></p>
+<h3 id="什么是架构师"><a href="#什么是架构师" class="headerlink" title="什么是架构师"></a>什么是架构师</h3><p>之前有同学问我，做了几年技术，应该转管理还是转架构师？对于这位同学，我给他的答案是，你要先踏踏实实做好现在的工作。因为就他提的问题来看，应该是刚入行不久或者是在校学生。</p>
+<p>专心做技术的，都想做架构师。但架构师并不是说技术做时间长了可以转的。随着你的知识深度和广度的增加，在工作中会扮演更重要的角色，承担更大的责任，最终自然而然就会接触到架构设计的工作。</p>
+<p>而架构师的主要工作，其实是利用架构设计知识以及丰富的工作经验，在设计架构时，结合实际情况，在不同的选项中做出取舍。</p>
+<h3 id="架构设计的真正目的？"><a href="#架构设计的真正目的？" class="headerlink" title="架构设计的真正目的？"></a>架构设计的真正目的？</h3><p>为什么要进行架构设计？因为架构设计很重要？可是为什么重要呢？似乎说不清楚。</p>
+<p>因为可以提升开发效率吗？也不一定，因为只有简单的设计才会使开发效率更高。而架构设计出于多方面考虑，不得已会引入一些复杂度，因此架构设计并不一定能提升开发效率。</p>
+<p>是为了大多数口中的“高可用”、“高性能”、“可扩展”吗？其实也不是。我们的系统可能并不一定需要这些。</p>
+<p>那架构设计的真正目的是什么呢？我认为架构设计的真正目的是与系统复杂度做斗争。</p>
+<p>系统复杂度的来源有：<strong>高性能、高可用、可扩展性、低成本、安全、规模</strong>。</p>
+<p>前面我们聊到有些系统可能不需要高可用、高性能。有些同学可能不理解，这些难道不是软件开发最基本的要求吗？这样的说法是存在一定偏差的。我们举一个简单的例子说明一下。</p>
+<p>如果让你为一所学校设计一个学生信息管理系统。针对上述几个复杂度的来源，你会做出怎样的取舍？我们来逐条分析一下。</p>
+<p>首先是高性能，学校的学生最多也就几万人，而且平时也不可能几万人同时用系统。因此我们并不需要考虑高性能。数据的CRUD直接用关系型数据库就足够了。</p>
+<p>然后是高可用，对于学生系统而言，即使宕机几个小时，影响也不会太大。不过数据的可靠性还是要保证的，如果大量数据丢失而又没有备份的话，数据修复将会是一项繁重的工作。所以这里需要做一些数据高可靠的设计。</p>
+<p>接下来是可扩展性，学生管理系统一般比较稳定，不会出现需要扩展的情况。因此我们也不太需要考虑可扩展性。</p>
+<p>至此，我们在设计系统时习惯考虑的高可用、高性能和可扩展，在这个系统中都不需要过多关注了。我们再来看看剩下的几个复杂度来源。</p>
+<p>关于低成本，由于我们并不需要高可用和高性能的设计，所以几台服务器的成本对于学校来说也不足为虑。</p>
+<p>安全性而言，学生信息需要一定的安全保证，但也不必做到金融级安全。所以只需要做好数据库权限管理，登录密码管理就足够了。</p>
+<p>最后是系统规模，学生管理系统往往不会很复杂。也不会迭代出许多功能。因此规模是比较固定且比较小的，不会带来很多的复杂度。</p>
+<p>从我们的分析中可以看出，学生管理系统是一个并不复杂的系统，我们真正需要着重考虑的就只有数据高可靠和数据安全两方面。面对复杂的系统，我们也应该按照这个步骤来思考并设计出合理的架构。在合理的情况下，尽量减少系统的复杂度。</p>
+<h3 id="架构设计原则"><a href="#架构设计原则" class="headerlink" title="架构设计原则"></a>架构设计原则</h3><p>前面我们提到，架构师的工作其实就是在多种选项中做出合理的取舍，取舍没有对错之分，只有是否合适一说。为了更好的做出选择，架构设计应该遵循三个原则：<strong>合适原则、简单原则、演化原则</strong>。下面我来一一介绍这三个原则。</p>
+<h4 id="合适原则"><a href="#合适原则" class="headerlink" title="合适原则"></a>合适原则</h4><p>我们一直在说，架构设计中架构师要做出取舍，选择合适的架构。之所以一直强调合适，是因为我们在架构设计过程中需要结合实际情况来考虑。</p>
+<p>那么脱离实际情况的设计通常是怎样发生的呢？不知道大家在开发时有没有遇到过这样的需求：“我们决定做一个电商网站，就按照淘宝做一个一模一样的吧。“这时作为开发的你一定是黑人问号脸，心里也会万马奔腾。</p>
+<p>在架构设计时也是一样，最忌讳的就是不顾实际情况，盲目的使用业界最优的架构设计。有同学可能不太理解，使用最优设计有什么错呢？</p>
+<p>这里我们所说的实际情况就是你的业务。试想如果你的业务刚刚起步，QPS刚过百，这时，你设计的架构是能支持1000QPS还是3000QPS对于系统来说没什么区别。但对于开发成本来说就提升了不止3倍。而对于这样的业务体量来说，开发团队一般只有十几人或几十人这样的规模。要让这样的团队来开发的话，大概率是无法完成的。</p>
+<h4 id="演化原则"><a href="#演化原则" class="headerlink" title="演化原则"></a>演化原则</h4><p>聊完了合适原则，我们再来聊一聊演化原则。就像北京的城市规划一样，它一定是先有二环，慢慢向外扩建，才逐渐有了三四五六环。而我们现在所使用的大多数软件，也都是经过了许多版本的迭代才有了现在的功能。</p>
+<p>对于一名合格的架构师来说，我们首先要遵循合适原则，然后再逐步演化。切不可想着一步到位，从而引起过度设计。当业务发展到一定阶段时，我们不可避免的会需要对架构进行扩展、重构甚至重写。在这一过程中，我们应该保留下好的设计，对不好的设计进行完善。就像淘宝的架构一样，它是经历了多次“双十一”之后，才有了现在这样能支撑每天上千亿成交额的架构。</p>
+<p>因此，我们在设计架构时要遵循的第二个原则就是循序渐进的演化原则，而不是追求一步到位。</p>
+<h4 id="简单原则"><a href="#简单原则" class="headerlink" title="简单原则"></a>简单原则</h4><p>最后再来说简单原则。前面我们也说了，架构设计其实是在和系统的复杂度做斗争。为什么要有简单原则？我认为原因主要有两点。</p>
+<p>第一，复杂的架构开发成本更高。在开发资源有限的情况下，如果我们的架构设计很复杂，势必会提升开发成本。而对于当今飞速发展的市场来说，时间就是生命。如果你设计的架构开发周期非常长，那么公司也许就会放弃这个项目，那么架构也就没有存在的意义了。</p>
+<p>第二，复杂的架构往往会带来更多的故障。举个栗子，电动牙刷和普通牙刷相比，坏的概率一定会高一点，电动牙刷可能出现刷头磨损，电路问题，充电故障等等，而普通牙刷只会出现刷头磨损的情况。也就是说，系统的组件越多，系统出现故障的概率也就越大。在此基础上还有一个问题就是，一旦出了故障，定位问题的速度而言，简单系统相较于复杂系统也有着很大的优势。</p>
+<p>至此，架构设计的三个原则我们都已经聊完了。细心的同学可能注意到了，我在详细介绍时的顺序和最开始提到的顺序并不一致。这不是我不注意细节。而是我在详细介绍时，对这三个原则的重要程度排了一个顺序。这也是作为架构师的一种取舍，当三种原则无法同时满足时，应该以哪个为重？这里我的答案是<strong>合适&gt;演化&gt;简单</strong>。</p>
+<p>关于架构设计，我已经有了一个大体的认识，不知道在读完本文以后你是否也有同样的感觉。如果有任何困惑，欢迎和我一起讨论交流。</p>
+<p>最后，架构师是需要有很深的技术积累的，而我在这方面做得还不够。所以后面还是要以技术积累为主，同时也会尝试将架构设计的知识引入到日常工作中。后续有什么新的体会我会继续和大家分享。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>Buy me a coffee</div>
+  <button>
+    Donate
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/weixinpay.jpg" alt="Jackey Wang WeChat Pay">
+        <span>WeChat Pay</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Jackey Wang Alipay">
+        <span>Alipay</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="followme">
+  <span>Welcome to my other publishing channels</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <span class="social-link">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </span>
+
+          <img class="social-item-img" src="/images/wechat-qcode.jpg">
+      </div>
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E6%9E%B6%E6%9E%84/" rel="tag"><i class="fa fa-tag"></i> 架构</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/11/11/%E5%90%90%E8%A1%80%E6%8E%A8%E8%8D%90%E7%8F%8D%E8%97%8F%E7%9A%84Visual-Studio-Code%E6%8F%92%E4%BB%B6/" rel="prev" title="吐血推荐珍藏的Visual Studio Code插件">
+                  <i class="fa fa-angle-left"></i> 吐血推荐珍藏的Visual Studio Code插件
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/11/20/%E3%80%90%E8%AF%91%E3%80%91%E5%88%A9%E7%94%A8Lombok%E6%B6%88%E9%99%A4%E9%87%8D%E5%A4%8D%E4%BB%A3%E7%A0%81/" rel="next" title="【译】利用Lombok消除重复代码">
+                  【译】利用Lombok消除重复代码 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Jackey Wang</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Word count total">477k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">7:13</span>
+  </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/Jackeyzhe" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
