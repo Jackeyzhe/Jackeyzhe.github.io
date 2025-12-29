@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"jackeyzhe.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"github-dark","dark":"github-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="今天来梳理一下 Flink 双流操作相关的源码。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flink源码阅读：双流操作">
+<meta property="og:url" content="https://jackeyzhe.github.io/2025/12/24/Flink%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%9A%E5%8F%8C%E6%B5%81%E6%93%8D%E4%BD%9C/index.html">
+<meta property="og:site_name" content="Jackeyzhe&#39;s Blog">
+<meta property="og:description" content="今天来梳理一下 Flink 双流操作相关的源码。">
+<meta property="og:locale">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1766656374/Blog/flink/17/window-join.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1766736225/Blog/flink/17/interval-join.png">
+<meta property="article:published_time" content="2025-12-24T08:24:14.000Z">
+<meta property="article:modified_time" content="2025-12-27T04:45:37.366Z">
+<meta property="article:author" content="Jackey Wang">
+<meta property="article:tag" content="Flink">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1766656374/Blog/flink/17/window-join.png">
+
+
+<link rel="canonical" href="https://jackeyzhe.github.io/2025/12/24/Flink%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%9A%E5%8F%8C%E6%B5%81%E6%93%8D%E4%BD%9C/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-Hans","comments":true,"permalink":"https://jackeyzhe.github.io/2025/12/24/Flink%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%9A%E5%8F%8C%E6%B5%81%E6%93%8D%E4%BD%9C/","path":"2025/12/24/Flink源码阅读：双流操作/","title":"Flink源码阅读：双流操作"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Flink源码阅读：双流操作 | Jackeyzhe's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script size="300" alpha="0.6" zIndex="1" src="https://cdnjs.cloudflare.com/ajax/libs/ribbon.js/1.0.2/ribbon.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Jackeyzhe's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Jackeyzhe's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">靠脸吃饭</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section">Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section">Tags<span class="badge">14</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section">Archives<span class="badge">113</span></a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section">About</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%99%E5%9C%A8%E5%89%8D%E9%9D%A2"><span class="nav-number">1.</span> <span class="nav-text">写在前面</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Window-Join"><span class="nav-number">2.</span> <span class="nav-text">Window Join</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CoGroup"><span class="nav-number">3.</span> <span class="nav-text">CoGroup</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Interval-Join"><span class="nav-number">4.</span> <span class="nav-text">Interval Join</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Jackey Wang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">113</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Jackeyzhe" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:jackeyzhe59@gmail.com" title="E-Mail → mailto:jackeyzhe59@gmail.com" rel="noopener me" target="_blank"><i class="fas fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/jackeyzhe" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i>StackOverflow</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2025/12/24/Flink%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%9A%E5%8F%8C%E6%B5%81%E6%93%8D%E4%BD%9C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Jackey Wang">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Flink源码阅读：双流操作 | Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Flink源码阅读：双流操作
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-12-24 16:24:14" itemprop="dateCreated datePublished" datetime="2025-12-24T16:24:14+08:00">2025-12-24</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>9.3k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>8 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>今天来梳理一下 Flink 双流操作相关的源码。<span id="more"></span></p>
+<h3 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h3><p>通过<a href="https://jackeyzhe.github.io/2025/07/19/Flink%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%9A%E5%A4%9A%E6%B5%81join/">Flink学习笔记：多流 Join</a>一文的介绍，我们知道 Flink 有三种数据关联的方式，分别是 Window Join、Interval Join 和 CoGroup。下面我们分别看下这三种关联方式的源码实现。</p>
+<h3 id="Window-Join"><a href="#Window-Join" class="headerlink" title="Window Join"></a>Window Join</h3><p>我们先回顾一下 window join 的使用方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">DataStream&lt;Tuple2&lt;String, Double&gt;&gt; result = source1.join(source2)</span><br><span class="line">        .where(record -&gt; record.f0)</span><br><span class="line">        .equalTo(record -&gt; record.f0)</span><br><span class="line">        .window(TumblingEventTimeWindows.of(Time.seconds(<span class="number">2L</span>)))</span><br><span class="line">        .apply(<span class="keyword">new</span> <span class="title class_">JoinFunction</span>&lt;Tuple2&lt;String, Double&gt;, Tuple2&lt;String, Double&gt;, Tuple2&lt;String, Double&gt;&gt;() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> Tuple2&lt;String, Double&gt; <span class="title function_">join</span><span class="params">(Tuple2&lt;String, Double&gt; record1, Tuple2&lt;String, Double&gt; record2)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">                <span class="keyword">return</span> Tuple2.of(record1.f0, record1.f1);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br></pre></td></tr></table></figure>
+<p>上述调用链路类的流转如下：</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1766656374/Blog/flink/17/window-join.png" alt="window-join"></p>
+<p>在 WithWindow 的 apply 方法中，是构建了一个 coGroupedWindowedStream，然后调用它的 apply 方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> &lt;T&gt; SingleOutputStreamOperator&lt;T&gt; <span class="title function_">apply</span><span class="params">(</span></span><br><span class="line"><span class="params">        JoinFunction&lt;T1, T2, T&gt; function, TypeInformation&lt;T&gt; resultType)</span> &#123;</span><br><span class="line">    <span class="comment">// clean the closure</span></span><br><span class="line">    function = input1.getExecutionEnvironment().clean(function);</span><br><span class="line"></span><br><span class="line">    coGroupedWindowedStream =</span><br><span class="line">            input1.coGroup(input2)</span><br><span class="line">                    .where(keySelector1)</span><br><span class="line">                    .equalTo(keySelector2)</span><br><span class="line">                    .window(windowAssigner)</span><br><span class="line">                    .trigger(trigger)</span><br><span class="line">                    .evictor(evictor)</span><br><span class="line">                    .allowedLateness(allowedLateness);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> coGroupedWindowedStream.apply(<span class="keyword">new</span> <span class="title class_">JoinCoGroupFunction</span>&lt;&gt;(function), resultType);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里可以看出，Window Join 的底层是转换成 coGroup 进行处理的。</p>
+<p>在 JoinCoGroupFunction 中，coGroup 方法就是对两个流进行两层遍历，然后将其应用到我们自定义的 JoinFunction 上。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">JoinCoGroupFunction</span>&lt;T1, T2, T&gt;</span><br><span class="line">        <span class="keyword">extends</span> <span class="title class_">WrappingFunction</span>&lt;JoinFunction&lt;T1, T2, T&gt;&gt;</span><br><span class="line">        <span class="keyword">implements</span> <span class="title class_">CoGroupFunction</span>&lt;T1, T2, T&gt; &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">long</span> <span class="variable">serialVersionUID</span> <span class="operator">=</span> <span class="number">1L</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">JoinCoGroupFunction</span><span class="params">(JoinFunction&lt;T1, T2, T&gt; wrappedFunction)</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>(wrappedFunction);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">coGroup</span><span class="params">(Iterable&lt;T1&gt; first, Iterable&lt;T2&gt; second, Collector&lt;T&gt; out)</span></span><br><span class="line">            <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="keyword">for</span> (T1 val1 : first) &#123;</span><br><span class="line">            <span class="keyword">for</span> (T2 val2 : second) &#123;</span><br><span class="line">                out.collect(wrappedFunction.join(val1, val2));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="CoGroup"><a href="#CoGroup" class="headerlink" title="CoGroup"></a>CoGroup</h3><p>CoGroup 的整体用法和流程与 Join 都类似，我们就不逐个介绍了。我们直接来看 apply 方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> &lt;T&gt; SingleOutputStreamOperator&lt;T&gt; <span class="title function_">apply</span><span class="params">(</span></span><br><span class="line"><span class="params">        CoGroupFunction&lt;T1, T2, T&gt; function, TypeInformation&lt;T&gt; resultType)</span> &#123;</span><br><span class="line">    <span class="comment">// clean the closure</span></span><br><span class="line">    function = input1.getExecutionEnvironment().clean(function);</span><br><span class="line"></span><br><span class="line">    UnionTypeInfo&lt;T1, T2&gt; unionType =</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">UnionTypeInfo</span>&lt;&gt;(input1.getType(), input2.getType());</span><br><span class="line">    UnionKeySelector&lt;T1, T2, KEY&gt; unionKeySelector =</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">UnionKeySelector</span>&lt;&gt;(keySelector1, keySelector2);</span><br><span class="line"></span><br><span class="line">    SingleOutputStreamOperator&lt;TaggedUnion&lt;T1, T2&gt;&gt; taggedInput1 =</span><br><span class="line">            input1.map(<span class="keyword">new</span> <span class="title class_">Input1Tagger</span>&lt;T1, T2&gt;());</span><br><span class="line">    taggedInput1.getTransformation().setParallelism(input1.getParallelism(), <span class="literal">false</span>);</span><br><span class="line">    taggedInput1.returns(unionType);</span><br><span class="line"></span><br><span class="line">    SingleOutputStreamOperator&lt;TaggedUnion&lt;T1, T2&gt;&gt; taggedInput2 =</span><br><span class="line">            input2.map(<span class="keyword">new</span> <span class="title class_">Input2Tagger</span>&lt;T1, T2&gt;());</span><br><span class="line">    taggedInput2.getTransformation().setParallelism(input2.getParallelism(), <span class="literal">false</span>);</span><br><span class="line">    taggedInput2.returns(unionType);</span><br><span class="line"></span><br><span class="line">    DataStream&lt;TaggedUnion&lt;T1, T2&gt;&gt; unionStream = taggedInput1.union(taggedInput2);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// we explicitly create the keyed stream to manually pass the key type information in</span></span><br><span class="line">    windowedStream =</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">KeyedStream</span>&lt;TaggedUnion&lt;T1, T2&gt;, KEY&gt;(</span><br><span class="line">                            unionStream, unionKeySelector, keyType)</span><br><span class="line">                    .window(windowAssigner);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (trigger != <span class="literal">null</span>) &#123;</span><br><span class="line">        windowedStream.trigger(trigger);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (evictor != <span class="literal">null</span>) &#123;</span><br><span class="line">        windowedStream.evictor(evictor);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (allowedLateness != <span class="literal">null</span>) &#123;</span><br><span class="line">        windowedStream.allowedLateness(allowedLateness);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> windowedStream.apply(</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">CoGroupWindowFunction</span>&lt;T1, T2, T, KEY, W&gt;(function), resultType);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在 apply 方法中，先把两个流进行合并，然后创建了 windowedStream，并把窗口相关的属性设置好，最后是调用 windowedStream 的 apply 方法。</p>
+<p>在调用 <code>windowedStream.apply</code> 方法时，又将 function 包装成了 CoGroupWindowFunction。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">CoGroupWindowFunction</span>&lt;T1, T2, T, KEY, W <span class="keyword">extends</span> <span class="title class_">Window</span>&gt;</span><br><span class="line">        <span class="keyword">extends</span> <span class="title class_">WrappingFunction</span>&lt;CoGroupFunction&lt;T1, T2, T&gt;&gt;</span><br><span class="line">        <span class="keyword">implements</span> <span class="title class_">WindowFunction</span>&lt;TaggedUnion&lt;T1, T2&gt;, T, KEY, W&gt; &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">long</span> <span class="variable">serialVersionUID</span> <span class="operator">=</span> <span class="number">1L</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">CoGroupWindowFunction</span><span class="params">(CoGroupFunction&lt;T1, T2, T&gt; userFunction)</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>(userFunction);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">apply</span><span class="params">(KEY key, W window, Iterable&lt;TaggedUnion&lt;T1, T2&gt;&gt; values, Collector&lt;T&gt; out)</span></span><br><span class="line">            <span class="keyword">throws</span> Exception &#123;</span><br><span class="line"></span><br><span class="line">        List&lt;T1&gt; oneValues = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">        List&lt;T2&gt; twoValues = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (TaggedUnion&lt;T1, T2&gt; val : values) &#123;</span><br><span class="line">            <span class="keyword">if</span> (val.isOne()) &#123;</span><br><span class="line">                oneValues.add(val.getOne());</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                twoValues.add(val.getTwo());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        wrappedFunction.coGroup(oneValues, twoValues, out);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在 CoGroupWindowFunction 的 apply 方法中是将主键为 key 的流分开两个流，再去调用 JoinCoGroupFunction 的 coGroup 方法。这里的 values 都是相同的 key，原因是在 window 中维护的 windowState，它内部是一个 stateTable，窗口的 namespace 和 key 共同维护一个 state，当窗口触发时，就会对相同 key 的数据调用 apply 方法。</p>
+<h3 id="Interval-Join"><a href="#Interval-Join" class="headerlink" title="Interval Join"></a>Interval Join</h3><p>梳理完了 Window Join 和 CoGroup 之后，我们再接着看 Interval Join。还是先来回顾一下用法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">DataStream&lt;Tuple2&lt;String, Double&gt;&gt; intervalJoinResult = source1.keyBy(record -&gt; record.f0)</span><br><span class="line">        .intervalJoin(source2.keyBy(record -&gt; record.f0))</span><br><span class="line">        .between(Time.seconds(-<span class="number">2</span>), Time.seconds(<span class="number">2</span>))</span><br><span class="line">        .process(<span class="keyword">new</span> <span class="title class_">ProcessJoinFunction</span>&lt;Tuple2&lt;String, Double&gt;, Tuple2&lt;String, Double&gt;, Tuple2&lt;String, Double&gt;&gt;() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">processElement</span><span class="params">(Tuple2&lt;String, Double&gt; record1, Tuple2&lt;String, Double&gt; record2, ProcessJoinFunction&lt;Tuple2&lt;String, Double&gt;, Tuple2&lt;String, Double&gt;, Tuple2&lt;String, Double&gt;&gt;.Context context, Collector&lt;Tuple2&lt;String, Double&gt;&gt; out)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">                out.collect(Tuple2.of(record1.f0, record1.f1 + record2.f1));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br></pre></td></tr></table></figure>
+<p>通过用法可以看出，interval join 传入的对象是两个 KeyedStream，接着使用 between 方法定义 interval join 的上下边界，最后调用 process 方法执行计算逻辑。</p>
+<p>在调用过程中，类型的转换如下图。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1766736225/Blog/flink/17/interval-join.png" alt="interval-join"></p>
+<p>我们主要关注 process 的逻辑。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> &lt;OUT&gt; SingleOutputStreamOperator&lt;OUT&gt; <span class="title function_">process</span><span class="params">(</span></span><br><span class="line"><span class="params">        ProcessJoinFunction&lt;IN1, IN2, OUT&gt; processJoinFunction,</span></span><br><span class="line"><span class="params">        TypeInformation&lt;OUT&gt; outputType)</span> &#123;</span><br><span class="line">    Preconditions.checkNotNull(processJoinFunction);</span><br><span class="line">    Preconditions.checkNotNull(outputType);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> ProcessJoinFunction&lt;IN1, IN2, OUT&gt; cleanedUdf =</span><br><span class="line">            left.getExecutionEnvironment().clean(processJoinFunction);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (isEnableAsyncState) &#123;</span><br><span class="line">        <span class="keyword">final</span> AsyncIntervalJoinOperator&lt;KEY, IN1, IN2, OUT&gt; operator =</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">AsyncIntervalJoinOperator</span>&lt;&gt;(</span><br><span class="line">                        lowerBound,</span><br><span class="line">                        upperBound,</span><br><span class="line">                        lowerBoundInclusive,</span><br><span class="line">                        upperBoundInclusive,</span><br><span class="line">                        leftLateDataOutputTag,</span><br><span class="line">                        rightLateDataOutputTag,</span><br><span class="line">                        left.getType()</span><br><span class="line">                                .createSerializer(</span><br><span class="line">                                        left.getExecutionConfig().getSerializerConfig()),</span><br><span class="line">                        right.getType()</span><br><span class="line">                                .createSerializer(</span><br><span class="line">                                        right.getExecutionConfig().getSerializerConfig()),</span><br><span class="line">                        cleanedUdf);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> left.connect(right)</span><br><span class="line">                .keyBy(keySelector1, keySelector2)</span><br><span class="line">                .transform(<span class="string">&quot;Interval Join [Async]&quot;</span>, outputType, operator);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">final</span> IntervalJoinOperator&lt;KEY, IN1, IN2, OUT&gt; operator =</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">IntervalJoinOperator</span>&lt;&gt;(</span><br><span class="line">                        lowerBound,</span><br><span class="line">                        upperBound,</span><br><span class="line">                        lowerBoundInclusive,</span><br><span class="line">                        upperBoundInclusive,</span><br><span class="line">                        leftLateDataOutputTag,</span><br><span class="line">                        rightLateDataOutputTag,</span><br><span class="line">                        left.getType()</span><br><span class="line">                                .createSerializer(</span><br><span class="line">                                        left.getExecutionConfig().getSerializerConfig()),</span><br><span class="line">                        right.getType()</span><br><span class="line">                                .createSerializer(</span><br><span class="line">                                        right.getExecutionConfig().getSerializerConfig()),</span><br><span class="line">                        cleanedUdf);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> left.connect(right)</span><br><span class="line">                .keyBy(keySelector1, keySelector2)</span><br><span class="line">                .transform(<span class="string">&quot;Interval Join&quot;</span>, outputType, operator);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Interval join 是基于 ConnectedStream 实现的，ConnectedStream 提供了更加通用的双流操作，它将两个流组合成一个 TwoInputTransformation，然后加入执行图中。</p>
+<p>具体的 Operator 是 IntervalJoinOperator 或 AsyncIntervalJoinOperator，它们都是 TwoInputStreamOperator 的实现类，提供 <code>processElement1</code>  和 <code>processElement2</code> 两个方法分别处理两个输入源的数据，最终都调用的是 processElement。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> &lt;THIS, OTHER&gt; <span class="keyword">void</span> <span class="title function_">processElement</span><span class="params">(</span></span><br><span class="line"><span class="params">        <span class="keyword">final</span> StreamRecord&lt;THIS&gt; record,</span></span><br><span class="line"><span class="params">        <span class="keyword">final</span> MapState&lt;Long, List&lt;IntervalJoinOperator.BufferEntry&lt;THIS&gt;&gt;&gt; ourBuffer,</span></span><br><span class="line"><span class="params">        <span class="keyword">final</span> MapState&lt;Long, List&lt;IntervalJoinOperator.BufferEntry&lt;OTHER&gt;&gt;&gt; otherBuffer,</span></span><br><span class="line"><span class="params">        <span class="keyword">final</span> <span class="type">long</span> relativeLowerBound,</span></span><br><span class="line"><span class="params">        <span class="keyword">final</span> <span class="type">long</span> relativeUpperBound,</span></span><br><span class="line"><span class="params">        <span class="keyword">final</span> <span class="type">boolean</span> isLeft)</span></span><br><span class="line">        <span class="keyword">throws</span> Exception &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> <span class="type">THIS</span> <span class="variable">ourValue</span> <span class="operator">=</span> record.getValue();</span><br><span class="line">    <span class="keyword">final</span> <span class="type">long</span> <span class="variable">ourTimestamp</span> <span class="operator">=</span> record.getTimestamp();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (ourTimestamp == Long.MIN_VALUE) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">FlinkException</span>(</span><br><span class="line">                <span class="string">&quot;Long.MIN_VALUE timestamp: Elements used in &quot;</span></span><br><span class="line">                        + <span class="string">&quot;interval stream joins need to have timestamps meaningful timestamps.&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (isLate(ourTimestamp)) &#123;</span><br><span class="line">        sideOutput(ourValue, ourTimestamp, isLeft);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    addToBuffer(ourBuffer, ourValue, ourTimestamp);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (Map.Entry&lt;Long, List&lt;BufferEntry&lt;OTHER&gt;&gt;&gt; bucket : otherBuffer.entries()) &#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="type">long</span> <span class="variable">timestamp</span> <span class="operator">=</span> bucket.getKey();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (timestamp &lt; ourTimestamp + relativeLowerBound</span><br><span class="line">                || timestamp &gt; ourTimestamp + relativeUpperBound) &#123;</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (BufferEntry&lt;OTHER&gt; entry : bucket.getValue()) &#123;</span><br><span class="line">            <span class="keyword">if</span> (isLeft) &#123;</span><br><span class="line">                collect((T1) ourValue, (T2) entry.element, ourTimestamp, timestamp);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                collect((T1) entry.element, (T2) ourValue, timestamp, ourTimestamp);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">long</span> <span class="variable">cleanupTime</span> <span class="operator">=</span></span><br><span class="line">            (relativeUpperBound &gt; <span class="number">0L</span>) ? ourTimestamp + relativeUpperBound : ourTimestamp;</span><br><span class="line">    <span class="keyword">if</span> (isLeft) &#123;</span><br><span class="line">        internalTimerService.registerEventTimeTimer(CLEANUP_NAMESPACE_LEFT, cleanupTime);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        internalTimerService.registerEventTimeTimer(CLEANUP_NAMESPACE_RIGHT, cleanupTime);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在 IntervalJoinOperator 中维护了两个 MapState，每个消息进来的时候，都会加入到 MapState 中，key 是 timestamp，value 是一个元素的列表。然后遍历另一个 MapState，得到符合条件的数据。最后是为每条数据注册一个定时器，当时间超过有效范围后，会从 MapState 中清除这个时间戳的数据。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>本文我们梳理了 Flink 的三种双流操作的源码，我们了解到 Window Join 底层是通过 CoGroup 实现的。CoGroup 本身是将两个流合并成 WindowedStream 并依赖于 WindowState 进行数据 join。最后 Interval Join 是通过 ConnectedStreams 实现的，内部的 IntervalJoinOperator 会维护两个 MapState，通过 MapState 进行数据关联。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>Buy me a coffee</div>
+  <button>
+    Donate
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/weixinpay.jpg" alt="Jackey Wang WeChat Pay">
+        <span>WeChat Pay</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Jackey Wang Alipay">
+        <span>Alipay</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="followme">
+  <span>Welcome to my other publishing channels</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <span class="social-link">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </span>
+
+          <img class="social-item-img" src="/images/wechat-qcode.jpg">
+      </div>
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Flink/" rel="tag"><i class="fa fa-tag"></i> Flink</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/12/22/Flink%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%9A%E7%AA%97%E5%8F%A3/" rel="prev" title="Flink源码阅读：窗口">
+                  <i class="fa fa-angle-left"></i> Flink源码阅读：窗口
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Jackey Wang</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Word count total">508k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">7:42</span>
+  </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/Jackeyzhe" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
