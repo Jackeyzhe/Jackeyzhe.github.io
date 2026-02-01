@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.0.5/fancybox/fancybox.css" integrity="sha256-uTcjoMD6rPt4OyV3Rs02Slxl0BJGMNVKAm/1eYPt2go=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"jackeyzhe.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"github-dark","dark":"github-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="不知道有没有朋友和我一样，虽然了解 Kafka 的逻辑存储，例如 Broker、Topic、Partition 这些概念，但是对于底层数据是如何存储还是比较模糊。这样聊起来 Kafka 数据存储时总有种一知半解的感觉。今天我们就一起来看一下 Kafka 底层数据到底是怎么存储的。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从零学习Kafka：数据存储">
+<meta property="og:url" content="https://jackeyzhe.github.io/2026/01/30/%E4%BB%8E%E9%9B%B6%E5%AD%A6%E4%B9%A0Kafka%EF%BC%9A%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8/index.html">
+<meta property="og:site_name" content="Jackeyzhe&#39;s Blog">
+<meta property="og:description" content="不知道有没有朋友和我一样，虽然了解 Kafka 的逻辑存储，例如 Broker、Topic、Partition 这些概念，但是对于底层数据是如何存储还是比较模糊。这样聊起来 Kafka 数据存储时总有种一知半解的感觉。今天我们就一起来看一下 Kafka 底层数据到底是怎么存储的。">
+<meta property="og:locale">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1769790300/Blog/Kafka/2/kafka_segment_size.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1769790383/Blog/Kafka/2/cluster_started.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1769791316/Blog/Kafka/2/catagory.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1769952332/Blog/Kafka/2/log_data.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1769953138/Blog/Kafka/2/index_data.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1769953464/Blog/Kafka/2/timeindex_data.png">
+<meta property="article:published_time" content="2026-01-30T02:23:16.000Z">
+<meta property="article:modified_time" content="2026-02-01T15:11:25.059Z">
+<meta property="article:author" content="Jackey Wang">
+<meta property="article:tag" content="Kafka">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1769790300/Blog/Kafka/2/kafka_segment_size.png">
+
+
+<link rel="canonical" href="https://jackeyzhe.github.io/2026/01/30/%E4%BB%8E%E9%9B%B6%E5%AD%A6%E4%B9%A0Kafka%EF%BC%9A%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-Hans","comments":true,"permalink":"https://jackeyzhe.github.io/2026/01/30/%E4%BB%8E%E9%9B%B6%E5%AD%A6%E4%B9%A0Kafka%EF%BC%9A%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8/","path":"2026/01/30/从零学习Kafka：数据存储/","title":"从零学习Kafka：数据存储"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>从零学习Kafka：数据存储 | Jackeyzhe's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script size="300" alpha="0.6" zIndex="1" src="https://cdnjs.cloudflare.com/ajax/libs/ribbon.js/1.0.2/ribbon.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.0.5/fancybox/fancybox.umd.js" integrity="sha256-UiSieVaV/DXce2LW7QH+o77w+AIoAvSCPBkezriZ2DQ=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Jackeyzhe's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Jackeyzhe's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">靠脸吃饭</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section">Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section">Tags<span class="badge">15</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section">Archives<span class="badge">121</span></a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section">About</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="nav-number">1.</span> <span class="nav-text">环境准备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Broker-%E6%A0%B9%E7%9B%AE%E5%BD%95"><span class="nav-number">2.</span> <span class="nav-text">Broker 根目录</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%9B%86%E7%BE%A4%E5%85%83%E6%95%B0%E6%8D%AE"><span class="nav-number">2.1.</span> <span class="nav-text">集群元数据</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%9B%AE%E5%BD%95"><span class="nav-number">2.2.</span> <span class="nav-text">数据目录</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Checkpoint-%E6%96%87%E4%BB%B6"><span class="nav-number">2.3.</span> <span class="nav-text">Checkpoint 文件</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Partition-%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84"><span class="nav-number">3.</span> <span class="nav-text">Partition 存储结构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E4%B8%89%E5%85%84%E5%BC%9F"><span class="nav-number">3.1.</span> <span class="nav-text">核心三兄弟</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#log-%E6%96%87%E4%BB%B6"><span class="nav-number">3.1.1.</span> <span class="nav-text">log 文件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#index-%E6%96%87%E4%BB%B6"><span class="nav-number">3.1.2.</span> <span class="nav-text">index 文件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#timeindex-%E6%96%87%E4%BB%B6"><span class="nav-number">3.1.3.</span> <span class="nav-text">timeindex 文件</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BE%85%E5%8A%A9%E6%96%87%E4%BB%B6"><span class="nav-number">3.2.</span> <span class="nav-text">辅助文件</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Page-Cache"><span class="nav-number">4.</span> <span class="nav-text">Page Cache</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Jackey Wang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">121</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Jackeyzhe" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:jackeyzhe59@gmail.com" title="E-Mail → mailto:jackeyzhe59@gmail.com" rel="noopener me" target="_blank"><i class="fas fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/jackeyzhe" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i>StackOverflow</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2026/01/30/%E4%BB%8E%E9%9B%B6%E5%AD%A6%E4%B9%A0Kafka%EF%BC%9A%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Jackey Wang">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="从零学习Kafka：数据存储 | Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          从零学习Kafka：数据存储
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2026-01-30 10:23:16" itemprop="dateCreated datePublished" datetime="2026-01-30T10:23:16+08:00">2026-01-30</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>4.3k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>4 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>不知道有没有朋友和我一样，虽然了解 Kafka 的逻辑存储，例如 Broker、Topic、Partition 这些概念，但是对于底层数据是如何存储还是比较模糊。这样聊起来 Kafka 数据存储时总有种一知半解的感觉。今天我们就一起来看一下 Kafka 底层数据到底是怎么存储的。<span id="more"></span></p>
+<h3 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h3><p>在开始之前，我们先搭建好单机的 Kafka 集群，并且实际写入一批数据，这样就可以直接观察写入 Kafka 的数据了。下面可以跟着我的步骤一起搭建集群并写入数据。开始之前先说明一下，操作过程中可能涉及到一些配置参数的修改和检查，如果对配置参数不熟悉的话，可以查看上一篇文章。</p>
+<p>首先到 Kafka 的下载页面下载最新版本的压缩包。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://www.apache.org/dyn/closer.cgi?path=/kafka/4.1.1/kafka_2.13-4.1.1.tgz</span><br></pre></td></tr></table></figure>
+<p>下载好之后，进行解压并进入到对应的目录。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tar -xzf kafka_2.13-4.1.1.tgz</span><br><span class="line"><span class="built_in">cd</span> kafka_2.13-4.1.1</span><br></pre></td></tr></table></figure>
+<p>接着我们执行下面两条命令进行一些必要的配置。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">KAFKA_CLUSTER_ID=<span class="string">&quot;<span class="subst">$(bin/kafka-storage.sh random-uuid)</span>&quot;</span></span><br><span class="line"></span><br><span class="line">bin/kafka-storage.sh format --standalone -t <span class="variable">$KAFKA_CLUSTER_ID</span> -c config/server.properties</span><br></pre></td></tr></table></figure>
+<p>为了方便观察文件切分，我把 segment 文件大小调整为了 1MB，具体修改方法为编辑 config/server.properties 文件，修改 <code>log.segment.bytes</code> 参数的数值。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1769790300/Blog/Kafka/2/kafka_segment_size.png" alt="segment_size"></p>
+<p>修改好之后，就可以启动 Kafka 集群了。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-server-start.sh config/server.properties</span><br></pre></td></tr></table></figure>
+<p>可以观察日志，看集群是否启动成功</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1769790383/Blog/Kafka/2/cluster_started.png" alt="cluster_started"></p>
+<p>集群启动之后，我们手动创建一个测试 topic。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-topics.sh --create \</span><br><span class="line">    --bootstrap-server localhost:9092 \</span><br><span class="line">    --topic test-topic \</span><br><span class="line">    --partitions 2 \</span><br><span class="line">    --replication-factor 1</span><br></pre></td></tr></table></figure>
+<p>接着可以使用 Kafka 提供的压测工具来写入一批数据。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-producer-perf-test.sh \</span><br><span class="line">    --topic test-topic \</span><br><span class="line">    --num-records 50000 \</span><br><span class="line">    --record-size 100 \</span><br><span class="line">    --throughput -1 \</span><br><span class="line">    --producer-props bootstrap.servers=localhost:9092</span><br></pre></td></tr></table></figure>
+<p>这里我分两次写入，每次写入了 50000 条数据，每条数据大小 100 字节，也就是一共写入了大约 10MB 数据。</p>
+<p>现在把目光投向 <code>/tmp/kraft-combined-logs</code> 这个目录。如果没有这个目录，需要看一下集群配置的目录。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1769791316/Blog/Kafka/2/catagory.png" alt="category"></p>
+<h3 id="Broker-根目录"><a href="#Broker-根目录" class="headerlink" title="Broker 根目录"></a>Broker 根目录</h3><p>首先来看第一级目录</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">drwxr-xr-x  10 wheel  320  1月 31 00:25 __cluster_metadata-0</span><br><span class="line">-rw-r--r--   1 wheel  355  1月 31 00:14 bootstrap.checkpoint</span><br><span class="line">-rw-r--r--   1 wheel    0  1月 31 00:14 cleaner-offset-checkpoint</span><br><span class="line">-rw-r--r--   1 wheel    4  1月 31 00:52 log-start-offset-checkpoint</span><br><span class="line">-rw-r--r--   1 wheel  122  1月 31 00:14 meta.properties</span><br><span class="line">-rw-r--r--   1 wheel   42  1月 31 00:52 recovery-point-offset-checkpoint</span><br><span class="line">-rw-r--r--   1 wheel   42  1月 31 00:52 replication-offset-checkpoint</span><br><span class="line">drwxr-xr-x  23 wheel  736  1月 31 00:33 test-topic-0</span><br><span class="line">drwxr-xr-x  27 wheel  864  1月 31 00:33 test-topic-1</span><br></pre></td></tr></table></figure>
+<p>这里一共有 9 个文件（目录），大体上可以分为三类：<strong>集群元数据、数据目录和 Checkpoint 文件</strong>。</p>
+<h4 id="集群元数据"><a href="#集群元数据" class="headerlink" title="集群元数据"></a>集群元数据</h4><p><code>meta.properties</code> 是 Broker 的身份证，这里记录了 Cluster ID 和 Node ID。</p>
+<p><code>bootstrap.checkpoint</code> 用于记录集群初始化信息。</p>
+<p><code>__cluster_metadata-0</code> 是一个特殊的数据目录，它记录了集群的元数据，因此我将其归类到集群元数据中。</p>
+<h4 id="数据目录"><a href="#数据目录" class="headerlink" title="数据目录"></a>数据目录</h4><p><code>test-topic-0</code> 和 <code>test-topic-1</code> 这两个目录就是我们 test-topic 的两个 partition 存储数据的目录，待会儿再详细分析目录下的内容，现在你只需要知道 Kafka 是以 topic名 + partitionId 来命名数据目录的。</p>
+<h4 id="Checkpoint-文件"><a href="#Checkpoint-文件" class="headerlink" title="Checkpoint 文件"></a>Checkpoint 文件</h4><p>剩下的都是 checkpoint 文件，是用于宕机重启后的快速恢复的。</p>
+<p><code>cleaner-offset-checkpoint</code> 这是清理检查点文件，只有设置了 <code>cleanup.policy=compact</code> 时才有用，它记录了上一次 Log Compact 各个 partition 已清理的偏移量。</p>
+<p><code>log-start-offset-checkpoint</code> 日志起始位置，记录每个分区第一个有效的 Offset。</p>
+<p><code>recovery-point-offset-checkpoint</code> 记录每个 partition 已刷盘的 Offset。</p>
+<p><code>replication-offset-checkpoint</code> 记录每个 partition 已同步的 Offset，这里记录的就是 High Watermark。</p>
+<h3 id="Partition-存储结构"><a href="#Partition-存储结构" class="headerlink" title="Partition 存储结构"></a>Partition 存储结构</h3><p>现在我们再来看下数据目录下的各个文件的作用是什么。</p>
+<h4 id="核心三兄弟"><a href="#核心三兄弟" class="headerlink" title="核心三兄弟"></a>核心三兄弟</h4><p>首先来介绍数据存储的核心，分别是 <code>.log</code> 、<code>.index</code> 和 <code>.timeindex</code> 文件，每个 Segment 都会有这三个文件，它们的文件名都是文件内存的第一条消息的 Offset。</p>
+<h5 id="log-文件"><a href="#log-文件" class="headerlink" title="log 文件"></a>log 文件</h5><p><code>.log</code> 是消息数据文件，Kafka 接收的消息都会顺序写入到这个文件中。可以通过下面这个命令查看文件的内容：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/workspace/kafka_2.13-4.1.1/bin/kafka-dump-log.sh --files test-topic-0/00000000000000009472.<span class="built_in">log</span> --print-data-log</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1769952332/Blog/Kafka/2/log_data.png" alt="log_data"></p>
+<p>可以看到 log 文件中存储的主要是 Offset 和具体的序列化后的数据。</p>
+<h5 id="index-文件"><a href="#index-文件" class="headerlink" title="index 文件"></a>index 文件</h5><p><code>.index</code> 文件是偏移量索引文件，这里的索引是稀疏索引，文件内存储的是 Offset 到 log 文件位置的映射。我们使用下面这条命令来查看文件内容：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/workspace/kafka_2.13-4.1.1/bin/kafka-dump-log.sh --files test-topic-0/00000000000000009472.index --deep-iteration</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1769953138/Blog/Kafka/2/index_data.png" alt="index_data"></p>
+<p>Kafka 默认每 4KB 数据写入一次索引，这个值可以通过 <code>log.index.interval.bytes</code> 参数调整。</p>
+<h5 id="timeindex-文件"><a href="#timeindex-文件" class="headerlink" title="timeindex 文件"></a>timeindex 文件</h5><p><code>.timeindex</code> 是时间戳索引文件，用来支持 by_duration 按照时间回溯。查看文件内容的方法与查看 index 文件的方法类似：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/workspace/kafka_2.13-4.1.1/bin/kafka-dump-log.sh --files test-topic-0/00000000000000009472.timeindex --deep-iteration</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1769953464/Blog/Kafka/2/timeindex_data.png" alt="timeindex_data"></p>
+<p>我们在定位数据时，可以通过二分法在 index 索引文件中找到对应的数据位置（或者最接近的位置），也可以先通过时间在 timeindex 文件中找到最接近的 Offset，再到 index 文件中找到数据位置。</p>
+<h4 id="辅助文件"><a href="#辅助文件" class="headerlink" title="辅助文件"></a>辅助文件</h4><p>除了上述三个核心文件之外，在数据目录中还有三种辅助文件，我们来看下它们的作用。</p>
+<ul>
+<li><code>.snapshot</code> 文件是用来记录事务快照的。用于 Exactly-Once 语义，如果 Broker 宕机，可以通过加载这个文件知道 Producer 之前发送到哪里了，防止数据重复。查看文件内容的方法如下</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/workspace/kafka_2.13-4.1.1/bin/kafka-dump-log.sh --files test-topic-0/00000000000000009472.snapshot</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>leader-epoch-checkpoint</code> 文件是一个 Leader “任期表”，它记录了每一任 Leader 开始工作时的 Offset，主要用于在选主时保证数据一致性。</li>
+<li><code>partition.metadata</code> 文件是 Partition 的“身份证“，它存储了 Topic ID。</li>
+</ul>
+<h3 id="Page-Cache"><a href="#Page-Cache" class="headerlink" title="Page Cache"></a>Page Cache</h3><p>至此，我们已经比较细致的了解了 Kafka 底层存储结构。到这里不知道你会不会有疑问，Kafka 是写磁盘的，为什么速度还会这么快？</p>
+<p>Kafka 在操作磁盘时，重度依赖操作系统的 Page Cache 功能，这个功能就是 Kafka 性能高的原因之一。简单来说，Page Cache 就是在读取磁盘时，操作系统会把读到的数据放到内存中一份，这块内存就是 Page Cache。在 Kafka 的应用场景中，Producer 写入顺序写入数据时，操作系统会先把数据写到 Page Cache，然后异步刷盘。在 Consumer 消费数据时，由于大部分情况下都是消费最新数据，因此要读的数据大概率还在 Page Cache 中， 操作系统可以直接从内存中返回。</p>
+<p>题外话：Kafka 为什么不自己维护一套缓存机制呢？</p>
+<p>我觉得主要有以下原因：</p>
+<ol>
+<li><p>避免 GC 开销，如果自己在 JVM 内存中维护缓存，那么会带来很大的 GC 压力。如果用操作系统的 Page Cache，就完全不用担心 GC 问题。</p>
+</li>
+<li><p>Page Cache 对内存的利用率更高，如果 Kafka 进程重启，Page Cache 也还会在内存中，数据不需要重新加载。</p>
+</li>
+<li><p>逻辑简单，Kafka 只需要负责读写操作，剩下的缓存维护逻辑全部交给操作系统。</p>
+</li>
+</ol>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>本文我们了解了 Kafka 物理层面的数据存储。在 Broker 根目录下，有集群元数据、数据目录、Checkpoint 文件三种类型的文件（目录）。在数据目录中，最核心的三种文件是 <code>.log</code>、<code>.index</code> 和 <code>.timeindex</code> 三种文件，它们分别存储了数据、稀疏 Offset 索引以及时间戳与 Offset 的映射。</p>
+<p>希望你通过阅读本文，可以对 Kafka 的数据存储有一个更加清晰的认识。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>Buy me a coffee</div>
+  <button>
+    Donate
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/weixinpay.jpg" alt="Jackey Wang WeChat Pay">
+        <span>WeChat Pay</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Jackey Wang Alipay">
+        <span>Alipay</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="followme">
+  <span>Welcome to my other publishing channels</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <span class="social-link">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </span>
+
+          <img class="social-item-img" src="/images/wechat-qcode.jpg">
+      </div>
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Kafka/" rel="tag"><i class="fa fa-tag"></i> Kafka</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/01/26/%E4%BB%8E%E9%9B%B6%E5%AD%A6%E4%B9%A0Kafka%EF%BC%9A%E9%85%8D%E7%BD%AE%E5%8F%82%E6%95%B0/" rel="prev" title="从零学习Kafka：配置参数">
+                  <i class="fa fa-angle-left"></i> 从零学习Kafka：配置参数
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Jackey Wang</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Word count total">578k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">8:46</span>
+  </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/Jackeyzhe" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
