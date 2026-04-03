@@ -6,7 +6,7 @@
   <link href="https://jackeyzhe.github.io/atom.xml" rel="self"/>
   
   <link href="https://jackeyzhe.github.io/"/>
-  <updated>2026-02-06T12:26:27.883Z</updated>
+  <updated>2026-04-03T07:40:05.233Z</updated>
   <id>https://jackeyzhe.github.io/</id>
   
   <author>
@@ -15,6 +15,25 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>从零学习Kafka：位移与高水位</title>
+    <link href="https://jackeyzhe.github.io/2026/02/06/%E4%BB%8E%E9%9B%B6%E5%AD%A6%E4%B9%A0Kafka%EF%BC%9A%E4%BD%8D%E7%A7%BB%E4%B8%8E%E9%AB%98%E6%B0%B4%E4%BD%8D/"/>
+    <id>https://jackeyzhe.github.io/2026/02/06/%E4%BB%8E%E9%9B%B6%E5%AD%A6%E4%B9%A0Kafka%EF%BC%9A%E4%BD%8D%E7%A7%BB%E4%B8%8E%E9%AB%98%E6%B0%B4%E4%BD%8D/</id>
+    <published>2026-02-06T03:15:04.000Z</published>
+    <updated>2026-04-03T07:40:05.233Z</updated>
+    
+    <content type="html"><![CDATA[<p>还记得上一篇文章最后的问题吗，什么是 LEO（Log End Offset）？它其实是 Kafka 位移相关的一个核心概念，本文我们就从位移开始，把相关的概念理清楚。<span id="more"></span></p><h3 id="什么是-Offset"><a href="#什么是-Offset" class="headerlink" title="什么是 Offset"></a>什么是 Offset</h3><p>我们从 Offset 说起，它是一个单调递增的 64 位整数，当 Producer 把数据写到 Partition 后，Kafka 先为消息分配一个编号，然后再写入到文件中。这个编号就是 Offset，它就像我们去银行办业务，每个人都会拿一个号，后面的人的号总是比前面的大 1，每个人的号都是唯一的。</p><h3 id="LEO-和-HW"><a href="#LEO-和-HW" class="headerlink" title="LEO 和 HW"></a>LEO 和 HW</h3><p>了解了什么是 Offset 之后，我们再一起来认识今天的两位主角：LEO 和 HW。</p><p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1772012210/Blog/Kafka/4/Kafka_LEO.png" alt="LEO"></p><p>LEO 是 Log End Offset 的缩写，也就是日志末端位移，它表示副本写入下一条消息的位移值。上图中一共有12条消息（位移值为 0 到 11），下一条消息的位移值就是 12，也就是当前副本的 LEO 为 12。</p><p>HW 是 High Watermark的缩写，也就是高水位。它用来定义消息的可见性，即哪些消息是可以被消费的。Offset 小于高水位的消息都是已提交消息，是可以被消费的。大于等于高水位值的消息都是未提交消息，这些消息不能够被下游消费。</p><p>一个分区的每个副本都会有一组 HW 和 LEO 值，分区的消息是否可以被消费取决于 Leader 副本的高水位值，也就是说，Leader 副本的高水位值就是分区高水位值。这里就会引出另一个问题，Follower 副本与 Leader 副本如何同步高水位和 LEO 值呢？</p><h4 id="存储结构"><a href="#存储结构" class="headerlink" title="存储结构"></a>存储结构</h4><p>在了解高水位的同步流程之前，我们先看一下 LEO 和 HW 的存储。</p><p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1772445493/Blog/Kafka/4/Kafka_HW.png" alt="HW存储"></p><p>在 Broker0 中，保存了某个分区 Leader 副本的 HW 和 LEO 值，以及这个分区所有的 Follower 副本的 LEO 值，这些 Follower 副本我们称之为远程副本，即 Remote Replica，它们的作用是帮助 Leader 副本确定 HW 值。在 Broker1 中，保存了 Follower 副本的 HW 和 LEO 值。</p><h4 id="同步流程"><a href="#同步流程" class="headerlink" title="同步流程"></a>同步流程</h4><p>了解了存储结构之后，我们来分别从 Leader 和 Follower 副本的视角看一下它们更新 HW 和 LEO 的具体流程。</p><p>首先看 Leader 副本的更新流程，这里分为两个场景，一个是处理生产者的请求逻辑，另一个是处理 Follower 副本的拉取逻辑。</p><p>处理生产者请求逻辑如下：</p><ol><li><p>收到 Producer 数据，写入到本地。</p></li><li><p>更新分区 HW 值。</p></li></ol><p>处理 Follower 副本拉取逻辑如下：</p><ol><li><p>读取磁盘或缓存中的数据。</p></li><li><p>使用 Follower 副本请求中的位移值更新远程副本的 LEO 值。</p></li><li><p>更新分区 HW 值。</p></li></ol><p>上面两个场景的核心步骤是更新分区 HW 值，具体的流程是先获取 Leader 副本所在的 Broker 上保留的所有远程副本的 LEO 值，然后获取 Leader 副本的 HW 值。最后计算最新的 HW 值。计算逻辑为 </p><p><code>currentHW = max(currentHW, min(LEO1, LEO2,...,LEOn)</code></p><p>了解了 Leader 副本的更新视角后，我们再从 Follower 副本的视角来看一下更新逻辑。</p><p>前面我们也了解到了 Follower 副本只干一件事，就是从 Leader 副本拉取消息。拉取后先把数据写入到本地，然后更新 LEO 值，最后更新 HW 值。这里更新 HW 值的步骤为：先获取 Leader 副本发送的 currentHW 值，再获取前面更新的 LEO 值，最后以两者之间较小的那个值作为 Follower 副本的 HW 值。</p><p>这样叙述可能还是有些抽象，所以我们通过一个例子再梳理一遍完整的更新流程。</p><p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1775052203/Blog/Kafka/4/Kafka_HW_LEO.png" alt="HW_LEO"></p><p>在这个例子中，我们有一个 Leader 副本和一个 Follower 副本。</p><ul><li><p>在初始状态下（T0 时刻），Leader 副本的 HW、LEO、Remote LEO 都为 0，Follower 副本的 HW、LEO 也都是 0。</p></li><li><p>在 T1 时刻，Producer 向 Leader 写入一条消息，这时，Leader 副本的 LEO 值变为 1，其他值还是 0。</p></li><li><p>到 T2 时刻，Follower 副本向 Leader 副本发送了 Fetch 请求，拉取到 1 条消息，Follower 副本将自己的 LEO 值更新为 1。</p></li><li><p>到 T3 时刻，Follower 副本再次向 Leader 副本发送 Fetch 请求，请求中 fetchOffset = 1，Leader 副本收到请求后，将 Remote LEO 更新为 1，然后将 HW 更新为 1，在响应中，把 HW = 1 发给了 Follower 副本。Follower 副本收到响应后，会将自己的 HW 更新为 1。</p></li></ul><p>至此，一次完整的副本同步流程就结束了。</p><h3 id="位移主题"><a href="#位移主题" class="headerlink" title="位移主题"></a>位移主题</h3><p>在了解完了 HW 和 LEO 这两个特殊的 Offset 之后，我们再来看一下 Kafka 是如何管理 Offset 的。</p><p>在旧版本的 Kafka 中，位移是保存在 ZooKeeper 中的，但是 ZooKeeper 的写入性能无法支撑高频的位移更新，因此 Kafka 决定将位移保存在一个内部的 Topic 中，这个 Topic 就是位移主题，它的名字是 <code>__consumer_offsets</code>，它默认有 50 个分区。</p><p>位移主题内部存储的数据就是一个键值对，其中 Key 保存了 GroupID + Topic Name + Partition Number 三元组，这保证了同一个消费组消费同一个分区的位移始终有相同的 Key。Value 中除了 Offset 之外，还保存了一些元信息以及时间戳。</p><p>最后要说明的是，Kafka 为了防止不断提交位移导致位移主题存储无限膨胀，默认对位移主题使用了日志压缩机制，对于同一个 Key 只会保留最新的一条数据。</p><h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>最后总结一下，本文我们一起了解了什么是 Offset，接着又学习了 HW 和 LEO 两个概念以及完整的副本同步流程。最后我们又学习了位移主题的相关概念。</p>]]></content>
+    
+    
+    <summary type="html">&lt;p&gt;还记得上一篇文章最后的问题吗，什么是 LEO（Log End Offset）？它其实是 Kafka 位移相关的一个核心概念，本文我们就从位移开始，把相关的概念理清楚。</summary>
+    
+    
+    
+    
+    <category term="Kafka" scheme="https://jackeyzhe.github.io/tags/Kafka/"/>
+    
+  </entry>
   
   <entry>
     <title>从零学习Kafka：副本机制</title>
@@ -369,25 +388,6 @@
     
     
     <summary type="html">&lt;p&gt;Flink 中有四种执行图，分别是 StreamGraph、JobGraph、ExecutionGraph 和 Physical Graph。今天我们来看下我们编写的 Flink 程序代码是如何生成 StreamGraph 的。</summary>
-    
-    
-    
-    
-    <category term="Flink" scheme="https://jackeyzhe.github.io/tags/Flink/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Flink学习笔记：反压</title>
-    <link href="https://jackeyzhe.github.io/2025/08/26/Flink%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%9A%E5%8F%8D%E5%8E%8B/"/>
-    <id>https://jackeyzhe.github.io/2025/08/26/Flink%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%9A%E5%8F%8D%E5%8E%8B/</id>
-    <published>2025-08-26T15:13:46.000Z</published>
-    <updated>2025-09-07T14:17:06.951Z</updated>
-    
-    <content type="html"><![CDATA[<p>今天来聊在 Flink 运维过程中比较常见的一个问题：反压。<span id="more"></span></p><h3 id="什么是反压"><a href="#什么是反压" class="headerlink" title="什么是反压"></a>什么是反压</h3><p>反压是流式系统中关于数据处理能力的动态反馈机制，并且是从下游到上游的反馈，一般发生在上游节点的生产速度大于下游节点的消费速度的情况。</p><h3 id="数据如何传输"><a href="#数据如何传输" class="headerlink" title="数据如何传输"></a>数据如何传输</h3><p>在了解反压的细节之前，首先要知道 Flink 中数据是如何传输的。在 Flink 中，两个算子之间的关系分为三种：</p><ol><li><p>部署在同一个 TaskManager 上，且属于同一算子链。</p></li><li><p>部署在同一个 TaskManager 上，但不是同一个算子链。</p></li><li><p>部署在不同的 TaskManager 上。</p></li></ol><p>三种不同的关系，对应的算子间的数据传输方式也不同。先说第一种。</p><h4 id="同一线程数据传输"><a href="#同一线程数据传输" class="headerlink" title="同一线程数据传输"></a>同一线程数据传输</h4><p>同一线程中的两个算子共享内存，因此数据传输非常简单，上游产出好数据后，直接调用下游的 processElement 方法即可。</p><h4 id="本地线程数据传输"><a href="#本地线程数据传输" class="headerlink" title="本地线程数据传输"></a>本地线程数据传输</h4><p>对于第二种关系，两个算子不在同一线程，但是部署在同一个 TaskManager 上，也就是算子之间的数据传输是跨线程的。我们通过一个图来解释。</p><p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1757168841/Blog/flink/7/Flink%E9%80%9A%E4%BF%A1.png" alt="本地线程传输"></p><p>图中，Flat Map Task 是上游算子，sum 是下游的算子。它们共享一块 Buffer 内存。当 Buffer 中没有数据可以消费时，sum 所在的线程会阻塞（步骤1）。随着数据的流入，Flat Map Task 会将处理好的数据写入到 ResultSubpartition（步骤2），然后 flush 到 Buffer 中（步骤3）。此时会唤醒 sum 所在的线程（步骤4），它就可以从 Buffer 中读取数据了（步骤5）。</p><h4 id="远程数据传输"><a href="#远程数据传输" class="headerlink" title="远程数据传输"></a>远程数据传输</h4><p>第三种跨 TaskManager 的数据传输，与第二种类似，不过也有些区别。我们还是通过一张图来解释。</p><p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1757170148/Blog/flink/7/Flink%E8%BF%9C%E7%A8%8B%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93.png" alt="远程数据传输"></p><p>从图中可以看到，当 sum 所在线程没有 Buffer 可以消费时，会通过 PartitionRequestClient 向 Flat Map Task 所在的进程发送请求。Flat Map Task 所在进程接收到请求后，会读取 Buffer 中的数据并返回。</p><h3 id="Flink-的反压"><a href="#Flink-的反压" class="headerlink" title="Flink 的反压"></a>Flink 的反压</h3><p>了解了 Flink 的数据传输方式之后，我们再来看下 Flink 是如何感知反压的。</p><p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1757170638/Blog/flink/7/Flink%E5%8F%8D%E5%8E%8B%E8%BF%87%E7%A8%8B.png" alt="Flink反压"></p><p>上图是一个数据传输的简图。当 Task1 有 Buffer 空间时，记录 A 被序列化并写入 LocalBufferPool 中，接着发送到 Task2 的 LocalBufferPool 中，Task2 读取并反序列化后交由程序处理。</p><p>这里我们也分两个场景讨论。</p><h4 id="本地传输"><a href="#本地传输" class="headerlink" title="本地传输"></a>本地传输</h4><p>Task1 和 Task2 在同一个 TaskManager 节点，Task1 和 Task2 共用 Buffer，一旦 Task2 消费了 Buffer，该 Buffer 就会被回收。如果 Task2 的处理速度比 Task1 慢，那么 Buffer 的回收速度就赶不上 Task1 取 Buffer 的速度，这样会导致无 Buffer 可用，最终 Task1 就会降速。</p><h4 id="远程传输"><a href="#远程传输" class="headerlink" title="远程传输"></a>远程传输</h4><p>Task1 和 Task2 运行在不同的 TaskManager 上，那 Buffer 会发送到网络后，等接收端消费完再回收。在发送端，会通过 Netty 水位机制来保证不往网络中写太多数据，如果网络中的数据超过了高水位值，就会等其下降到低水位值以下才会继续写数据。如果网络有堆积，发送端就会暂停发送，Buffer 也不会被回收，这就会阻塞 writer 往 ResultSubPartition 中写数据。</p><h3 id="反压监控"><a href="#反压监控" class="headerlink" title="反压监控"></a>反压监控</h3><p>在 Flink Web UI 中，可以找到反压的监控</p><p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1757254334/Blog/flink/7/back_pressure_subtasks.png" alt="反压监控"></p><p>它有三种状态：</p><ul><li><strong>OK</strong>: 0% &lt;= 反压比例 &lt;= 10%，此时一般不用处理。</li><li><strong>LOW</strong>: 10% &lt; 反压比例 &lt;= 50%，这种状态需要关注。</li><li><strong>HIGH</strong>: 50% &lt; 反压比例 &lt;= 100%，已经反压，需要赶快处理。</li></ul><h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>今天我们聊了什么是反压，以及 Flink 中数据传输方法和 Flink 任务是如何感知反压的。Flink 的传输方式分为三种，分别是同线程传输、本地跨线程传输以及远程传输。Flink 任务在感知反压时也分别针对本地传输和远程传输做了讨论。</p>]]></content>
-    
-    
-    <summary type="html">&lt;p&gt;今天来聊在 Flink 运维过程中比较常见的一个问题：反压。</summary>
     
     
     
