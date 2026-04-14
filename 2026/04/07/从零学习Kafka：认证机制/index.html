@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.0.5/fancybox/fancybox.css" integrity="sha256-uTcjoMD6rPt4OyV3Rs02Slxl0BJGMNVKAm/1eYPt2go=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"jackeyzhe.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"github-dark","dark":"github-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="前面在学习配置参数时，有同学指出没有 SSL 相关的参数，那么今天就整体看一下 Kafka 的认证机制有哪些。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从零学习Kafka：认证机制">
+<meta property="og:url" content="https://jackeyzhe.github.io/2026/04/07/%E4%BB%8E%E9%9B%B6%E5%AD%A6%E4%B9%A0Kafka%EF%BC%9A%E8%AE%A4%E8%AF%81%E6%9C%BA%E5%88%B6/index.html">
+<meta property="og:site_name" content="Jackeyzhe&#39;s Blog">
+<meta property="og:description" content="前面在学习配置参数时，有同学指出没有 SSL 相关的参数，那么今天就整体看一下 Kafka 的认证机制有哪些。">
+<meta property="og:locale">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1776152370/Blog/Kafka/5/kafka_alice.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1776152430/Blog/Kafka/5/auth_producer.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1776152438/Blog/Kafka/5/auth_consumer.png">
+<meta property="article:published_time" content="2026-04-07T11:04:35.000Z">
+<meta property="article:modified_time" content="2026-04-14T08:00:05.495Z">
+<meta property="article:author" content="Jackey Wang">
+<meta property="article:tag" content="Kafka">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1776152370/Blog/Kafka/5/kafka_alice.png">
+
+
+<link rel="canonical" href="https://jackeyzhe.github.io/2026/04/07/%E4%BB%8E%E9%9B%B6%E5%AD%A6%E4%B9%A0Kafka%EF%BC%9A%E8%AE%A4%E8%AF%81%E6%9C%BA%E5%88%B6/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-Hans","comments":true,"permalink":"https://jackeyzhe.github.io/2026/04/07/%E4%BB%8E%E9%9B%B6%E5%AD%A6%E4%B9%A0Kafka%EF%BC%9A%E8%AE%A4%E8%AF%81%E6%9C%BA%E5%88%B6/","path":"2026/04/07/从零学习Kafka：认证机制/","title":"从零学习Kafka：认证机制"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>从零学习Kafka：认证机制 | Jackeyzhe's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script size="300" alpha="0.6" zIndex="1" src="https://cdnjs.cloudflare.com/ajax/libs/ribbon.js/1.0.2/ribbon.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.0.5/fancybox/fancybox.umd.js" integrity="sha256-UiSieVaV/DXce2LW7QH+o77w+AIoAvSCPBkezriZ2DQ=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Jackeyzhe's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Jackeyzhe's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">靠脸吃饭</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section">Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section">Tags<span class="badge">15</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section">Archives<span class="badge">124</span></a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section">About</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Kafka-%E8%AE%A4%E8%AF%81%E6%9C%BA%E5%88%B6"><span class="nav-number">1.</span> <span class="nav-text">Kafka 认证机制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#SSL-TLS"><span class="nav-number">1.1.</span> <span class="nav-text">SSL&#x2F;TLS</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SASL"><span class="nav-number">1.2.</span> <span class="nav-text">SASL</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#OAuthBearer"><span class="nav-number">1.3.</span> <span class="nav-text">OAuthBearer</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A4%E8%AF%81%E6%96%B9%E5%BC%8F%E7%9A%84%E6%AF%94%E8%BE%83"><span class="nav-number">2.</span> <span class="nav-text">认证方式的比较</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E5%8F%82%E6%95%B0"><span class="nav-number">3.</span> <span class="nav-text">配置参数</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Broker-%E7%AB%AF"><span class="nav-number">3.1.</span> <span class="nav-text">Broker 端</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Producer-Consumer-%E7%AB%AF"><span class="nav-number">3.2.</span> <span class="nav-text">Producer&#x2F;Consumer 端</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E6%88%98"><span class="nav-number">4.</span> <span class="nav-text">实战</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%87%86%E5%A4%87-JAAS-%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-number">4.1.</span> <span class="nav-text">1. 准备 JAAS 配置文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E4%BF%AE%E6%94%B9%E6%9C%8D%E5%8A%A1%E7%AB%AF%E9%85%8D%E7%BD%AE"><span class="nav-number">4.2.</span> <span class="nav-text">2. 修改服务端配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E8%AE%BE%E7%BD%AE%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E5%B9%B6%E5%90%AF%E5%8A%A8-Kafka"><span class="nav-number">4.3.</span> <span class="nav-text">3. 设置环境变量并启动 Kafka</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-%E5%8A%A8%E6%80%81%E5%88%9B%E5%BB%BA%E4%B8%9A%E5%8A%A1%E7%94%A8%E6%88%B7"><span class="nav-number">4.4.</span> <span class="nav-text">4. 动态创建业务用户</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-%E5%88%9B%E5%BB%BA%E5%AE%A2%E6%88%B7%E7%AB%AF%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-number">4.5.</span> <span class="nav-text">5. 创建客户端配置文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-%E6%B5%8B%E8%AF%95%E9%AA%8C%E8%AF%81"><span class="nav-number">4.6.</span> <span class="nav-text">6. 测试验证</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Jackey Wang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">124</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Jackeyzhe" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:jackeyzhe59@gmail.com" title="E-Mail → mailto:jackeyzhe59@gmail.com" rel="noopener me" target="_blank"><i class="fas fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/jackeyzhe" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i>StackOverflow</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2026/04/07/%E4%BB%8E%E9%9B%B6%E5%AD%A6%E4%B9%A0Kafka%EF%BC%9A%E8%AE%A4%E8%AF%81%E6%9C%BA%E5%88%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Jackey Wang">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="从零学习Kafka：认证机制 | Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          从零学习Kafka：认证机制
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2026-04-07 19:04:35" itemprop="dateCreated datePublished" datetime="2026-04-07T19:04:35+08:00">2026-04-07</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>4.1k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>4 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>前面在学习配置参数时，有同学指出没有 SSL 相关的参数，那么今天就整体看一下 Kafka 的认证机制有哪些。<span id="more"></span></p>
+<h3 id="Kafka-认证机制"><a href="#Kafka-认证机制" class="headerlink" title="Kafka 认证机制"></a>Kafka 认证机制</h3><p>在当前版本中，安全机制已经变为生产环境的“标配”，Kafka 的安全框架分为<strong>认证</strong>、<strong>鉴权</strong>和<strong>加密传输</strong>三层。简单来说，认证机制就是解决“你是谁”的问题，鉴权机制则是解决“你能干什么”的问题。本文我们就一起来看一下 Kafka 的认证机制。</p>
+<p>当前 Kafka 支持以下几类认证方式：SSL/TLS、SASL 和 OAuthBearer。</p>
+<h4 id="SSL-TLS"><a href="#SSL-TLS" class="headerlink" title="SSL/TLS"></a>SSL/TLS</h4><p>这是一种基于安全证书的认证方式，也是最安全的认证方式之一。在 Kafka 中，基于 SSL 的认证方式可以理解为是客户端和 Broker 端的双路认证。在 TCP 握手阶段，双方交换证书并验证合法性。这种认证方式的优点在于安全性很高，缺点在于证书的分发和维护成本很高，且对性能也会有一定的损耗。</p>
+<h4 id="SASL"><a href="#SASL" class="headerlink" title="SASL"></a>SASL</h4><p>SASL 是提供认证和数据安全服务的一种框架，Kafka 支持多种 SASL 认证机制。</p>
+<ul>
+<li><p>SASL/PLAIN：简单的用户名密码的方式，适合内部开发测试环境使用。</p>
+</li>
+<li><p>SASL/SCRAM：使用动态用户名密码的方式，密码的哈希值存储 ZooKeeper 或 KRaft 的元数据中。这种机制比 PLAIN 的安全性高，同时支持使用命令创建用户，不需要重启 Broker，是大多数生产环境的首选方案。</p>
+</li>
+<li><p>SASL/GSSAPI：集成企业级的 Kerberos 认证。这种机制可以支持单点登录，适合已有大数据生态的企业生产环境。</p>
+</li>
+</ul>
+<h4 id="OAuthBearer"><a href="#OAuthBearer" class="headerlink" title="OAuthBearer"></a>OAuthBearer</h4><p>这是在 2.0 版本引入的比较新的认证方式，它是基于 OAuth2 认证框架的，在认证时，客户端会先从授权服务器获取 JWT，然后再携带 Token 访问 Kafka。通常适用于云原生环境的架构中。</p>
+<h3 id="认证方式的比较"><a href="#认证方式的比较" class="headerlink" title="认证方式的比较"></a>认证方式的比较</h3><p>了解了这些认证方式之后，我们再总体对这些认证方式进行一下对比。</p>
+<table>
+<thead>
+<tr>
+<th>认证方式</th>
+<th>安全性</th>
+<th>配置难度</th>
+<th>性能损耗</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SSL/TLS</td>
+<td>极高</td>
+<td>中</td>
+<td>高</td>
+<td>适用于一般测试场景</td>
+</tr>
+<tr>
+<td>SASL/PLAIN</td>
+<td>低</td>
+<td>极易</td>
+<td>极低</td>
+<td>内部开发测试环境</td>
+</tr>
+<tr>
+<td>SASL/SCRAM</td>
+<td>高</td>
+<td>中</td>
+<td>低</td>
+<td>适用于中小公司的 Kafka 集群</td>
+</tr>
+<tr>
+<td>SASL/GSSAPI</td>
+<td>极高</td>
+<td>极难</td>
+<td>中</td>
+<td>适用于本身已经实现 Kerberos 认证的场景</td>
+</tr>
+<tr>
+<td>OAuthBearer</td>
+<td>高</td>
+<td>难</td>
+<td>中</td>
+<td>适用于已经支持 OAuth 2 的场景</td>
+</tr>
+</tbody>
+</table>
+<h3 id="配置参数"><a href="#配置参数" class="headerlink" title="配置参数"></a>配置参数</h3><h4 id="Broker-端"><a href="#Broker-端" class="headerlink" title="Broker 端"></a>Broker 端</h4><p>我们先来看一下 Broker 端的参数，关键参数分为三类，我们分别介绍一下。</p>
+<p>首先是要定义监听器和协议映射，需要使用 <code>listener</code> 和 <code>listener.security.protocol.map</code>，这两个参数我们在<a href="https://jackeyzhe.github.io/2026/01/26/%E4%BB%8E%E9%9B%B6%E5%AD%A6%E4%B9%A0Kafka%EF%BC%9A%E9%85%8D%E7%BD%AE%E5%8F%82%E6%95%B0/#Broker-%E7%AB%AF%E5%8F%82%E6%95%B0">从零学习Kafka：配置参数</a>一文中都有介绍，就不过多赘述了。</p>
+<p>如果你使用的是 SASL 的认证方式，还需要配置 <code>sasl.enabled.mechanisms</code> 和 <code>sasl.mechanism.inter.broker.protocol</code> 这两个参数。</p>
+<p><code>sasl.enabled.mechanisms</code> 是用来指定 Broker 端允许的 SASL 机制，可以支持 <code>PLAIN</code>, <code>SCRAM-SHA-256</code>, <code>SCRAM-SHA-512</code>, <code>GSSAPI</code>，注意这个参数是可以配置多个值的。</p>
+<p><code>sasl.mechanism.inter.broker.protocol</code> 用来指定 Broker 节点之间通讯使用的认证机制。</p>
+<p>最后我们需要配置 SSL 证书。</p>
+<p>首先是 Broker 端的私钥路径和密码的配置参数：<code>ssl.keystore.location</code> 和 <code>ssl.keystore.password</code>，这两个参数用来证明“我是 Broker”。</p>
+<p>接着是信任库的路径和密码：<code>ssl.truststore.location</code> 和 <code>ssl.truststore.password</code>，它们是用来验证客户端的证书的。</p>
+<p>最后设置是否需要双向认证：<code>ssl.client.auth</code>，它表示是否要求客户端也提供证书，required 表示客户端必须提供证书，requested 客户端是否需要提供证书是可选的，none 表示不需要客户端提供证书。</p>
+<h4 id="Producer-Consumer-端"><a href="#Producer-Consumer-端" class="headerlink" title="Producer/Consumer 端"></a>Producer/Consumer 端</h4><p>看完了 Broker 作为服务端的配置参数之后，我们再来看一下客户端的配置参数，也就是 Producer 和 Consumer 的配置参数。这里配置主要分为两部分，一是协议的一些基础配置，二是身份凭证配置。</p>
+<p>协议的机制配置包括 <code>security.protocol</code> 和 <code>sasl.mechanism</code> 这两个参数。</p>
+<p><code>security.protocol</code> 用来指定和 Broker 通信使用的协议，必须与服务端配置的监听器协议相同。</p>
+<p><code>sasl.mechanism</code> 是客户端使用的 SASL 机制，必须是服务端参数 <code>sasl.enabled.mechanisms</code> 配置列表中的一个。</p>
+<p>接下来是身份凭证配置，最核心的参数就是 <code>sasl.jaas.config</code>，它定义了具体的用户名和密码。</p>
+<h3 id="实战"><a href="#实战" class="headerlink" title="实战"></a>实战</h3><p>在正文的最后一节，我们一起来对一个 Kafka 集群进行一次认证配置，我们使用的是 SASL/SCRAM 认证机制，感兴趣的同学可以一起手动配置一遍。</p>
+<h4 id="1-准备-JAAS-配置文件"><a href="#1-准备-JAAS-配置文件" class="headerlink" title="1. 准备 JAAS 配置文件"></a>1. 准备 JAAS 配置文件</h4><p>在命令行中执行命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">cat &lt;&lt;EOF &gt; config/kafka_server_jaas.conf</span><br><span class="line">KafkaServer &#123;</span><br><span class="line">    org.apache.kafka.common.security.scram.ScramLoginModule required</span><br><span class="line">    username=&quot;admin&quot;</span><br><span class="line">    password=&quot;admin-password&quot;;</span><br><span class="line">&#125;;</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+<h4 id="2-修改服务端配置"><a href="#2-修改服务端配置" class="headerlink" title="2. 修改服务端配置"></a>2. 修改服务端配置</h4><p>修改配置文件 config/server.properties，我们将 EXTERNAL 定义为 SASL，表示外部业务强制加密。</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 监听协议映射</span></span><br><span class="line"><span class="attr">listener.security.protocol.map</span>=<span class="string">CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:SASL_PLAINTEXT</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># 监听端口（9092明文用于内部，9093加密用于外部业务）</span></span><br><span class="line"><span class="attr">listeners</span>=<span class="string">PLAINTEXT://:9092,EXTERNAL://:9093,CONTROLLER://:9094</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># 通讯协议设置</span></span><br><span class="line"><span class="attr">inter.broker.listener.name</span>=<span class="string">PLAINTEXT</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># 开启 SCRAM 认证机制</span></span><br><span class="line"><span class="attr">sasl.enabled.mechanisms</span>=<span class="string">SCRAM-SHA-256</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># 控制器监听器</span></span><br><span class="line"><span class="attr">controller.listener.names</span>=<span class="string">CONTROLLER</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># 仲裁投票节点地址（确保这里的端口 9094 与上面 listeners 中的 CONTROLLER 端口一致）</span></span><br><span class="line"><span class="attr">controller.quorum.voters</span>=<span class="string">1@localhost:9094</span></span><br></pre></td></tr></table></figure>
+<h4 id="3-设置环境变量并启动-Kafka"><a href="#3-设置环境变量并启动-Kafka" class="headerlink" title="3. 设置环境变量并启动 Kafka"></a>3. 设置环境变量并启动 Kafka</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">设置环境变量</span></span><br><span class="line">export KAFKA_OPTS=&quot;-Djava.security.auth.login.config=$(pwd)/config/kafka_server_jaas.conf&quot;</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">生成集群 ID (如果还没做过)</span></span><br><span class="line">KAFKA_CLUSTER_ID=$(bin/kafka-storage.sh random-uuid)</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">格式化存储目录</span></span><br><span class="line">bin/kafka-storage.sh format -t $KAFKA_CLUSTER_ID -c config/server.properties</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">启动 Broker</span></span><br><span class="line">bin/kafka-server-start.sh -daemon config/server.properties</span><br></pre></td></tr></table></figure>
+<p>这里核心目的是让 Kafka 知道 JAAS 文件的位置。</p>
+<h4 id="4-动态创建业务用户"><a href="#4-动态创建业务用户" class="headerlink" title="4. 动态创建业务用户"></a>4. 动态创建业务用户</h4><p>Kafka 集群启动后，我们创建一个业务用户，这里使用的端口是 9092，因为我们还没有给管理员配置客户端证书。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-configs.sh --bootstrap-server localhost:9092 \</span><br><span class="line">--alter --add-config &#x27;SCRAM-SHA-256=[password=alice-password]&#x27; \</span><br><span class="line">--entity-type users --entity-name alice</span><br></pre></td></tr></table></figure>
+<p>创建完成后 Kafka 会有以下提示。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1776152370/Blog/Kafka/5/kafka_alice.png" alt="kafka_alice"></p>
+<h4 id="5-创建客户端配置文件"><a href="#5-创建客户端配置文件" class="headerlink" title="5. 创建客户端配置文件"></a>5. 创建客户端配置文件</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">cat &lt;&lt;EOF &gt; config/client-alice.conf</span><br><span class="line">security.protocol=SASL_PLAINTEXT</span><br><span class="line">sasl.mechanism=SCRAM-SHA-256</span><br><span class="line">sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required \\</span><br><span class="line">  username=&quot;alice&quot; \\</span><br><span class="line">  password=&quot;alice-password&quot;;</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+<h4 id="6-测试验证"><a href="#6-测试验证" class="headerlink" title="6. 测试验证"></a>6. 测试验证</h4><p>分别使用 Producer 和 Consumer 验证消息的发送和消费</p>
+<p>Producer 端</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-console-producer.sh --bootstrap-server localhost:9093 \</span><br><span class="line">--topic test-auth \</span><br><span class="line">--producer.config config/client-alice.conf</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1776152430/Blog/Kafka/5/auth_producer.png" alt="auth_producer"></p>
+<p>Consumer端</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-console-consumer.sh --bootstrap-server localhost:9093 \</span><br><span class="line">--topic test-auth \</span><br><span class="line">--from-beginning \</span><br><span class="line">--consumer.config config/client-alice.conf</span><br></pre></td></tr></table></figure>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1776152438/Blog/Kafka/5/auth_consumer.png" alt="auth_consumer"></p>
+<p>至此，我们完整了一整套 SASL/SCRAM 认证机制的配置与验证。不知道你在配置过程中有没有遇到什么问题，如果有的话可以随时与我进行交流。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>本文我们先了解了 Kafka 支持的认证机制，并对它们进行了一次简单的比较。接着又学习了认证相关的配置参数。最后实际操作配置了 SASL/SCRAM 认证机制。希望通过本文的学习大家能对 Kafka 的认证机制有一个更加清晰的认识。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>Buy me a coffee</div>
+  <button>
+    Donate
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/weixinpay.jpg" alt="Jackey Wang WeChat Pay">
+        <span>WeChat Pay</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Jackey Wang Alipay">
+        <span>Alipay</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="followme">
+  <span>Welcome to my other publishing channels</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <span class="social-link">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </span>
+
+          <img class="social-item-img" src="/images/wechat-qcode.jpg">
+      </div>
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Kafka/" rel="tag"><i class="fa fa-tag"></i> Kafka</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/02/06/%E4%BB%8E%E9%9B%B6%E5%AD%A6%E4%B9%A0Kafka%EF%BC%9A%E4%BD%8D%E7%A7%BB%E4%B8%8E%E9%AB%98%E6%B0%B4%E4%BD%8D/" rel="prev" title="从零学习Kafka：位移与高水位">
+                  <i class="fa fa-angle-left"></i> 从零学习Kafka：位移与高水位
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Jackey Wang</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Word count total">586k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">8:53</span>
+  </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/Jackeyzhe" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
