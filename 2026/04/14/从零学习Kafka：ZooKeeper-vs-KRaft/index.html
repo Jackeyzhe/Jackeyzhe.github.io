@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.0.5/fancybox/fancybox.css" integrity="sha256-uTcjoMD6rPt4OyV3Rs02Slxl0BJGMNVKAm/1eYPt2go=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"jackeyzhe.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"github-dark","dark":"github-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在 Kafka 的演进史中，抛弃 ZooKeeper 模式，拥抱 KRaft 模式这一变化被认为是其架构上最重要的一次变革。本文我们就来讨论 Kafka 为什么要抛弃 ZooKeeper，以及 KRaft 的设计思路。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从零学习Kafka：ZooKeeper vs KRaft">
+<meta property="og:url" content="https://jackeyzhe.github.io/2026/04/14/%E4%BB%8E%E9%9B%B6%E5%AD%A6%E4%B9%A0Kafka%EF%BC%9AZooKeeper-vs-KRaft/index.html">
+<meta property="og:site_name" content="Jackeyzhe&#39;s Blog">
+<meta property="og:description" content="在 Kafka 的演进史中，抛弃 ZooKeeper 模式，拥抱 KRaft 模式这一变化被认为是其架构上最重要的一次变革。本文我们就来讨论 Kafka 为什么要抛弃 ZooKeeper，以及 KRaft 的设计思路。">
+<meta property="og:locale">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1776324319/Blog/Kafka/6/Kafka_KRaft.png">
+<meta property="article:published_time" content="2026-04-14T08:17:42.000Z">
+<meta property="article:modified_time" content="2026-04-16T13:11:54.192Z">
+<meta property="article:author" content="Jackey Wang">
+<meta property="article:tag" content="Kafka">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1776324319/Blog/Kafka/6/Kafka_KRaft.png">
+
+
+<link rel="canonical" href="https://jackeyzhe.github.io/2026/04/14/%E4%BB%8E%E9%9B%B6%E5%AD%A6%E4%B9%A0Kafka%EF%BC%9AZooKeeper-vs-KRaft/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-Hans","comments":true,"permalink":"https://jackeyzhe.github.io/2026/04/14/%E4%BB%8E%E9%9B%B6%E5%AD%A6%E4%B9%A0Kafka%EF%BC%9AZooKeeper-vs-KRaft/","path":"2026/04/14/从零学习Kafka：ZooKeeper-vs-KRaft/","title":"从零学习Kafka：ZooKeeper vs KRaft"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>从零学习Kafka：ZooKeeper vs KRaft | Jackeyzhe's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script size="300" alpha="0.6" zIndex="1" src="https://cdnjs.cloudflare.com/ajax/libs/ribbon.js/1.0.2/ribbon.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.0.5/fancybox/fancybox.umd.js" integrity="sha256-UiSieVaV/DXce2LW7QH+o77w+AIoAvSCPBkezriZ2DQ=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Jackeyzhe's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Jackeyzhe's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">靠脸吃饭</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section">Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section">Tags<span class="badge">15</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section">Archives<span class="badge">125</span></a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section">About</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E6%8A%9B%E5%BC%83-ZooKeeper"><span class="nav-number">1.</span> <span class="nav-text">为什么抛弃 ZooKeeper</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%83%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5%E7%93%B6%E9%A2%88"><span class="nav-number">1.1.</span> <span class="nav-text">元数据同步瓶颈</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%80%E8%87%B4%E6%80%A7%E9%A3%8E%E9%99%A9"><span class="nav-number">1.2.</span> <span class="nav-text">一致性风险</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%90%E7%BB%B4%E5%A4%8D%E6%9D%82%E6%80%A7"><span class="nav-number">1.3.</span> <span class="nav-text">运维复杂性</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%95%E5%85%A5-KRaft"><span class="nav-number">2.</span> <span class="nav-text">引入 KRaft</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9E%B6%E6%9E%84"><span class="nav-number">2.1.</span> <span class="nav-text">架构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%83%A8%E7%BD%B2%E6%96%B9%E5%BC%8F"><span class="nav-number">2.2.</span> <span class="nav-text">部署方式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A7%A3%E5%86%B3%E4%BA%86%E9%97%AE%E9%A2%98"><span class="nav-number">2.3.</span> <span class="nav-text">为什么解决了问题</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Jackey Wang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">125</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Jackeyzhe" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:jackeyzhe59@gmail.com" title="E-Mail → mailto:jackeyzhe59@gmail.com" rel="noopener me" target="_blank"><i class="fas fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/jackeyzhe" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i>StackOverflow</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2026/04/14/%E4%BB%8E%E9%9B%B6%E5%AD%A6%E4%B9%A0Kafka%EF%BC%9AZooKeeper-vs-KRaft/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Jackey Wang">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="从零学习Kafka：ZooKeeper vs KRaft | Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          从零学习Kafka：ZooKeeper vs KRaft
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2026-04-14 16:17:42" itemprop="dateCreated datePublished" datetime="2026-04-14T16:17:42+08:00">2026-04-14</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>2.2k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>2 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在 Kafka 的演进史中，抛弃 ZooKeeper 模式，拥抱 KRaft 模式这一变化被认为是其架构上最重要的一次变革。本文我们就来讨论 Kafka 为什么要抛弃 ZooKeeper，以及 KRaft 的设计思路。<span id="more"></span></p>
+<h3 id="为什么抛弃-ZooKeeper"><a href="#为什么抛弃-ZooKeeper" class="headerlink" title="为什么抛弃 ZooKeeper"></a>为什么抛弃 ZooKeeper</h3><p>在传统的 Kafka 架构中，Kafka 将元数据管理的责任交给了 ZooKeeper，ZooKeeper 存储了 Topic 列表、分区位置、ISR 列表等信息，为 Kafka 提供了一个可靠的分布式协调服务。集群中的一个 Broker 会被选为 Controller，Controller 负责管理分区副本状态，处理分区重平衡。</p>
+<p>随着 Kafka 的发展，对于 ZooKeeper 的重度依赖也带来了一些问题。</p>
+<h4 id="元数据同步瓶颈"><a href="#元数据同步瓶颈" class="headerlink" title="元数据同步瓶颈"></a>元数据同步瓶颈</h4><p>当 Controller 变更时，它需要从 ZooKeeper 加载完整的集群元数据，然后把这些数据同步给所有的 Broker，对于分区数量很大的集群，这个过程会很长，从而导致整个集群的服务终端。</p>
+<h4 id="一致性风险"><a href="#一致性风险" class="headerlink" title="一致性风险"></a>一致性风险</h4><p>在 ZooKeeper 模式下，集群本质上存在两个权利中心（ZooKeeper 和 Kafka Controller），它们之间的数据同步延迟会带来一致性问题。我们来看一个具体的场景。</p>
+<p>假设我们现在有一个三台 Broker 的集群，分别为 Broker0，Broker1，Broker2，Broker0 为当前 Controller。</p>
+<p>在某一时刻，当 Broker0 突然遇到了长时间 Full GC 时，由于 ZooKeeper 长时间没有收到 Broker0 的心跳消息，判断 Broker0 宕机，于是就删除了 /controller 临时节点，然后将 Broker1 选为新的 controller。这时 Broker0 从 GC 中恢复，此时它可能还没有意识到自己已经不是 Controller了，这就会导致集群中存在两个 Controller。假设有一个 Topic 原本的 Leader 是 Broker2，此时 Broker0 和 Broker1 都会给 Broker2 发送指令，下令把分区 Leader 切换到自己。这就会带来比较严重的影响，即一部分 Producer 会把数据写到 Broker0，另一部分 Producer 把数据写到 Broker1。直接导致数据混乱，同时 Consumer 也不知道要消费哪个 Broker 的数据。</p>
+<h4 id="运维复杂性"><a href="#运维复杂性" class="headerlink" title="运维复杂性"></a>运维复杂性</h4><p>第三个问题就是运维复杂性，ZooKeeper 属于一个独立的组件，如果选择 ZooKeeper 模式，运维人员就需要维护两套系统（Kafka + ZooKeeper），大幅提升了运维复杂度。</p>
+<p>基于以上问题，Kafka 社区决定放弃 ZooKeeper，发展内部的共识协议 KRaft。</p>
+<h3 id="引入-KRaft"><a href="#引入-KRaft" class="headerlink" title="引入 KRaft"></a>引入 KRaft</h3><p>抛弃 ZooKeeper 之后，Kafka 演进到了 KRaft（Kafka Raft）模式，这是一种 Kafka 内部的共识协议，它可以让 Kafka 实现自我管理。</p>
+<h4 id="架构"><a href="#架构" class="headerlink" title="架构"></a>架构</h4><p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1776324319/Blog/Kafka/6/Kafka_KRaft.png" alt="KRaft"></p>
+<p>KRaft 模式下，Broker 有两种角色，一种是 Controller Quorum，另一种是 Broker Nodes，可以在配置文件中通过 <code>process.roles</code> 参数来指定 Broker 的角色。Controller Quorum 通常由 3 个或 5 个 Broker 组成，它们之间会选举出来一个作为 Leader。</p>
+<p>对于元数据的存储，KRaft 维护了一个内部 Topic <code>__cluster_metadata</code>，所有的集群变更都会作为一条条消息写入到这个 Topic 中，集群内的其他 Broker 通过消费这个 Topic 的消息来感知集群变更。Broker Nodes 节点作为业务节点，只负责数据的读写。</p>
+<h4 id="部署方式"><a href="#部署方式" class="headerlink" title="部署方式"></a>部署方式</h4><p>KRaft 模式下有两种部署方式，一种是混合模式，一种是隔离模式。</p>
+<p>混合模式是指同一个进程即是 Broker，又是 Controller，即 <code>process.roles=broker,controller</code>。这种模式一般适合小型集群或者测试环境。</p>
+<p>隔离模式是指 Broker 和 Controller 运行在不同的服务器，这样 Controller 就不会受到大流量的影响，整个集群会更加稳定。在配置时，一部分节点配置为 <code>process.roles=broker</code>，另一部分配置为 <code>process.roles=controller</code> 即可。</p>
+<h4 id="为什么解决了问题"><a href="#为什么解决了问题" class="headerlink" title="为什么解决了问题"></a>为什么解决了问题</h4><p>我们重点看一下 KRaft 模式为什么解决了前面提到的一致性问题。最直观的一点就是 KRaft 模式下权力中心合二为一，避免了出现多个 Leader 的情况，Controller Quorum 选举的每一任 Leader 都有一个唯一的 Epoch。在向 <code>__cluster_metadata</code> 主题写入指令时会带有自己的 Epoch，其他 Broker 消费到指令时，只认 Epoch 最大的指令。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>最后我们以一张表格来对比一下 ZooKeeper 和 KRaft 两种模式。</p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>ZooKeeper 模式</th>
+<th>KRaft 模式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>外部依赖</td>
+<td>需要部署 ZooKeeper 集群</td>
+<td>无</td>
+</tr>
+<tr>
+<td>元数据存储</td>
+<td>存储在 ZooKeeper 中</td>
+<td>内部 Topic</td>
+</tr>
+<tr>
+<td>Leader 选举</td>
+<td>依赖 ZooKeeper 协调</td>
+<td>基于 Raft 协议选举</td>
+</tr>
+<tr>
+<td>元数据更新</td>
+<td>Controller 广播给 Broker</td>
+<td>Broker 主动消费</td>
+</tr>
+<tr>
+<td>分区上限</td>
+<td>受限于 ZK，约 20 万左右</td>
+<td>可以支撑 100 万+分区</td>
+</tr>
+<tr>
+<td>恢复时间</td>
+<td>较长</td>
+<td>极短</td>
+</tr>
+</tbody>
+</table>
+<p>基于以上对比，我们还了解了依赖 ZooKeeper 为 Kafka 带来的性能瓶颈、一致性问题、以及运维复杂度的提高。在新版本的 Kafka 中，已经全面拥抱 KRaft 了。当然，Kafka 弃用 ZooKeeper 并不代表 ZooKeeper 一无是处，每个系统都有适合自己的应用场景，在合适的场景应用合适的系统才是正确的选择。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>Buy me a coffee</div>
+  <button>
+    Donate
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/weixinpay.jpg" alt="Jackey Wang WeChat Pay">
+        <span>WeChat Pay</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Jackey Wang Alipay">
+        <span>Alipay</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="followme">
+  <span>Welcome to my other publishing channels</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <span class="social-link">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </span>
+
+          <img class="social-item-img" src="/images/wechat-qcode.jpg">
+      </div>
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Kafka/" rel="tag"><i class="fa fa-tag"></i> Kafka</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/04/07/%E4%BB%8E%E9%9B%B6%E5%AD%A6%E4%B9%A0Kafka%EF%BC%9A%E8%AE%A4%E8%AF%81%E6%9C%BA%E5%88%B6/" rel="prev" title="从零学习Kafka：认证机制">
+                  <i class="fa fa-angle-left"></i> 从零学习Kafka：认证机制
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Jackey Wang</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Word count total">589k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">8:55</span>
+  </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/Jackeyzhe" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
