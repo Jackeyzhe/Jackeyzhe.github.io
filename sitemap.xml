@@ -2,6 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://jackeyzhe.github.io/2026/04/20/%E4%BB%8E%E9%9B%B6%E5%AD%A6%E4%B9%A0Kafka%EF%BC%9A%E7%94%9F%E4%BA%A7%E8%80%85%E5%8E%8B%E7%BC%A9/</loc>
+    
+    <lastmod>2026-04-23</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://jackeyzhe.github.io/2026/04/17/%E4%BB%8E%E9%9B%B6%E5%AD%A6%E4%B9%A0Kafka%EF%BC%9A%E7%94%9F%E4%BA%A7%E8%80%85%E5%88%86%E5%8C%BA%E6%9C%BA%E5%88%B6/</loc>
     
     <lastmod>2026-04-20</lastmod>
@@ -353,6 +362,15 @@
   </url>
   
   <url>
+    <loc>https://jackeyzhe.github.io/2018/08/23/Java%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C%E7%B1%BB%EF%BC%8C%E7%9F%A5%E5%A4%9A%E5%B0%91%EF%BC%9F/</loc>
+    
+    <lastmod>2024-12-06</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://jackeyzhe.github.io/2019/06/10/Redis-Lua%E8%84%9A%E6%9C%AC%E4%B8%AD%E5%AD%A6%E6%95%99%E7%A8%8B%EF%BC%88%E4%B8%8A%EF%BC%89/</loc>
     
     <lastmod>2024-12-06</lastmod>
@@ -362,7 +380,7 @@
   </url>
   
   <url>
-    <loc>https://jackeyzhe.github.io/2019/06/16/Redis-Lua%E8%84%9A%E6%9C%AC%E4%B8%AD%E5%AD%A6%E6%95%99%E7%A8%8B%EF%BC%88%E4%B8%8B%EF%BC%89/</loc>
+    <loc>https://jackeyzhe.github.io/2019/06/17/Redis-Lua%E8%84%9A%E6%9C%AC%E5%A4%A7%E5%AD%A6%E6%95%99%E7%A8%8B/</loc>
     
     <lastmod>2024-12-06</lastmod>
     
@@ -371,7 +389,7 @@
   </url>
   
   <url>
-    <loc>https://jackeyzhe.github.io/2019/06/17/Redis-Lua%E8%84%9A%E6%9C%AC%E5%A4%A7%E5%AD%A6%E6%95%99%E7%A8%8B/</loc>
+    <loc>https://jackeyzhe.github.io/2019/06/16/Redis-Lua%E8%84%9A%E6%9C%AC%E4%B8%AD%E5%AD%A6%E6%95%99%E7%A8%8B%EF%BC%88%E4%B8%8B%EF%BC%89/</loc>
     
     <lastmod>2024-12-06</lastmod>
     
@@ -408,15 +426,6 @@
   
   <url>
     <loc>https://jackeyzhe.github.io/2019/09/06/Redis%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%EF%BC%9AGeo/</loc>
-    
-    <lastmod>2024-12-06</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://jackeyzhe.github.io/2018/08/23/Java%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C%E7%B1%BB%EF%BC%8C%E7%9F%A5%E5%A4%9A%E5%B0%91%EF%BC%9F/</loc>
     
     <lastmod>2024-12-06</lastmod>
     
@@ -470,6 +479,15 @@
   </url>
   
   <url>
+    <loc>https://jackeyzhe.github.io/2019/07/01/Redis%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%EF%BC%9AServer/</loc>
+    
+    <lastmod>2024-12-06</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://jackeyzhe.github.io/2018/12/19/Redis%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%EF%BC%9ASets/</loc>
     
     <lastmod>2024-12-06</lastmod>
@@ -488,7 +506,7 @@
   </url>
   
   <url>
-    <loc>https://jackeyzhe.github.io/2018/10/07/Redis%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%EF%BC%9AStrings/</loc>
+    <loc>https://jackeyzhe.github.io/2019/07/01/Redis%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%EF%BC%9AStreams/</loc>
     
     <lastmod>2024-12-06</lastmod>
     
@@ -506,16 +524,7 @@
   </url>
   
   <url>
-    <loc>https://jackeyzhe.github.io/2019/07/01/Redis%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%EF%BC%9AStreams/</loc>
-    
-    <lastmod>2024-12-06</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://jackeyzhe.github.io/2019/07/01/Redis%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%EF%BC%9AServer/</loc>
+    <loc>https://jackeyzhe.github.io/2018/10/07/Redis%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%EF%BC%9AStrings/</loc>
     
     <lastmod>2024-12-06</lastmod>
     
@@ -560,15 +569,6 @@
   </url>
   
   <url>
-    <loc>https://jackeyzhe.github.io/2019/10/27/Rust%E5%85%A5%E5%9D%91%E6%8C%87%E5%8D%97%EF%BC%9A%E5%8D%83%E4%BA%BA%E5%8D%83%E6%9E%84/</loc>
-    
-    <lastmod>2024-12-06</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>https://jackeyzhe.github.io/2019/09/21/Rust%E5%85%A5%E5%9D%91%E6%8C%87%E5%8D%97%EF%BC%9A%E5%9D%91%E4%B8%BB%E9%A9%BE%E5%88%B0/</loc>
     
     <lastmod>2024-12-06</lastmod>
@@ -579,6 +579,15 @@
   
   <url>
     <loc>https://jackeyzhe.github.io/2020/03/31/Rust%E5%85%A5%E5%9D%91%E6%8C%87%E5%8D%97%EF%BC%9A%E5%B1%85%E5%AE%89%E6%80%9D%E5%8D%B1/</loc>
+    
+    <lastmod>2024-12-06</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://jackeyzhe.github.io/2019/10/27/Rust%E5%85%A5%E5%9D%91%E6%8C%87%E5%8D%97%EF%BC%9A%E5%8D%83%E4%BA%BA%E5%8D%83%E6%9E%84/</loc>
     
     <lastmod>2024-12-06</lastmod>
     
@@ -776,7 +785,7 @@
   </url>
   
   <url>
-    <loc>https://jackeyzhe.github.io/2019/09/12/%E3%80%90%E8%AF%91%E3%80%91%E5%88%AB%E8%AE%A9%E4%BD%A0%E7%9A%84%E5%9B%A2%E9%98%9F%E6%8E%89%E5%85%A5Code-Review%E7%9A%84%E5%9D%91/</loc>
+    <loc>https://jackeyzhe.github.io/2019/11/20/%E3%80%90%E8%AF%91%E3%80%91%E5%88%A9%E7%94%A8Lombok%E6%B6%88%E9%99%A4%E9%87%8D%E5%A4%8D%E4%BB%A3%E7%A0%81/</loc>
     
     <lastmod>2024-12-06</lastmod>
     
@@ -785,7 +794,7 @@
   </url>
   
   <url>
-    <loc>https://jackeyzhe.github.io/2019/11/20/%E3%80%90%E8%AF%91%E3%80%91%E5%88%A9%E7%94%A8Lombok%E6%B6%88%E9%99%A4%E9%87%8D%E5%A4%8D%E4%BB%A3%E7%A0%81/</loc>
+    <loc>https://jackeyzhe.github.io/2019/09/12/%E3%80%90%E8%AF%91%E3%80%91%E5%88%AB%E8%AE%A9%E4%BD%A0%E7%9A%84%E5%9B%A2%E9%98%9F%E6%8E%89%E5%85%A5Code-Review%E7%9A%84%E5%9D%91/</loc>
     
     <lastmod>2024-12-06</lastmod>
     
@@ -1055,7 +1064,7 @@
   </url>
   
   <url>
-    <loc>https://jackeyzhe.github.io/2018/08/15/%E8%81%8A%E8%81%8AGit%E5%8E%9F%E7%90%86/</loc>
+    <loc>https://jackeyzhe.github.io/2018/11/04/%E7%8E%A9%E8%BD%ACRedis%E9%9B%86%E7%BE%A4%E4%B9%8BSentinel/</loc>
     
     <lastmod>2024-12-06</lastmod>
     
@@ -1064,7 +1073,7 @@
   </url>
   
   <url>
-    <loc>https://jackeyzhe.github.io/2018/11/04/%E7%8E%A9%E8%BD%ACRedis%E9%9B%86%E7%BE%A4%E4%B9%8BSentinel/</loc>
+    <loc>https://jackeyzhe.github.io/2018/08/15/%E8%81%8A%E8%81%8AGit%E5%8E%9F%E7%90%86/</loc>
     
     <lastmod>2024-12-06</lastmod>
     
@@ -1082,7 +1091,7 @@
   </url>
   
   <url>
-    <loc>https://jackeyzhe.github.io/2019/01/05/%E8%B5%B0%E8%BF%91%E6%BA%90%E7%A0%81%EF%BC%9ARedis%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4/</loc>
+    <loc>https://jackeyzhe.github.io/2020/03/30/%E8%B5%B0%E8%BF%91%E6%BA%90%E7%A0%81%EF%BC%9ARedis%E5%A6%82%E4%BD%95%E6%B8%85%E9%99%A4%E8%BF%87%E6%9C%9Fkey/</loc>
     
     <lastmod>2024-12-06</lastmod>
     
@@ -1091,7 +1100,7 @@
   </url>
   
   <url>
-    <loc>https://jackeyzhe.github.io/2020/03/30/%E8%B5%B0%E8%BF%91%E6%BA%90%E7%A0%81%EF%BC%9ARedis%E5%A6%82%E4%BD%95%E6%B8%85%E9%99%A4%E8%BF%87%E6%9C%9Fkey/</loc>
+    <loc>https://jackeyzhe.github.io/2019/01/05/%E8%B5%B0%E8%BF%91%E6%BA%90%E7%A0%81%EF%BC%9ARedis%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4/</loc>
     
     <lastmod>2024-12-06</lastmod>
     
@@ -1118,7 +1127,7 @@
   </url>
   
   <url>
-    <loc>https://jackeyzhe.github.io/2019/04/27/%E9%80%9F%E5%BA%A6%E4%B8%8D%E5%A4%9F%EF%BC%8C%E7%AE%A1%E9%81%93%E6%9D%A5%E5%87%91%E2%80%94%E2%80%94Redis%E7%AE%A1%E9%81%93%E6%8A%80%E6%9C%AF/</loc>
+    <loc>https://jackeyzhe.github.io/2018/09/12/%E9%80%81%E7%BB%99%E4%BD%A0%E7%9A%84%E7%AE%97%E6%B3%95%E6%95%B2%E9%97%A8%E7%A0%96/</loc>
     
     <lastmod>2024-12-06</lastmod>
     
@@ -1127,7 +1136,7 @@
   </url>
   
   <url>
-    <loc>https://jackeyzhe.github.io/2018/09/12/%E9%80%81%E7%BB%99%E4%BD%A0%E7%9A%84%E7%AE%97%E6%B3%95%E6%95%B2%E9%97%A8%E7%A0%96/</loc>
+    <loc>https://jackeyzhe.github.io/2019/04/27/%E9%80%9F%E5%BA%A6%E4%B8%8D%E5%A4%9F%EF%BC%8C%E7%AE%A1%E9%81%93%E6%9D%A5%E5%87%91%E2%80%94%E2%80%94Redis%E7%AE%A1%E9%81%93%E6%8A%80%E6%9C%AF/</loc>
     
     <lastmod>2024-12-06</lastmod>
     
@@ -1165,7 +1174,7 @@
 
   <url>
     <loc>https://jackeyzhe.github.io/</loc>
-    <lastmod>2026-04-20</lastmod>
+    <lastmod>2026-04-23</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -1173,105 +1182,105 @@
   
   <url>
     <loc>https://jackeyzhe.github.io/tags/%E7%9E%8E%E6%89%AF/</loc>
-    <lastmod>2026-04-20</lastmod>
+    <lastmod>2026-04-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://jackeyzhe.github.io/tags/Elasticsearch%E7%AC%94%E8%AE%B0/</loc>
-    <lastmod>2026-04-20</lastmod>
+    <lastmod>2026-04-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://jackeyzhe.github.io/tags/Flink/</loc>
-    <lastmod>2026-04-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://jackeyzhe.github.io/tags/Redis/</loc>
-    <lastmod>2026-04-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://jackeyzhe.github.io/tags/Redis%E5%91%BD%E4%BB%A4/</loc>
-    <lastmod>2026-04-20</lastmod>
+    <lastmod>2026-04-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://jackeyzhe.github.io/tags/Java/</loc>
-    <lastmod>2026-04-20</lastmod>
+    <lastmod>2026-04-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://jackeyzhe.github.io/tags/Redis/</loc>
+    <lastmod>2026-04-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://jackeyzhe.github.io/tags/Redis%E5%91%BD%E4%BB%A4/</loc>
+    <lastmod>2026-04-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://jackeyzhe.github.io/tags/Rust/</loc>
-    <lastmod>2026-04-20</lastmod>
+    <lastmod>2026-04-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://jackeyzhe.github.io/tags/%E6%8A%80%E6%9C%AF%E6%9D%82%E8%B0%88/</loc>
-    <lastmod>2026-04-20</lastmod>
+    <lastmod>2026-04-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://jackeyzhe.github.io/tags/MySQL/</loc>
-    <lastmod>2026-04-20</lastmod>
+    <lastmod>2026-04-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://jackeyzhe.github.io/tags/Code-Review/</loc>
-    <lastmod>2026-04-20</lastmod>
+    <lastmod>2026-04-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://jackeyzhe.github.io/tags/%E7%AE%97%E6%B3%95/</loc>
-    <lastmod>2026-04-20</lastmod>
+    <lastmod>2026-04-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://jackeyzhe.github.io/tags/Kafka/</loc>
-    <lastmod>2026-04-20</lastmod>
+    <lastmod>2026-04-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://jackeyzhe.github.io/tags/%E6%95%B4%E6%B4%81/</loc>
-    <lastmod>2026-04-20</lastmod>
+    <lastmod>2026-04-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://jackeyzhe.github.io/tags/%E6%9E%B6%E6%9E%84/</loc>
-    <lastmod>2026-04-20</lastmod>
+    <lastmod>2026-04-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://jackeyzhe.github.io/tags/git/</loc>
-    <lastmod>2026-04-20</lastmod>
+    <lastmod>2026-04-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>

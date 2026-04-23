@@ -20,34 +20,27 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"jackeyzhe.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"github-dark","dark":"github-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
 
-    <meta name="description" content="之前给大家推荐了一些我自己常用的VS Code插件，很多同学表示很受用，并私信我说要再推荐一些IDEA插件。作为一名职业Java程序员&#x2F;业余js开发者，我平时还是用IDEA比较多，所以也确实珍藏了一些IDEA插件。今天就一并分享给大家。">
+    <meta name="description" content="前面了解了生产端的分区机制后，我们继续来看生产端的另一个重要的机制——压缩。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="吐血推荐珍藏的IDEA插件">
-<meta property="og:url" content="https://jackeyzhe.github.io/2020/02/10/%E5%90%90%E8%A1%80%E6%8E%A8%E8%8D%90%E7%8F%8D%E8%97%8F%E7%9A%84IDEA%E6%8F%92%E4%BB%B6/index.html">
+<meta property="og:title" content="从零学习Kafka：生产者压缩">
+<meta property="og:url" content="https://jackeyzhe.github.io/2026/04/20/%E4%BB%8E%E9%9B%B6%E5%AD%A6%E4%B9%A0Kafka%EF%BC%9A%E7%94%9F%E4%BA%A7%E8%80%85%E5%8E%8B%E7%BC%A9/index.html">
 <meta property="og:site_name" content="Jackeyzhe&#39;s Blog">
-<meta property="og:description" content="之前给大家推荐了一些我自己常用的VS Code插件，很多同学表示很受用，并私信我说要再推荐一些IDEA插件。作为一名职业Java程序员&#x2F;业余js开发者，我平时还是用IDEA比较多，所以也确实珍藏了一些IDEA插件。今天就一并分享给大家。">
+<meta property="og:description" content="前面了解了生产端的分区机制后，我们继续来看生产端的另一个重要的机制——压缩。">
 <meta property="og:locale">
-<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1581059914/Blog/Other/idea_plugins/idea.png">
-<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1581059921/Blog/Other/idea_plugins/idea1.png">
-<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1581061347/Blog/Other/idea_plugins/idea2.gif">
-<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1581062247/Blog/Other/idea_plugins/idea3.png">
-<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1581066692/Blog/Other/idea_plugins/idea4.gif">
-<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1581063616/Blog/Other/idea_plugins/idea5.png">
-<meta property="article:published_time" content="2020-02-10T05:01:05.000Z">
-<meta property="article:modified_time" content="2024-12-06T17:02:53.000Z">
+<meta property="article:published_time" content="2026-04-20T10:16:09.000Z">
+<meta property="article:modified_time" content="2026-04-23T04:15:29.236Z">
 <meta property="article:author" content="Jackey Wang">
-<meta property="article:tag" content="技术杂谈">
+<meta property="article:tag" content="Kafka">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1581059914/Blog/Other/idea_plugins/idea.png">
 
 
-<link rel="canonical" href="https://jackeyzhe.github.io/2020/02/10/%E5%90%90%E8%A1%80%E6%8E%A8%E8%8D%90%E7%8F%8D%E8%97%8F%E7%9A%84IDEA%E6%8F%92%E4%BB%B6/">
+<link rel="canonical" href="https://jackeyzhe.github.io/2026/04/20/%E4%BB%8E%E9%9B%B6%E5%AD%A6%E4%B9%A0Kafka%EF%BC%9A%E7%94%9F%E4%BA%A7%E8%80%85%E5%8E%8B%E7%BC%A9/">
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-Hans","comments":true,"permalink":"https://jackeyzhe.github.io/2020/02/10/%E5%90%90%E8%A1%80%E6%8E%A8%E8%8D%90%E7%8F%8D%E8%97%8F%E7%9A%84IDEA%E6%8F%92%E4%BB%B6/","path":"2020/02/10/吐血推荐珍藏的IDEA插件/","title":"吐血推荐珍藏的IDEA插件"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-Hans","comments":true,"permalink":"https://jackeyzhe.github.io/2026/04/20/%E4%BB%8E%E9%9B%B6%E5%AD%A6%E4%B9%A0Kafka%EF%BC%9A%E7%94%9F%E4%BA%A7%E8%80%85%E5%8E%8B%E7%BC%A9/","path":"2026/04/20/从零学习Kafka：生产者压缩/","title":"从零学习Kafka：生产者压缩"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>吐血推荐珍藏的IDEA插件 | Jackeyzhe's Blog</title>
+<title>从零学习Kafka：生产者压缩 | Jackeyzhe's Blog</title>
   
 
 
@@ -141,7 +134,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Lombok"><span class="nav-number">1.</span> <span class="nav-text">Lombok</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#String-Manipulation"><span class="nav-number">2.</span> <span class="nav-text">String Manipulation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#stackoverflow"><span class="nav-number">3.</span> <span class="nav-text">stackoverflow</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Rainbow-Brackets"><span class="nav-number">4.</span> <span class="nav-text">Rainbow Brackets</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GsonFormat"><span class="nav-number">5.</span> <span class="nav-text">GsonFormat</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Maven-Helper"><span class="nav-number">6.</span> <span class="nav-text">Maven Helper</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RestfulToolkit"><span class="nav-number">7.</span> <span class="nav-text">RestfulToolkit</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%8B%E7%BC%A9%E4%B8%8E%E8%A7%A3%E5%8E%8B"><span class="nav-number">1.</span> <span class="nav-text">压缩与解压</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%8D%E5%8E%8B%E7%BC%A9"><span class="nav-number">2.</span> <span class="nav-text">重压缩</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%8B%E7%BC%A9%E7%AE%97%E6%B3%95"><span class="nav-number">3.</span> <span class="nav-text">压缩算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -198,7 +191,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2020/02/10/%E5%90%90%E8%A1%80%E6%8E%A8%E8%8D%90%E7%8F%8D%E8%97%8F%E7%9A%84IDEA%E6%8F%92%E4%BB%B6/">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2026/04/20/%E4%BB%8E%E9%9B%B6%E5%AD%A6%E4%B9%A0Kafka%EF%BC%9A%E7%94%9F%E4%BA%A7%E8%80%85%E5%8E%8B%E7%BC%A9/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -211,12 +204,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="吐血推荐珍藏的IDEA插件 | Jackeyzhe's Blog">
+      <meta itemprop="name" content="从零学习Kafka：生产者压缩 | Jackeyzhe's Blog">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          吐血推荐珍藏的IDEA插件
+          从零学习Kafka：生产者压缩
         </h1>
 
         <div class="post-meta-container">
@@ -227,7 +220,7 @@
       </span>
       <span class="post-meta-item-text">Posted on</span>
 
-      <time title="Created: 2020-02-10 13:01:05" itemprop="dateCreated datePublished" datetime="2020-02-10T13:01:05+08:00">2020-02-10</time>
+      <time title="Created: 2026-04-20 18:16:09" itemprop="dateCreated datePublished" datetime="2026-04-20T18:16:09+08:00">2026-04-20</time>
     </span>
 
   
@@ -236,7 +229,7 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">Word count in article: </span>
-      <span>1.4k</span>
+      <span>1.6k</span>
     </span>
     <span class="post-meta-item" title="Reading time">
       <span class="post-meta-item-icon">
@@ -253,26 +246,67 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><p>之前给大家推荐了一些我自己常用的VS Code插件，很多同学表示很受用，并私信我说要再推荐一些IDEA插件。作为一名职业Java程序员/业余js开发者，我平时还是用IDEA比较多，所以也确实珍藏了一些IDEA插件。今天就一并分享给大家。<span id="more"></span></p>
-<p>在最开始，我还是想先介绍一下IDEA中如何安装插件，首先打开Preferences（菜单栏打开或者使用快捷键Command+,）在Windows版本中应该是Settings。然后选择Plugins一栏，就可以从右侧的MarketPlace中选择自己需要的插件进行安装了。</p>
-<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1581059914/Blog/Other/idea_plugins/idea.png" alt="idea插件"></p>
-<h3 id="Lombok"><a href="#Lombok" class="headerlink" title="Lombok"></a>Lombok</h3><p>首先向我们走来的是Lombok。作为Java程序员，你还在为不断的写Getter/Setter方法而苦恼吗？你还在为每个Model类都要写类似的构造方法而感到烦恼吗？赶快试试Lombok吧，它可以有效帮助你解决这些问题，只需要一个注解，构造方法和Getter/Setter方法全部搞定，再也不用把时间浪费在无用功上了。</p>
-<p>如果你还不是很了解Lombok的话，可以自己动手，到<a target="_blank" rel="noopener" href="https://projectlombok.org/">Lombok官网</a>学习一番，学完记得回来点赞。</p>
-<p>最后展示一个简单的例子供大家参考。</p>
-<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1581059921/Blog/Other/idea_plugins/idea1.png" alt="lombok"></p>
-<h3 id="String-Manipulation"><a href="#String-Manipulation" class="headerlink" title="String Manipulation"></a>String Manipulation</h3><p>String Manipulation插件是一款非常强大的插件，它可以对代码进行很多操作，如排序、去除空行、字符串格式转换、Encode/Decode。其中我最常用的是字符串格式转换。你可以通过点击右键选择String Manipulation或者使用快捷键Option + M来选择相应的功能。</p>
-<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1581061347/Blog/Other/idea_plugins/idea2.gif" alt="String Manipulation"></p>
-<h3 id="stackoverflow"><a href="#stackoverflow" class="headerlink" title="stackoverflow"></a>stackoverflow</h3><p>作为一名高级CtrlCV工程师，我写代码有两大利器，一个是Google，另一个就是stackoverflow。两者相辅相成，帮我在编码的道路上越走越远。相信有不少同学跟我一样离不开stackoverflow，那么这款插件就会给你带来极大的方便，遇到问题怎么办？右键一下，点击「search stackoverflow」，大部分问题都可以轻松搞定。</p>
-<h3 id="Rainbow-Brackets"><a href="#Rainbow-Brackets" class="headerlink" title="Rainbow Brackets"></a>Rainbow Brackets</h3><p>在推荐VS Code的插件时我们就介绍过一款叫做Bracket Pair Colorizer的插件，它可以把括号变成不同的颜色，我觉得这样分辨括号非常方便，看起来也比较美观。所以在IDEA中也使用了相同效果的插件，就是Rainbow Brackets。</p>
-<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1581062247/Blog/Other/idea_plugins/idea3.png" alt="Rainbow Brackets"></p>
-<h3 id="GsonFormat"><a href="#GsonFormat" class="headerlink" title="GsonFormat"></a>GsonFormat</h3><p>我们在接外部接口时，别人给了一串JSON串，我们在代码中需要将JSON中的字段封装到一个类中，一个一个输入挺麻烦的，这时GsonFormat就可以派上用场了。它可以帮助我们根据JSON中的key快速生成我们需要的类。</p>
-<p>它的使用快捷键是Option + S</p>
-<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1581066692/Blog/Other/idea_plugins/idea4.gif" alt="GsonFormat"></p>
-<h3 id="Maven-Helper"><a href="#Maven-Helper" class="headerlink" title="Maven Helper"></a>Maven Helper</h3><p>如果你的项目使用的构建工具是Maven的话，这个插件就能帮你避免各种依赖冲突，安装好插件之后，打开pom文件，可以看到最下方有一个叫Dependency Analyzer的Tab，这里就可以看到你的哪些依赖是有冲突的，然后在右侧Exclude掉不需要的依赖。</p>
-<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1581063616/Blog/Other/idea_plugins/idea5.png" alt="Maven Helper"></p>
-<h3 id="RestfulToolkit"><a href="#RestfulToolkit" class="headerlink" title="RestfulToolkit"></a>RestfulToolkit</h3><p>RestfulToolkit是一套辅助开发Restful服务的工具集，对于这个插件，我最常用的功能就是快速查找指定的url对应的方法。快捷键是Command + \</p>
-<p>关于其他的一些功能，大家有兴趣的话可以直接访问该插件的<a target="_blank" rel="noopener" href="https://plugins.jetbrains.com/plugin/10292-restfultoolkit">homepage</a>。</p>
-<p>以上这些就是我常用的IDEA插件了，没有太多花里胡哨的东西，大家如果有什么好用的插件也欢迎分享出来。</p>
+    <div class="post-body" itemprop="articleBody"><p>前面了解了生产端的分区机制后，我们继续来看生产端的另一个重要的机制——压缩。<span id="more"></span></p>
+<h3 id="压缩与解压"><a href="#压缩与解压" class="headerlink" title="压缩与解压"></a>压缩与解压</h3><p>说到压缩，第一个问题一定是 Kafka 在哪里进行压缩，又是在哪里进行解压的？</p>
+<p>我不卖关子，直接告诉你答案，Kafka 通常在 Producer 端进行压缩，在 Broker 端保持，到了 Consumer 端解压。除了 Producer 端压缩之外，Broker 端也是可以进行压缩的，但这种情况并不常见。具体情况我们在下一节再聊。</p>
+<p>在 Producer 端开启压缩的方法也很简单，我们在设置 Producer 属性时，增加 <code>compression.type</code> 参数即可，例如我们在 Producer 端启用 gzip 压缩，就可以这样设置：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">props.put(<span class="string">&quot;compression.type&quot;</span>, <span class="string">&quot;gzip&quot;</span>);</span><br></pre></td></tr></table></figure>
+<p>在 Kafka 中，压缩并不是针对单条消息，而是针对一个批次，那么如何才能提高压缩的效率呢？答案是增大批次的大小。因为压缩的本质是通过找到数据之间的重复模式来减少体积，批次内积累的数据越多，重复的可能性就越大，压缩概率也就越好。因此我们在启用压缩之后，还需要合理的设置 <code>batch.size</code> 和 <code>linger.ms</code> 这两个参数。</p>
+<h3 id="重压缩"><a href="#重压缩" class="headerlink" title="重压缩"></a>重压缩</h3><p>前面我们提到了 Kafka Broker 端也可以进行压缩，但只有在少数几种场景下才会出现，因为 Kafka 的设计初衷是 Broker 端尽量只做简单的磁盘读写操作。</p>
+<p>由于 Broker 端进行压缩需要先把数据解压，然后进行处理，再压缩。我们把这一过程称为重压缩。</p>
+<p>重压缩主要出现在以下三种场景：</p>
+<p><strong>场景一</strong></p>
+<p>压缩算法不一致，例如 Producer 端使用了 gzip 算法，但 Broker 端配置了 <code>compression.type=lz4</code>，这种情况 Broker 必须进行重压缩。</p>
+<p><strong>场景二</strong></p>
+<p>消息格式版本转换，Kafka 在 0.11.0.0 版本进行了一次消息格式版本的升级，新版本的消息会统一存储消息批次的公共信息。如果你的 Producer 版本是旧版本，Broker 是新版本，那么 Broker 就需要进行消息格式转换。这一操作也要涉及到重压缩。</p>
+<p><strong>场景三</strong></p>
+<p>Broker 侧注入时间戳，Kafka 支持两种时间戳，一种是 CreateTime，在 Producer 端直接设置。另一种是 LogAppendTime，这种时间戳是记录的 Broker 在写入磁盘时的时间戳，Broker 需要解压整个批次，然后修改每条消息的时间戳，再压缩整个批次。时间戳的配置参数是 <code>log.message.timestamp.type</code>，我们保持默认的 CreateTime 就好。</p>
+<p>最后再提一下，重压缩是非常消耗 Broker 端 CPU 资源的，我们要尽量避免 Broker 端的重压缩，让它只做磁盘的读写操作就好。如果有 Broker 端 CPU 资源飙升的问题，也可以按照以上三种场景排查一下是不是重压缩引起的。</p>
+<h3 id="压缩算法"><a href="#压缩算法" class="headerlink" title="压缩算法"></a>压缩算法</h3><p>Kafka 支持了多种压缩算法，选择合适的压缩算法其实是在压缩率与 CPU 开销之间做出平衡。我们通过一个表格来对比一下几种压缩算法。</p>
+<table>
+<thead>
+<tr>
+<th>算法</th>
+<th>压缩率</th>
+<th>CPU消耗</th>
+<th>压缩速度</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GZIP</td>
+<td>高</td>
+<td>高</td>
+<td>慢</td>
+<td>存储敏感，带宽受限的归档、离线处理</td>
+</tr>
+<tr>
+<td>Snappy</td>
+<td>中等</td>
+<td>较低</td>
+<td>快</td>
+<td>速度与资源之间取得良好平衡</td>
+</tr>
+<tr>
+<td>LZ4</td>
+<td>中等偏高</td>
+<td>极低</td>
+<td>极快</td>
+<td>对延迟极度敏感的实时计算、交易等</td>
+</tr>
+<tr>
+<td>Zstd</td>
+<td>高，与 GZIP 接近</td>
+<td>中等</td>
+<td>较快</td>
+<td>适合大部分通用场景</td>
+</tr>
+</tbody>
+</table>
+<p>总的来说，4 种算法在实际使用过程中各有千秋，Zstd 是 Kafka 2.1.0 版本引入的，作为现代均衡的算法，可以作为默认选择。如果想要追求吞吐量，可以选择 LZ4。想要追求极致资源节省，可以选择 GZIP 或者 Zstd。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>最后总结一下本文的内容，我们先介绍了怎么 Kafka 在哪里进行压缩的以及如何开启压缩。接着又介绍了 3 种重压缩的场景，重压缩大概率会导致 Broker CPU 飙升。最后对比了 Kafka 支持的 4 种压缩算法。</p>
+<p>最后想要抛出一个问题：Consumer 在解压数据时，需要关系 Producer 使用了哪种压缩算法吗？感兴趣的同学欢迎一起交流。</p>
 
     </div>
 
@@ -329,21 +363,18 @@
 </div>
 
           <div class="post-tags">
-              <a href="/tags/%E6%8A%80%E6%9C%AF%E6%9D%82%E8%B0%88/" rel="tag"><i class="fa fa-tag"></i> 技术杂谈</a>
+              <a href="/tags/Kafka/" rel="tag"><i class="fa fa-tag"></i> Kafka</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2020/01/14/Rust%E5%85%A5%E5%9D%91%E6%8C%87%E5%8D%97%EF%BC%9A%E6%B5%B7%E7%BA%B3%E7%99%BE%E5%B7%9D/" rel="prev" title="Rust入坑指南：海纳百川">
-                  <i class="fa fa-angle-left"></i> Rust入坑指南：海纳百川
+                <a href="/2026/04/17/%E4%BB%8E%E9%9B%B6%E5%AD%A6%E4%B9%A0Kafka%EF%BC%9A%E7%94%9F%E4%BA%A7%E8%80%85%E5%88%86%E5%8C%BA%E6%9C%BA%E5%88%B6/" rel="prev" title="从零学习Kafka：生产者分区机制">
+                  <i class="fa fa-angle-left"></i> 从零学习Kafka：生产者分区机制
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2020/02/17/%E3%80%90%E8%AF%91%E3%80%91%E6%84%9F%E8%B0%A2%E4%BD%A0%E7%9A%84Code-Review/" rel="next" title="【译】感谢你的Code Review">
-                  【译】感谢你的Code Review <i class="fa fa-angle-right"></i>
-                </a>
             </div>
           </div>
     </footer>
