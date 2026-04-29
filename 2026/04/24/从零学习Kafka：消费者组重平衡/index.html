@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.0.5/fancybox/fancybox.css" integrity="sha256-uTcjoMD6rPt4OyV3Rs02Slxl0BJGMNVKAm/1eYPt2go=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"jackeyzhe.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"github-dark","dark":"github-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="本文我们一起来学习消费者组重平衡相关的知识。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从零学习Kafka：消费者组重平衡">
+<meta property="og:url" content="https://jackeyzhe.github.io/2026/04/24/%E4%BB%8E%E9%9B%B6%E5%AD%A6%E4%B9%A0Kafka%EF%BC%9A%E6%B6%88%E8%B4%B9%E8%80%85%E7%BB%84%E9%87%8D%E5%B9%B3%E8%A1%A1/index.html">
+<meta property="og:site_name" content="Jackeyzhe&#39;s Blog">
+<meta property="og:description" content="本文我们一起来学习消费者组重平衡相关的知识。">
+<meta property="og:locale">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1777289894/Blog/Kafka/10/Kafka_Group_State.png">
+<meta property="article:published_time" content="2026-04-24T14:48:27.000Z">
+<meta property="article:modified_time" content="2026-04-29T09:44:32.075Z">
+<meta property="article:author" content="Jackey Wang">
+<meta property="article:tag" content="Kafka">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1777289894/Blog/Kafka/10/Kafka_Group_State.png">
+
+
+<link rel="canonical" href="https://jackeyzhe.github.io/2026/04/24/%E4%BB%8E%E9%9B%B6%E5%AD%A6%E4%B9%A0Kafka%EF%BC%9A%E6%B6%88%E8%B4%B9%E8%80%85%E7%BB%84%E9%87%8D%E5%B9%B3%E8%A1%A1/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-Hans","comments":true,"permalink":"https://jackeyzhe.github.io/2026/04/24/%E4%BB%8E%E9%9B%B6%E5%AD%A6%E4%B9%A0Kafka%EF%BC%9A%E6%B6%88%E8%B4%B9%E8%80%85%E7%BB%84%E9%87%8D%E5%B9%B3%E8%A1%A1/","path":"2026/04/24/从零学习Kafka：消费者组重平衡/","title":"从零学习Kafka：消费者组重平衡"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>从零学习Kafka：消费者组重平衡 | Jackeyzhe's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script size="300" alpha="0.6" zIndex="1" src="https://cdnjs.cloudflare.com/ajax/libs/ribbon.js/1.0.2/ribbon.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.0.5/fancybox/fancybox.umd.js" integrity="sha256-UiSieVaV/DXce2LW7QH+o77w+AIoAvSCPBkezriZ2DQ=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Jackeyzhe's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Jackeyzhe's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">靠脸吃饭</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section">Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section">Tags<span class="badge">15</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section">Archives<span class="badge">129</span></a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section">About</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%99%E5%9C%A8%E5%89%8D%E9%9D%A2"><span class="nav-number">1.</span> <span class="nav-text">写在前面</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E6%B6%88%E8%B4%B9%E8%80%85%E7%BB%84"><span class="nav-number">2.</span> <span class="nav-text">什么是消费者组</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E7%89%B9%E6%80%A7"><span class="nav-number">2.1.</span> <span class="nav-text">核心特性</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B6%88%E8%B4%B9%E8%80%85%E7%BB%84%E9%87%8D%E5%B9%B3%E8%A1%A1%E6%B5%81%E7%A8%8B"><span class="nav-number">3.</span> <span class="nav-text">消费者组重平衡流程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A7%A6%E5%8F%91%E6%9D%A1%E4%BB%B6"><span class="nav-number">3.1.</span> <span class="nav-text">触发条件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B6%88%E8%B4%B9%E8%80%85%E7%BB%84%E7%9A%84%E7%8A%B6%E6%80%81"><span class="nav-number">3.2.</span> <span class="nav-text">消费者组的状态</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8D%E9%87%8D%E5%B9%B3%E8%A1%A1"><span class="nav-number">4.</span> <span class="nav-text">如何避免重平衡</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%82%E6%95%B0%E8%B0%83%E4%BC%98"><span class="nav-number">4.1.</span> <span class="nav-text">参数调优</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E5%81%A5%E5%A3%AE%E6%80%A7"><span class="nav-number">4.2.</span> <span class="nav-text">代码健壮性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1"><span class="nav-number">4.3.</span> <span class="nav-text">架构设计</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Jackey Wang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">129</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Jackeyzhe" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:jackeyzhe59@gmail.com" title="E-Mail → mailto:jackeyzhe59@gmail.com" rel="noopener me" target="_blank"><i class="fas fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/jackeyzhe" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i>StackOverflow</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2026/04/24/%E4%BB%8E%E9%9B%B6%E5%AD%A6%E4%B9%A0Kafka%EF%BC%9A%E6%B6%88%E8%B4%B9%E8%80%85%E7%BB%84%E9%87%8D%E5%B9%B3%E8%A1%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Jackey Wang">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="从零学习Kafka：消费者组重平衡 | Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          从零学习Kafka：消费者组重平衡
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2026-04-24 22:48:27" itemprop="dateCreated datePublished" datetime="2026-04-24T22:48:27+08:00">2026-04-24</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>3.6k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>3 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p> 本文我们一起来学习消费者组重平衡相关的知识。<span id="more"></span></p>
+<h3 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h3><p>先解决前面留下的问题：如果生产者已经发送了大量消息，但在最后提交之前突然宕机，事务协调器会如何处理这个未完成的事务呢？</p>
+<p>答案是自动终止，事务协调器如果在一段时间内没有收到生产者的任何消息或者提交事务的请求，会利用 <code>__transaction_state</code> 中记录的信息向所有涉及到的分区发送 Abort 命令，写入的消息也会被标记为废弃。这个时长是由 <code>transaction.timeout.ms</code> 参数控制的，默认是 1 分钟（值为 60000）。</p>
+<h3 id="什么是消费者组"><a href="#什么是消费者组" class="headerlink" title="什么是消费者组"></a>什么是消费者组</h3><p>回答完遗留的问题，我们进入今天的正题，第一个问题是什么是消费者组（Consumer Group）？</p>
+<p>这是 Kafka 中比较有亮点的设计。简单来说，Consumer Group 就是 Kafka 提供的可扩展且具有容错性的消费机制。消费者组内部包含多个消费者实例，它们共享一个 Group ID。组内的所有消费者实例共同订阅一个或多个 Topic 的所有分区。每个分区只能由同一个消费者组的一个消费者实例来消费。</p>
+<h4 id="核心特性"><a href="#核心特性" class="headerlink" title="核心特性"></a>核心特性</h4><p>消费者组有以下特性：</p>
+<ul>
+<li><strong>负载均衡</strong>：Kafka 会把订阅的分区均衡的分配给组内的所有消费者，这样就可以实现并行处理了。理想情况下，消费者数量应该等于消费组订阅主题的分区总数。</li>
+<li><strong>点对点模式</strong>：还记得之前我们讲过 Kafka 既支持点对点模型，又支持发布/订阅模型吗？实际就是通过 Consumer Group 来支持的。如果所有消费者都在同一个组内，每条消息都只会由其中一个消费者处理，类似于传统的消息队列。这就是点对点模型的实现。</li>
+<li><strong>发布/订阅模型</strong>：如果多个不同的消费者组订阅同一个 Topic，那么每个组都会收到一份完整的消息，互相之间不会干扰。这种就是 发布/订阅模型。</li>
+<li><strong>故障转移</strong>：如果消费组内某个实例宕机了，Kafka 会自动检测到，并触发重平衡。将其负责的分区分配给正常的实例，以此保证数据不丢失。</li>
+</ul>
+<h3 id="消费者组重平衡流程"><a href="#消费者组重平衡流程" class="headerlink" title="消费者组重平衡流程"></a>消费者组重平衡流程</h3><h4 id="触发条件"><a href="#触发条件" class="headerlink" title="触发条件"></a>触发条件</h4><p>聊完消费者组的定义和特性之后，我们再来看一下它最核心，也是最让人头疼的机制——重平衡。重平衡本质上是一种自动调度的机制，它确保 Topic 的所有分区都有对应的消费者来消费，并且分配的相对均衡。</p>
+<p>触发重平衡的条件有三个：</p>
+<ol>
+<li><p>组员数量发生变动：有新消费者加入组，或者某个实例崩溃。</p>
+</li>
+<li><p>订阅主题数变动：消费者组可以使用正则表达式订阅主题，当创建了新的满足条件的主题时，就会触发。</p>
+</li>
+<li><p>订阅主题的分区数发生变化：订阅的主题扩展分区。</p>
+</li>
+</ol>
+<h4 id="消费者组的状态"><a href="#消费者组的状态" class="headerlink" title="消费者组的状态"></a>消费者组的状态</h4><p>Kafka 为消费者组定义了 9 种状态，它们的含义如下：</p>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UNKNOWN</td>
+<td>未知状态，通常是客户端与 Broker 的版本不兼容，或者发生了无法识别的异常。</td>
+</tr>
+<tr>
+<td>PREPARING_REBALANCE</td>
+<td>重平衡准备中，协调器收到了加入申请或者心跳超时，准备重新分配。</td>
+</tr>
+<tr>
+<td>COMPLETING_REBALANCE</td>
+<td>重平衡同步中，所有成员都已经加入组，Leader 正在计算协调方案。</td>
+</tr>
+<tr>
+<td>STABLE</td>
+<td>稳定状态，重平衡完成。</td>
+</tr>
+<tr>
+<td>DEAD</td>
+<td>消费者组注销，元信息在协调者端已被移除。</td>
+</tr>
+<tr>
+<td>EMPTY</td>
+<td>组内没有任何成员，通常是刚创建或者所有的消费者都正常关闭，元信息依然保留在协调者端。</td>
+</tr>
+<tr>
+<td>ASSIGNING</td>
+<td>分配中，这是 2.4+ 版本新引入的，Leader 计算好了一部分新的分配计划，正准备下发。</td>
+</tr>
+<tr>
+<td>RECONCILING</td>
+<td>协调中/一致性同步中，也是 2.4+ 版本新引入的，成员正在释放不再属于自己的分区，准备接手新的分区。</td>
+</tr>
+<tr>
+<td>NOT_READY</td>
+<td>未就绪，通常是组刚刚启动，或者协调者端在进行迁移。</td>
+</tr>
+</tbody>
+</table>
+<p>状态流转流程如下图</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1777289894/Blog/Kafka/10/Kafka_Group_State.png" alt="Kafka_Group_State"></p>
+<p>接着我们来看一下最经典的重平衡过程。</p>
+<ol>
+<li>正常情况下消费者组的状态是 STABLE（也可能是 Empty），协调者与消费者组中的组员之间维护有心跳消息。</li>
+<li>当有一个新的成员要加入时，会给协调者发送一个 JoinGroup 请求。协调者收到请求后，会通过心跳消息通知其他消费者。所有消费者此时会停止消费，重新向协调者发送 JoinGroup 请求，消费者组进入 PREPARING_REBALANCE 状态。</li>
+<li>当所有成员都到齐之后，协调者会从中选出一个作为 Leader，然后把所有的消费者信息通过 JoinGroup 的响应发送给 Leader。此时消费者组为 COMPLETING_REBALANCE 状态。</li>
+<li>Leader 计算好分配方案后，会通过 SyncGroup 请求，将其发送给协调者。其他的成员也会发送 SyncGroup 请求，这是为了方便协调者将分配方案包装进 SyncGroup 的响应中返回给所有的消费者。</li>
+<li>消费者拿到新的任务之后，就开始继续工作了。消费者组的状态恢复成 STABLE。</li>
+</ol>
+<p>这就是一次完整的重平衡流程，这里有一个问题是：在这整个过程中，消费者都是不处理消息的，也就是我们常说 Stop-The-World 问题。如果你有几百个 Consumer 实例，那么一次 Rebalance 可能需要几个小时，这简直令人崩溃。</p>
+<p>基于这种问题，Kafka 在 2.4 版本推出了增量协作重平衡机制。这种机制下，重平衡的过程不再要求所有的消费者都放下手中的工作，而是只处理那些需要变动的分区，这样就极大的提升了稳定性。只需要在大于 2.4 版本的客户端中将 <code>partition.assignment.strategy</code> 设置为 <code>CooperativeStickyAssignor</code> 即可。</p>
+<p>新版本重平衡流程如下：</p>
+<ol>
+<li><p>协调者检测到变动时，开启第一轮协商，此时状态由 STABLE 变为 PREPARING_REBALANCE。</p>
+</li>
+<li><p>所有成员到齐后，协调者把消费者的信息发送给 Leader，消费者组状态变为 COMPLETING_REBALANCE。</p>
+</li>
+<li><p>Leader 算出哪些分区需要释放，并通知给相关消费者，此时消费者组状态变为 RECONCILING。</p>
+</li>
+<li><p>释放完成后，消费者组状态回到 STABLE，此时存在一些游离分区需要认领。</p>
+</li>
+<li><p>协调器接着开启新一轮的协商，通过相同的报道步骤，状态从 STABLE 变为 PREPARING_REBALANCE 再变为 COMPLETING_REBALANCE。</p>
+</li>
+<li><p>这一阶段主要目的是为游离分区进行重新分配，此时状态变成 ASSIGNING。</p>
+</li>
+<li><p>当所有游离分区都有消费者认领后，再次回到稳定的 STABLE 状态。</p>
+</li>
+</ol>
+<p>Kafka 通过多次小的调整，来避免整个集群长时间停止工作，以此来减少重平衡对于整体集群的影响。这一进化是不是有点像 JVM 的 GC 从传统垃圾回收器进化到 G1 和 ZGC。</p>
+<h3 id="如何避免重平衡"><a href="#如何避免重平衡" class="headerlink" title="如何避免重平衡"></a>如何避免重平衡</h3><p>虽然新版本的重平衡机制有了很大的进步，但还是会对系统性能造成一定的影响。那如何才能避免重平衡呢？</p>
+<p>首先，完全消除重平衡是不可能的。我们要做的就是消除掉非预期的重平衡。什么是非预期的呢？你可以理解为是由于配置不当或者系统抖动引起的重平衡。</p>
+<p>我们分别从参数调优、代码健壮性和架构设计三个层面来看一下如何调整。</p>
+<h4 id="参数调优"><a href="#参数调优" class="headerlink" title="参数调优"></a>参数调优</h4><p>首先是参数调优，非预期重平衡触发最常见的两个原因，一个是心跳超时，另一个是逻辑处理超时。</p>
+<p>为了避免因为网络抖动导致误判心跳超时，我们可以适当调大 <code>session.timeout.ms</code>，这个参数决定了 Consumer 存活性的时间间隔，除了这个参数，还需要调整 <code>heartbeat.interval.ms</code>，这个是用来控制发送心跳消息的频率的。发送的越频繁，协调者越能更快响应 Consumer 掉线并开启重平衡，但随之而来的问题是消耗的资源也越多。通常可以把它设置为 <code>session.timeout.ms</code> 的三分之一。</p>
+<p>逻辑处理超时的参数主要是 <code>max.poll.interval.ms</code>，它用来控制两次 poll 之间的间隔，如果你的业务逻辑复杂，需要处理时间比较长，那么就需要调大这个参数。例如你在业务代码中访问了第三方存储，整个过程需要 5 分钟，那么这个参数可以设置为 6 分钟。除了调大 <code>max.poll.interval.ms</code> 之外，我们也可以调整 <code>max.poll.records</code>，它是用来控制每次 poll 的消息条数，通过减少消息条数，能够缩短 poll 一次的逻辑处理时间。</p>
+<h4 id="代码健壮性"><a href="#代码健壮性" class="headerlink" title="代码健壮性"></a>代码健壮性</h4><p>介绍完了参数调优之后，我们再来看一下代码层面有哪些需要调整或者注意的地方。首先是最基本的 try-catch 防护，我们应该确保所有的异常都在消费逻辑中处理掉，一旦消费者因为没捕获异常而崩溃，那么必然会触发重平衡。</p>
+<p>其次就是优雅关闭 Consumer，在停止时手动调用 <code>consumer.close()</code>，这样会给协调者发送 LeaveGroup 请求，协调者收到请求后可以立即开启重平衡，缩短“空窗期”。</p>
+<h4 id="架构设计"><a href="#架构设计" class="headerlink" title="架构设计"></a>架构设计</h4><p>在架构层面，除了使用我们前面提到的增量协作重平衡协议之外，还可以设置 <code>group.instance.id</code>，这是为每个消费者实例设置一个固定的 ID，这样在实例重启时，只要在 <code>session.timeout.ms</code> 时间内回来，协调者都会认出它，不会触发重平衡。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>本文我们先了解了什么是消费者组，一句话概括就是它是 Kafka 提供的可扩展且具有容错性的消费机制。接着又聊了重平衡机制，包括消费者组的状态以及重平衡的整个流程。最后我们介绍了如何避免非预期的重平衡，这能帮助我们提升 Kafka 集群的稳定性。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>Buy me a coffee</div>
+  <button>
+    Donate
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/weixinpay.jpg" alt="Jackey Wang WeChat Pay">
+        <span>WeChat Pay</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Jackey Wang Alipay">
+        <span>Alipay</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="followme">
+  <span>Welcome to my other publishing channels</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <span class="social-link">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </span>
+
+          <img class="social-item-img" src="/images/wechat-qcode.jpg">
+      </div>
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Kafka/" rel="tag"><i class="fa fa-tag"></i> Kafka</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/04/23/%E4%BB%8E%E9%9B%B6%E5%AD%A6%E4%B9%A0Kafka%EF%BC%9A%E5%B9%82%E7%AD%89%E4%B8%8E%E4%BA%8B%E5%8A%A1/" rel="prev" title="从零学习Kafka：幂等与事务">
+                  <i class="fa fa-angle-left"></i> 从零学习Kafka：幂等与事务
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Jackey Wang</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Word count total">599k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">9:04</span>
+  </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/Jackeyzhe" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
