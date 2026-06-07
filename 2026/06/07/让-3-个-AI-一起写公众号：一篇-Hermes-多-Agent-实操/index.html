@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.0.5/fancybox/fancybox.css" integrity="sha256-uTcjoMD6rPt4OyV3Rs02Slxl0BJGMNVKAm/1eYPt2go=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"jackeyzhe.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"github-dark","dark":"github-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="写公众号最折磨人的不是动笔。是排队。 选题 30 分钟、查资料 1 小时、写稿 2 小时、审校 30 分钟、配图 20 分钟。每个环节都得盯着前一个 AI 跑完才能开始下一个。我后来意识到，我不是在写文章，我是在陪 AI 排队。 这篇要解决的就是这件事：用 Hermes 搭一个 3 Agent 流水线，把调研、写作、审校三件事拆给三个 AI 并行跑，整篇压缩到 10 分钟出初稿。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="让 3 个 AI 一起写公众号：一篇 Hermes 多 Agent 实操">
+<meta property="og:url" content="https://jackeyzhe.github.io/2026/06/07/%E8%AE%A9-3-%E4%B8%AA-AI-%E4%B8%80%E8%B5%B7%E5%86%99%E5%85%AC%E4%BC%97%E5%8F%B7%EF%BC%9A%E4%B8%80%E7%AF%87-Hermes-%E5%A4%9A-Agent-%E5%AE%9E%E6%93%8D/index.html">
+<meta property="og:site_name" content="Jackeyzhe&#39;s Blog">
+<meta property="og:description" content="写公众号最折磨人的不是动笔。是排队。 选题 30 分钟、查资料 1 小时、写稿 2 小时、审校 30 分钟、配图 20 分钟。每个环节都得盯着前一个 AI 跑完才能开始下一个。我后来意识到，我不是在写文章，我是在陪 AI 排队。 这篇要解决的就是这件事：用 Hermes 搭一个 3 Agent 流水线，把调研、写作、审校三件事拆给三个 AI 并行跑，整篇压缩到 10 分钟出初稿。">
+<meta property="og:locale">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1780831479/Blog/AI/00/fig-01-pipeline.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1780831479/Blog/AI/00/fig-02-comparison.png">
+<meta property="og:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1780831479/Blog/AI/00/fig-03-pitfalls.png">
+<meta property="article:published_time" content="2026-06-07T11:17:07.000Z">
+<meta property="article:modified_time" content="2026-06-07T11:32:20.190Z">
+<meta property="article:author" content="Jackey Wang">
+<meta property="article:tag" content="AI">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://res.cloudinary.com/dxydgihag/image/upload/v1780831479/Blog/AI/00/fig-01-pipeline.png">
+
+
+<link rel="canonical" href="https://jackeyzhe.github.io/2026/06/07/%E8%AE%A9-3-%E4%B8%AA-AI-%E4%B8%80%E8%B5%B7%E5%86%99%E5%85%AC%E4%BC%97%E5%8F%B7%EF%BC%9A%E4%B8%80%E7%AF%87-Hermes-%E5%A4%9A-Agent-%E5%AE%9E%E6%93%8D/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-Hans","comments":true,"permalink":"https://jackeyzhe.github.io/2026/06/07/%E8%AE%A9-3-%E4%B8%AA-AI-%E4%B8%80%E8%B5%B7%E5%86%99%E5%85%AC%E4%BC%97%E5%8F%B7%EF%BC%9A%E4%B8%80%E7%AF%87-Hermes-%E5%A4%9A-Agent-%E5%AE%9E%E6%93%8D/","path":"2026/06/07/让-3-个-AI-一起写公众号：一篇-Hermes-多-Agent-实操/","title":"让 3 个 AI 一起写公众号：一篇 Hermes 多 Agent 实操"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>让 3 个 AI 一起写公众号：一篇 Hermes 多 Agent 实操 | Jackeyzhe's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script size="300" alpha="0.6" zIndex="1" src="https://cdnjs.cloudflare.com/ajax/libs/ribbon.js/1.0.2/ribbon.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.0.5/fancybox/fancybox.umd.js" integrity="sha256-UiSieVaV/DXce2LW7QH+o77w+AIoAvSCPBkezriZ2DQ=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Jackeyzhe's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Jackeyzhe's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">靠脸吃饭</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section">Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section">Tags<span class="badge">16</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section">Archives<span class="badge">132</span></a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section">About</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81Hermes-%E6%98%AF%E8%B0%81%EF%BC%9F%E8%B7%9F-Claude-Code-%E5%B7%AE%E5%9C%A8%E5%93%AA"><span class="nav-number">1.</span> <span class="nav-text">一、Hermes 是谁？跟 Claude Code 差在哪</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%8110-%E5%88%86%E9%92%9F%E8%B5%B7%E4%B8%80%E4%B8%AA-3-Agent-%E6%B5%81%E6%B0%B4%E7%BA%BF"><span class="nav-number">2.</span> <span class="nav-text">二、10 分钟起一个 3 Agent 流水线</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E8%A3%85%E7%8E%AF%E5%A2%83"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 装环境</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E5%86%99%E4%B8%80%E4%BB%BD-YAML-%E9%85%8D%E7%BD%AE"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 写一份 YAML 配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-%E5%AB%8C-YAML-%E4%B8%8D%E5%A4%9F%E7%81%B5%E6%B4%BB%EF%BC%9F%E4%B8%8A-Python"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 嫌 YAML 不够灵活？上 Python</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%8D%95-Agent-%E4%B8%B2%E8%A1%8C-vs-3-Agent-%E5%B9%B6%E8%A1%8C%EF%BC%8C%E5%B7%AE%E8%B7%9D%E6%9C%89%E5%A4%9A%E5%A4%A7"><span class="nav-number">3.</span> <span class="nav-text">三、单 Agent 串行 vs 3 Agent 并行，差距有多大</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%816-%E4%B8%AA%E6%9C%80%E5%AE%B9%E6%98%93%E8%B8%A9%E7%9A%84%E5%9D%91"><span class="nav-number">4.</span> <span class="nav-text">四、6 个最容易踩的坑</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9D%91-1%EF%BC%9A%E5%B7%A5%E5%85%B7%E9%9B%86%E5%BC%80%E5%A4%AA%E5%A4%9A%EF%BC%8Ccontext-%E6%92%91%E7%88%86"><span class="nav-number">4.1.</span> <span class="nav-text">坑 1：工具集开太多，context 撑爆</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9D%91-2%EF%BC%9A%E6%BC%8F%E5%86%99-role-quot-leaf-quot-%EF%BC%8C%E5%AD%90-Agent-%E9%80%92%E5%BD%92-spawn"><span class="nav-number">4.2.</span> <span class="nav-text">坑 2：漏写 role&#x3D;&quot;leaf&quot;，子 Agent 递归 spawn</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9D%91-3%EF%BC%9Acontext-%E4%BC%A0%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E6%91%98%E8%A6%81%EF%BC%8C%E4%B8%8B%E6%B8%B8%E6%8E%A5%E9%94%99"><span class="nav-number">4.3.</span> <span class="nav-text">坑 3：context 传自然语言摘要，下游接错</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9D%91-4%EF%BC%9ASKILL-md-%E5%86%99%E6%88%90%E9%95%BF%E8%AE%BA%E6%96%87"><span class="nav-number">4.4.</span> <span class="nav-text">坑 4：SKILL.md 写成长论文</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9D%91-5%EF%BC%9A%E6%B2%A1%E8%AE%BE-max-iterations%EF%BC%8C%E5%AD%90-Agent-%E6%AD%BB%E5%BE%AA%E7%8E%AF"><span class="nav-number">4.5.</span> <span class="nav-text">坑 5：没设 max_iterations，子 Agent 死循环</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9D%91-6%EF%BC%9Aprofile-%E9%9A%94%E7%A6%BB%E4%B8%8D%E4%B8%A5%EF%BC%8Cskills-%E4%BA%92%E7%9B%B8%E6%B1%A1%E6%9F%93"><span class="nav-number">4.6.</span> <span class="nav-text">坑 6：profile 隔离不严，skills 互相污染</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E5%8A%A8%E6%89%8B%E7%8E%A9%E4%B8%80%E4%B8%8B"><span class="nav-number">5.</span> <span class="nav-text">五、动手玩一下</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Jackey Wang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">132</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Jackeyzhe" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:jackeyzhe59@gmail.com" title="E-Mail → mailto:jackeyzhe59@gmail.com" rel="noopener me" target="_blank"><i class="fas fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/jackeyzhe" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;jackeyzhe" rel="noopener me" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i>StackOverflow</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://jackeyzhe.github.io/2026/06/07/%E8%AE%A9-3-%E4%B8%AA-AI-%E4%B8%80%E8%B5%B7%E5%86%99%E5%85%AC%E4%BC%97%E5%8F%B7%EF%BC%9A%E4%B8%80%E7%AF%87-Hermes-%E5%A4%9A-Agent-%E5%AE%9E%E6%93%8D/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Jackey Wang">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="让 3 个 AI 一起写公众号：一篇 Hermes 多 Agent 实操 | Jackeyzhe's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          让 3 个 AI 一起写公众号：一篇 Hermes 多 Agent 实操
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2026-06-07 19:17:07" itemprop="dateCreated datePublished" datetime="2026-06-07T19:17:07+08:00">2026-06-07</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>8k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>7 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>写公众号最折磨人的不是动笔。是排队。</p>
+<p>选题 30 分钟、查资料 1 小时、写稿 2 小时、审校 30 分钟、配图 20 分钟。每个环节都得盯着前一个 AI 跑完才能开始下一个。我后来意识到，我不是在写文章，我是在陪 AI 排队。</p>
+<p>这篇要解决的就是这件事：用 Hermes 搭一个 3 Agent 流水线，把调研、写作、审校三件事拆给三个 AI 并行跑，整篇压缩到 10 分钟出初稿。<span id="more"></span></p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1780831479/Blog/AI/00/fig-01-pipeline.png" alt="pipeline"></p>
+<h2 id="一、Hermes-是谁？跟-Claude-Code-差在哪"><a href="#一、Hermes-是谁？跟-Claude-Code-差在哪" class="headerlink" title="一、Hermes 是谁？跟 Claude Code 差在哪"></a>一、Hermes 是谁？跟 Claude Code 差在哪</h2><p>用过 Claude Code 或 Cursor 的话，Hermes 上手几乎没成本。它就是一个跑在终端里的 AI 代理，但多了一层派发能力。</p>
+<p>最直观的对比：</p>
+<ul>
+<li><strong>Claude Code / Cursor</strong>：你打开一个 tab，AI 在里面干活，干完你接着提需求。</li>
+<li><strong>Hermes</strong>：你打开一个 tab，AI 叫出另外几个 tab 一起干。Hermes 负责拆任务、传上下文、收结果。</li>
+</ul>
+<p>Hermes 比单 Agent 工具多出来的核心能力就三件：</p>
+<ol>
+<li><strong>多 Provider 路由</strong>。一条命令切 OpenAI / Anthropic / Google / xAI 后端，业务代码不用动。</li>
+<li><strong>多 Agent 派发</strong>。<code>delegate_task()</code> 拉起子 Agent，每个子 Agent 独立上下文，互不污染。</li>
+<li><strong>Skills 系统</strong>。把写公众号、做调研、出配图 prompt 这些套路写成 <code>SKILL.md</code>，Agent 加载就会用。</li>
+</ol>
+<p>剩下的 <code>toolsets</code>（白名单授权）、<code>profiles</code>（多场景隔离）、<code>depends_on</code>（DAG 调度）都是配套的工程能力。</p>
+<p>只想跑单 Agent 串行活，Claude Code 够用。但凡你想让多个步骤并发、让上下文拆分不互相污染、让工具按 Agent 最小授权，Hermes 的多 Agent 模型就是为这些场景做的。</p>
+<hr>
+<h2 id="二、10-分钟起一个-3-Agent-流水线"><a href="#二、10-分钟起一个-3-Agent-流水线" class="headerlink" title="二、10 分钟起一个 3 Agent 流水线"></a>二、10 分钟起一个 3 Agent 流水线</h2><p>不再绕弯子。咱们直接上手。</p>
+<h3 id="2-1-装环境"><a href="#2-1-装环境" class="headerlink" title="2.1 装环境"></a>2.1 装环境</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># PyPI 一行装（推荐新手）</span></span><br><span class="line">pip install hermes-agent</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动 REPL</span></span><br><span class="line">hermes chat</span><br><span class="line"></span><br><span class="line"><span class="comment"># 切到你想用的模型</span></span><br><span class="line">hermes config <span class="built_in">set</span> provider anthropic</span><br><span class="line">hermes config <span class="built_in">set</span> model claude-sonnet-4</span><br></pre></td></tr></table></figure>
+<p>装完跑 <code>hermes tools</code> 看下当前账号可用的工具集。默认会有 <code>browser / file / terminal / web / image_gen / delegation / search</code> 这几类。</p>
+<h3 id="2-2-写一份-YAML-配置"><a href="#2-2-写一份-YAML-配置" class="headerlink" title="2.2 写一份 YAML 配置"></a>2.2 写一份 YAML 配置</h3><p>Hermes 的精髓在 YAML 流水线配置文件。把 Agent 当成函数声明，依赖关系写在 <code>depends_on</code> 里，Hermes 自己按 DAG 排调度。</p>
+<p>下面这份配置就是公众号写作流水线的最小可运行版本。5 个 Agent、5 个文件产物、链式 DAG 调度。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># =========================================================</span></span><br><span class="line"><span class="comment"># Hermes 多 Agent 流水线：公众号写作 5 步曲</span></span><br><span class="line"><span class="comment"># 跑法：hermes run --config hermes_agents.yaml --topic &quot;Hermes 入门&quot;</span></span><br><span class="line"><span class="comment"># =========================================================</span></span><br><span class="line"><span class="attr">agents:</span></span><br><span class="line">  <span class="attr">topic_scout:</span>                     <span class="comment"># 第 1 步：选题侦察兵</span></span><br><span class="line">    <span class="attr">model:</span> <span class="string">anthropic/claude-sonnet-4</span></span><br><span class="line">    <span class="attr">toolsets:</span> [<span class="string">web</span>, <span class="string">search</span>]        <span class="comment"># 只给联网 + 搜索，文件操作不要开</span></span><br><span class="line">    <span class="attr">role:</span> <span class="string">leaf</span>                     <span class="comment"># 关键：声明 leaf，禁止递归 spawn</span></span><br><span class="line"></span><br><span class="line">  <span class="attr">researcher:</span>                      <span class="comment"># 第 2 步：资料研究员</span></span><br><span class="line">    <span class="attr">model:</span> <span class="string">anthropic/claude-sonnet-4</span></span><br><span class="line">    <span class="attr">toolsets:</span> [<span class="string">file</span>, <span class="string">web</span>]          <span class="comment"># file 用来读 01-topics.md、写出 02-research.md</span></span><br><span class="line">    <span class="attr">role:</span> <span class="string">leaf</span></span><br><span class="line"></span><br><span class="line">  <span class="attr">writer:</span>                          <span class="comment"># 第 3 步：执笔写手</span></span><br><span class="line">    <span class="attr">model:</span> <span class="string">anthropic/claude-sonnet-4</span></span><br><span class="line">    <span class="attr">toolsets:</span> [<span class="string">file</span>, <span class="string">skills</span>]       <span class="comment"># skills 让它能加载「公众号写作」技能</span></span><br><span class="line">    <span class="attr">role:</span> <span class="string">leaf</span></span><br><span class="line"></span><br><span class="line">  <span class="attr">editor:</span>                          <span class="comment"># 第 4 步：审校编辑</span></span><br><span class="line">    <span class="attr">model:</span> <span class="string">anthropic/claude-sonnet-4</span></span><br><span class="line">    <span class="attr">toolsets:</span> [<span class="string">file</span>]               <span class="comment"># 最小集：只让它改文件</span></span><br><span class="line">    <span class="attr">role:</span> <span class="string">leaf</span></span><br><span class="line"></span><br><span class="line">  <span class="attr">illustrator:</span>                     <span class="comment"># 第 5 步：配图提示词</span></span><br><span class="line">    <span class="attr">model:</span> <span class="string">anthropic/claude-sonnet-4</span></span><br><span class="line">    <span class="attr">toolsets:</span> [<span class="string">skills</span>]             <span class="comment"># 用 image_gen 技能生成配图 prompt</span></span><br><span class="line">    <span class="attr">role:</span> <span class="string">leaf</span></span><br><span class="line"></span><br><span class="line"><span class="attr">pipeline:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">call:</span> <span class="string">topic_scout</span>               <span class="comment"># 入口节点，无需 depends_on</span></span><br><span class="line">    <span class="attr">goal:</span> <span class="string">&quot;为「&#123;TOPIC&#125;」出 3 个公众号选题候选，输出到 01-topics.md&quot;</span></span><br><span class="line"></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">call:</span> <span class="string">researcher</span></span><br><span class="line">    <span class="attr">goal:</span> <span class="string">&quot;基于 01-topics.md 整理 6 section 研究资料包到 02-research.md&quot;</span></span><br><span class="line">    <span class="attr">depends_on:</span> <span class="string">topic_scout</span></span><br><span class="line"></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">call:</span> <span class="string">writer</span></span><br><span class="line">    <span class="attr">goal:</span> <span class="string">&quot;据 02-research.md 起草 2500-3000 字实操教程到 03-draft.md&quot;</span></span><br><span class="line">    <span class="attr">depends_on:</span> <span class="string">researcher</span></span><br><span class="line"></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">call:</span> <span class="string">editor</span></span><br><span class="line">    <span class="attr">goal:</span> <span class="string">&quot;审校 03-draft.md，输出三栏 Markdown 表格存到 04-review.md&quot;</span></span><br><span class="line">    <span class="attr">depends_on:</span> <span class="string">writer</span></span><br><span class="line"></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">call:</span> <span class="string">illustrator</span></span><br><span class="line">    <span class="attr">goal:</span> <span class="string">&quot;为 03-draft.md 配 2-3 张图，给出图名+节点文字+用途&quot;</span></span><br><span class="line">    <span class="attr">depends_on:</span> <span class="string">editor</span></span><br></pre></td></tr></table></figure>
+<p>这里有几个细节需要注意一下：</p>
+<ul>
+<li><code>role: leaf</code> 必须显式写。不写默认是 <code>general</code>，子 Agent 自己会 spawn 孙子 Agent，token 几分钟烧光。</li>
+<li><code>toolsets</code> 走白名单，能少一个就少一个。Editor 只给 <code>file</code>，连 <code>web</code> 都不开。</li>
+<li><code>depends_on</code> 替代手写串行，你只声明依赖，Hermes 自己排调度。</li>
+</ul>
+<h3 id="2-3-嫌-YAML-不够灵活？上-Python"><a href="#2-3-嫌-YAML-不够灵活？上-Python" class="headerlink" title="2.3 嫌 YAML 不够灵活？上 Python"></a>2.3 嫌 YAML 不够灵活？上 Python</h3><p>YAML 适合配置固定的流水线。想动态生成任务、加条件分支、用 Python 拼装任务列表，就走 <code>delegate_task</code> API。</p>
+<p>下面这段 Python 是同样的 5 步流水线，能看出它和 YAML 的对应关系。YAML 是声明式，Python 是命令式，干的事一样。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">Hermes 多 Agent 流水线 —— Python 入口</span></span><br><span class="line"><span class="string">跑法：python run_pipeline.py</span></span><br><span class="line"><span class="string">依赖：pip install hermes-agent</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="keyword">from</span> hermes_tools <span class="keyword">import</span> delegate_task   <span class="comment"># Hermes 官方派发 API</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ----------------------------------------------------------------</span></span><br><span class="line"><span class="comment"># 1) 定义 5 个子 Agent 任务（顺序由 depends_on 字段控制）</span></span><br><span class="line"><span class="comment"># ----------------------------------------------------------------</span></span><br><span class="line">tasks = [</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="string">&quot;goal&quot;</span>: <span class="string">&quot;你是 topic_scout。用户主题：&#123;TOPIC&#125;。请用 web+search 工具调研，&quot;</span></span><br><span class="line">                <span class="string">&quot;输出 3 个公众号选题候选到 01-topics.md。&quot;</span>,</span><br><span class="line">        <span class="string">&quot;toolsets&quot;</span>: [<span class="string">&quot;web&quot;</span>, <span class="string">&quot;search&quot;</span>],</span><br><span class="line">        <span class="string">&quot;role&quot;</span>: <span class="string">&quot;leaf&quot;</span>,                <span class="comment"># 关键：明确 leaf，禁止递归</span></span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="string">&quot;goal&quot;</span>: <span class="string">&quot;你是 researcher。据 01-topics.md 整理 6 section 资料包&quot;</span></span><br><span class="line">                <span class="string">&quot;（核心概念/代码/坑点/最佳实践/参考/配图）写到 02-research.md。&quot;</span>,</span><br><span class="line">        <span class="string">&quot;toolsets&quot;</span>: [<span class="string">&quot;file&quot;</span>, <span class="string">&quot;web&quot;</span>],</span><br><span class="line">        <span class="string">&quot;role&quot;</span>: <span class="string">&quot;leaf&quot;</span>,</span><br><span class="line">        <span class="string">&quot;depends_on&quot;</span>: [<span class="string">&quot;topic_scout&quot;</span>],</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="string">&quot;goal&quot;</span>: <span class="string">&quot;你是 writer。据 02-research.md 起草 2800 字实操教程，&quot;</span></span><br><span class="line">                <span class="string">&quot;输出到 03-draft.md，必须有 YAML + Python 两段代码。&quot;</span>,</span><br><span class="line">        <span class="string">&quot;toolsets&quot;</span>: [<span class="string">&quot;file&quot;</span>, <span class="string">&quot;skills&quot;</span>],</span><br><span class="line">        <span class="string">&quot;role&quot;</span>: <span class="string">&quot;leaf&quot;</span>,</span><br><span class="line">        <span class="string">&quot;depends_on&quot;</span>: [<span class="string">&quot;researcher&quot;</span>],</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="string">&quot;goal&quot;</span>: <span class="string">&quot;你是 editor。审校 03-draft.md，输出三栏 Markdown 表格&quot;</span></span><br><span class="line">                <span class="string">&quot;（原文 / 问题 / 建议）到 04-review.md。&quot;</span>,</span><br><span class="line">        <span class="string">&quot;toolsets&quot;</span>: [<span class="string">&quot;file&quot;</span>],</span><br><span class="line">        <span class="string">&quot;role&quot;</span>: <span class="string">&quot;leaf&quot;</span>,</span><br><span class="line">        <span class="string">&quot;depends_on&quot;</span>: [<span class="string">&quot;writer&quot;</span>],</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="string">&quot;goal&quot;</span>: <span class="string">&quot;你是 illustrator。为 03-draft.md 配 2-3 张图，&quot;</span></span><br><span class="line">                <span class="string">&quot;给出图名+用途+节点文字到 05-illustrations.md。&quot;</span>,</span><br><span class="line">        <span class="string">&quot;toolsets&quot;</span>: [<span class="string">&quot;skills&quot;</span>],</span><br><span class="line">        <span class="string">&quot;role&quot;</span>: <span class="string">&quot;leaf&quot;</span>,</span><br><span class="line">        <span class="string">&quot;depends_on&quot;</span>: [<span class="string">&quot;editor&quot;</span>],</span><br><span class="line">    &#125;,</span><br><span class="line">]</span><br><span class="line"></span><br><span class="line"><span class="comment"># ----------------------------------------------------------------</span></span><br><span class="line"><span class="comment"># 2) 一次性派发：Hermes 默认就是批派发，主 Agent 不阻塞</span></span><br><span class="line"><span class="comment">#    Hermes 会按 tasks 里的 depends_on 字段自动排 DAG，</span></span><br><span class="line"><span class="comment">#    没有依赖的同级任务自动并发跑。</span></span><br><span class="line"><span class="comment"># ----------------------------------------------------------------</span></span><br><span class="line">results = delegate_task(</span><br><span class="line">    tasks=tasks,</span><br><span class="line">    shared_context=&#123;<span class="string">&quot;TOPIC&quot;</span>: <span class="string">&quot;Hermes Agent 入门：多 Agent 协作&quot;</span>&#125;,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># ----------------------------------------------------------------</span></span><br><span class="line"><span class="comment"># 3) 打印每个子 Agent 的 summary（调试用）</span></span><br><span class="line"><span class="comment"># ----------------------------------------------------------------</span></span><br><span class="line"><span class="keyword">for</span> r <span class="keyword">in</span> results:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;[<span class="subst">&#123;r[<span class="string">&#x27;agent&#x27;</span>]&#125;</span>] -&gt; <span class="subst">&#123;r[<span class="string">&#x27;summary&#x27;</span>]&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p>注意我没像一些老博客那样写 <code>parallel=True</code>。Hermes 的 <code>delegate_task(tasks=[...])</code> 默认就是批派发，依赖关系由 <code>depends_on</code> 字段决定。它会自动识别哪些任务没依赖、把没依赖的扔到并发队列里跑。<code>parallel=True</code> 是早期接口的遗留，新版 API 不用管。</p>
+<p>跑完之后 <code>results</code> 是个列表，每个元素是 <code>&#123;&quot;agent&quot;: ..., &quot;summary&quot;: ..., &quot;output_path&quot;: ...&#125;</code>。要拿哪个文件直接读 <code>output_path</code>。</p>
+<hr>
+<h2 id="三、单-Agent-串行-vs-3-Agent-并行，差距有多大"><a href="#三、单-Agent-串行-vs-3-Agent-并行，差距有多大" class="headerlink" title="三、单 Agent 串行 vs 3 Agent 并行，差距有多大"></a>三、单 Agent 串行 vs 3 Agent 并行，差距有多大</h2><p>跑通之后你大概率会问：不就比单 Agent 多个并发？真有那么神？</p>
+<p>有。拿数据说话。</p>
+<p>Anthropic 2024 年的多 Agent 调研系统报告里有一组数据：开放研究类任务（多跳问题、跨源综合），多 Agent 架构比单 Agent <strong>token 消耗约 4 倍，但准确率从基线 60% 提升到 90%+</strong>。</p>
+<p>直观点拆开看。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1780831479/Blog/AI/00/fig-02-comparison.png" alt="comparison"></p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>单 Agent 串行</th>
+<th>3 Agent 并行</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>步骤</td>
+<td>调研 → 写作 → 审校（必须等前一步）</td>
+<td>调研 ‖ 写作（依赖调研）→ 审校</td>
+</tr>
+<tr>
+<td>耗时</td>
+<td>60s + 90s + 30s = <strong>180s</strong></td>
+<td>60s ‖ 90s → 30s = <strong>120s</strong></td>
+</tr>
+<tr>
+<td>上下文</td>
+<td>单上下文 <strong>80k token</strong>（所有东西塞一起）</td>
+<td>拆 3 份上下文，各 <strong>30k token</strong></td>
+</tr>
+<tr>
+<td>准确率</td>
+<td>基线 60%</td>
+<td><strong>90%+</strong>（Anthropic 2024 多 Agent 调研报告，原文 baseline ~60%）</td>
+</tr>
+<tr>
+<td>Token 总成本</td>
+<td>1×</td>
+<td>约 1.4×（端到端，分摊后；内部单次调研 4×）</td>
+</tr>
+</tbody>
+</table>
+<p>由此我们可以得出几个结论：</p>
+<ul>
+<li><strong>耗时省 33%</strong>。本流水线写作和审校是链式依赖（写作 depends_on 调研、审校 depends_on 写作），不能硬并发。但 3 Agent 上下文拆分让每个子 Agent 都能在前一个还没完全结束时就启动下一段准备。比如 writer 等调研结果时，editor 已经把上次的 prompt 模板加载好，调研一回来就立刻接上。这才是省 33% 的真正机制，不是 DAG 并发。</li>
+<li><strong>上下文干净</strong>。单 Agent 跑完一篇文章，context 里塞了选题、查到的所有网页、中间稿、审校意见……再跑第二个任务就稀里哗啦。3 Agent 拆分后，每个子 Agent 上下文清爽，幻觉率明显降。</li>
+<li><strong>Token 总成本没爆炸</strong>。很多人听到多 Agent 就担心 token 翻 4 倍。其实单 Agent 串行重试的 token 浪费更猛，一次跑崩就得从头再来。多 Agent 拆开能断点重跑，省的是这个钱。需要注意的是，Anthropic 2024 报告里 4× 指的是单次调研任务内部 token 增长（4 个并行调研员各跑一遍），而端到端多 Agent 任务总成本分摊后大约 1.4×，别混着说。</li>
+</ul>
+<p>但多 Agent 不是万灵药。简单任务（步骤 ≤ 3、上下文 ≤ 50k、工具 ≤ 3 个）用单 Agent 更省心。你硬上多 Agent 反而是给自己找事。</p>
+<p>判断标准很简单：你的活能不能一句话讲完目标。能，单 Agent；不能，多 Agent。</p>
+<hr>
+<h2 id="四、6-个最容易踩的坑"><a href="#四、6-个最容易踩的坑" class="headerlink" title="四、6 个最容易踩的坑"></a>四、6 个最容易踩的坑</h2><p>多 Agent 看着美好，新手实操 90% 的人都死在下面这几个坑里。</p>
+<p><img src="https://res.cloudinary.com/dxydgihag/image/upload/v1780831479/Blog/AI/00/fig-03-pitfalls.png" alt="pitfalls"></p>
+<h3 id="坑-1：工具集开太多，context-撑爆"><a href="#坑-1：工具集开太多，context-撑爆" class="headerlink" title="坑 1：工具集开太多，context 撑爆"></a>坑 1：工具集开太多，context 撑爆</h3><p>给某个子 Agent 同时勾上 <code>browser + file + terminal + image_gen + delegation</code>，结果光工具描述就吃掉 8k token，模型反应慢、还贵。</p>
+<p>口诀：能少一个就少一个。Editor 只给 <code>file</code>，Researcher 只给 <code>file + web</code>，别贪。</p>
+<h3 id="坑-2：漏写-role-quot-leaf-quot-，子-Agent-递归-spawn"><a href="#坑-2：漏写-role-quot-leaf-quot-，子-Agent-递归-spawn" class="headerlink" title="坑 2：漏写 role=&quot;leaf&quot;，子 Agent 递归 spawn"></a>坑 2：漏写 <code>role=&quot;leaf&quot;</code>，子 Agent 递归 spawn</h3><p>默认行为下子 Agent 自己也能 <code>delegate_task</code>。一不小心就 spawn 孙子 Agent，孙子再 spawn 曾孙，几分钟 token 烧光。</p>
+<p>任何干完活就退出的子 Agent 都必须显式 <code>role: leaf</code>。这个不能省。</p>
+<h3 id="坑-3：context-传自然语言摘要，下游接错"><a href="#坑-3：context-传自然语言摘要，下游接错" class="headerlink" title="坑 3：context 传自然语言摘要，下游接错"></a>坑 3：context 传自然语言摘要，下游接错</h3><p>上游 Agent 给下游传一句”参考上一份草稿”，下游 Agent 经常接错文件、读错段落。</p>
+<p>约定：context 字段必须是文件路径 + 字段名（如 <code>02-research.md#section_2</code>），别传自然语言摘要。结构化的好处是出错时你能 grep 到具体哪一步挂了。</p>
+<h3 id="坑-4：SKILL-md-写成长论文"><a href="#坑-4：SKILL-md-写成长论文" class="headerlink" title="坑 4：SKILL.md 写成长论文"></a>坑 4：<code>SKILL.md</code> 写成长论文</h3><p>有人把整个内部 wiki 塞进一个 skill，加载即占 5k+ token。Agent 干正事之前先消化半天规则。</p>
+<p>口诀：单个 skill ≤ 500 token，只放硬约束 + 模板。详细文档放外链，让 skill 触发时再去查。</p>
+<h3 id="坑-5：没设-max-iterations，子-Agent-死循环"><a href="#坑-5：没设-max-iterations，子-Agent-死循环" class="headerlink" title="坑 5：没设 max_iterations，子 Agent 死循环"></a>坑 5：没设 <code>max_iterations</code>，子 Agent 死循环</h3><p>子 Agent 陷入”调工具 → 看结果 → 再调”死循环，一晚上烧掉 50 美金的真实案例不少。</p>
+<p>每个子 Agent 任务都加 <code>max_iterations: 10</code> 上限。到点强制退出，宁可跑不完整也别烧钱。</p>
+<h3 id="坑-6：profile-隔离不严，skills-互相污染"><a href="#坑-6：profile-隔离不严，skills-互相污染" class="headerlink" title="坑 6：profile 隔离不严，skills 互相污染"></a>坑 6：profile 隔离不严，skills 互相污染</h3><p>把项目 A 的 skills 放到全局 <code>~/.hermes/skills/</code>，项目 B 误用导致模型行为漂移。比如你给代码审查写的 SKILL 跑去污染了公众号写作流水线，文章里开始出现 git diff 风格的语言。</p>
+<p>多 Agent/多项目场景下，必须用 <code>~/.hermes/profiles/&lt;name&gt;/</code> 严格隔离。每个 profile 独立加载自己的 skills、plugins、cron、memories，互不串台。</p>
+<hr>
+<h2 id="五、动手玩一下"><a href="#五、动手玩一下" class="headerlink" title="五、动手玩一下"></a>五、动手玩一下</h2><p>6 步流水线 + 2 段代码 + 6 个坑，整篇就是这些。</p>
+<p>给你列个最小行动清单：</p>
+<ol>
+<li><code>pip install hermes-agent</code></li>
+<li>复制上面那份 <code>hermes_agents.yaml</code></li>
+<li>挑个你最熟的选题，跑一次 <code>hermes run --config hermes_agents.yaml --topic &quot;你的主题&quot;</code></li>
+<li>看 <code>03-draft.md</code> 生成出来，对照这文的 6 个坑自检</li>
+<li>跑通之后改 <code>role: leaf</code>、<code>max_iterations</code> 这些参数，对比下效果</li>
+</ol>
+<p>第一次跑大概率会在某个 Agent 上挂。这是正常的，挂的点就是你要补的工程化点。多 Agent 的好处就是：editor 挂了不用重跑 writer，从 editor 断点重试就行。</p>
+<p>多 Agent 的价值在长任务、长上下文、多工具场景。Claude Code 解决 AI 帮我写代码，Hermes 解决 AI 帮我管一支 AI 团队。</p>
+<p>搞清楚这个边界，你就算入门了。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ol>
+<li><p>Hermes Agent 官方文档：<a target="_blank" rel="noopener" href="https://hermes-agent.nousresearch.com/docs">https://hermes-agent.nousresearch.com/docs</a></p>
+</li>
+<li><p>Hermes Skills 系统：<a target="_blank" rel="noopener" href="https://hermes-agent.nousresearch.com/docs/skills">https://hermes-agent.nousresearch.com/docs/skills</a></p>
+</li>
+<li><p>Hermes Agents &amp; 多 Agent 派发：<a target="_blank" rel="noopener" href="https://hermes-agent.nousresearch.com/docs/agents">https://hermes-agent.nousresearch.com/docs/agents</a></p>
+</li>
+<li><p>Anthropic《Building a multi-agent research system》：<a target="_blank" rel="noopener" href="https://www.anthropic.com/engineering/built-multi-agent-research-system">https://www.anthropic.com/engineering/built-multi-agent-research-system</a></p>
+</li>
+<li><p>Claude Code 官方文档：<a target="_blank" rel="noopener" href="https://docs.anthropic.com/en/docs/claude-code">https://docs.anthropic.com/en/docs/claude-code</a></p>
+</li>
+<li><p>Nous Research GitHub：<a target="_blank" rel="noopener" href="https://github.com/NousResearch/hermes-agent">GitHub - NousResearch/hermes-agent: The agent that grows with you · GitHub</a></p>
+</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>Buy me a coffee</div>
+  <button>
+    Donate
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/weixinpay.jpg" alt="Jackey Wang WeChat Pay">
+        <span>WeChat Pay</span>
+      </div>
+      <div>
+        <img src="/images/alipay.jpg" alt="Jackey Wang Alipay">
+        <span>Alipay</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="followme">
+  <span>Welcome to my other publishing channels</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <span class="social-link">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </span>
+
+          <img class="social-item-img" src="/images/wechat-qcode.jpg">
+      </div>
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/AI/" rel="tag"><i class="fa fa-tag"></i> AI</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/06/05/Claude%20Code%E6%8A%80%E8%83%BD%E5%A4%AA%E5%A4%9A%E7%AE%A1%E4%B8%8D%E8%BF%87%E6%9D%A5%EF%BC%9F%E6%88%91%E5%86%99%E4%BA%86%E4%B8%AACLI%E5%B7%A5%E5%85%B7/" rel="prev" title="Claude Code技能太多管不过来？我写了个CLI工具">
+                  <i class="fa fa-angle-left"></i> Claude Code技能太多管不过来？我写了个CLI工具
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Jackey Wang</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Word count total">611k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">9:16</span>
+  </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/Jackeyzhe" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
